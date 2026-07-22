@@ -20,6 +20,14 @@ codebase**. Find every issue, ambiguity, contradiction, gap, and risk; verify ev
 assumption against the real code; present each finding with options + a recommendation; iterate
 until the artifact passes clean.
 
+Begin with deterministic evidence when the project has CodeOps traceability:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
+```
+
+Report its surviving structural/readiness failures alongside, but never as substitutes for, the semantic audit. Deterministic checks own identifiers, links, statuses, and coverage shape; reviewers own truth, completeness, consistency, feasibility, and risk.
+
 > **Resolve artifact paths layout-aware.** A requirements set or plan named in `$ARGUMENTS` lives at
 > a flat path (`requirements/`, `plans/<feature>/`) or, in a nested-layout repo, under
 > `codeops/features/<f>/…` — resolve it via **[../../_shared/layout-convention.md](../../_shared/layout-convention.md)**.

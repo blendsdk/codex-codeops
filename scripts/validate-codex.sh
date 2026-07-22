@@ -65,6 +65,7 @@ run_check "marketplace metadata" validate_marketplace
 run_check "Codex-native shipped terminology" validate_native_terms
 run_check "local Markdown links" validate_links
 run_check "shell syntax" bash -n scripts/*.sh bin/codeops-worktree
+run_check "state conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
 
 if (( failures > 0 )); then
   printf '\n%d validation group(s) failed.\n' "$failures" >&2

@@ -18,6 +18,16 @@ description: >-
 
 > **CodeOps Skills Version**: 3.12.0
 
+## Codex derived-status rule
+
+When a feature has `traceability.json`, treat the graph plus on-disk execution plans as the status evidence. Use:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" status --root . --json
+```
+
+Roadmaps summarize lifecycle, readiness, tasks, verification, findings, blockers, and deferrals; they never become an independent owner of those facts. If roadmap text conflicts with derived evidence, report drift and repair the derived view without silently changing authoritative artifacts.
+
 ## Resolve paths first (layout-aware)
 
 Before any action, determine the layout via **[../../_shared/layout-convention.md](../../_shared/layout-convention.md)**:

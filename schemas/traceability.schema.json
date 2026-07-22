@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/blendsdk/codex-codeops/schemas/traceability.schema.json",
+  "title": "CodeOps traceability graph",
+  "type": "object",
+  "required": ["schema", "feature", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": 1},
+    "feature": {"type": "string", "minLength": 1},
+    "updated": {"type": "string"},
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "title", "status", "path", "links"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*-[A-Za-z0-9._-]+$"},
+          "type": {
+            "enum": ["requirement", "ambiguity", "decision", "invariant", "specification", "criterion", "test", "task", "implementation", "verification", "finding", "deferral"]
+          },
+          "title": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "minLength": 1},
+          "path": {"type": "string", "minLength": 1},
+          "links": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "evidence": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "risk": {"enum": ["low", "medium", "high", "critical"]}
+        }
+      }
+    }
+  }
+}

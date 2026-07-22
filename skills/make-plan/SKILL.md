@@ -8,6 +8,16 @@ description: >-
 
 Create a detailed, multi-document implementation plan for a software feature or task. This skill covers plan **creation** only. To **execute** a finished plan, use the **exec-plan skill**.
 
+## Codex readiness proof
+
+Maintain the feature's typed requirement → specification/invariant → acceptance criterion → specification test → task chain in `traceability.json`; follow [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). A plan is not ready merely because its documents exist. Before presenting it as executable, run:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
+```
+
+Resolve every structural or readiness blocker, then perform the semantic Zero-Ambiguity Gate. If plan work exposes an upstream defect, reopen and correct the owning requirement or specification and revalidate downstream artifacts rather than patching the task text alone.
+
 > **CodeOps Skills Version**: 3.12.0
 
 ## What you produce

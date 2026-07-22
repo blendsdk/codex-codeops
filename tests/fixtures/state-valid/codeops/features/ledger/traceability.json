@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "feature": "ledger",
+  "nodes": [
+    {"id": "RD-001", "type": "requirement", "title": "Post balanced entries", "status": "approved", "path": "requirements.md", "links": ["SPEC-001"]},
+    {"id": "AR-001", "type": "ambiguity", "title": "Rounding rule", "status": "resolved", "risk": "critical", "path": "requirements.md", "links": ["SPEC-001"]},
+    {"id": "SPEC-001", "type": "specification", "title": "Atomic posting", "status": "approved", "path": "specification.md", "links": ["RD-001", "AC-001", "TASK-001"]},
+    {"id": "AC-001", "type": "criterion", "title": "Debits equal credits", "status": "approved", "path": "specification.md", "links": ["SPEC-001", "ST-001", "TASK-001", "VER-001"]},
+    {"id": "ST-001", "type": "test", "title": "Reject imbalance", "status": "passing", "path": "verification.md", "links": ["AC-001"]},
+    {"id": "TASK-001", "type": "task", "title": "Implement posting", "status": "verified", "path": "specification.md", "links": ["SPEC-001", "AC-001", "IMPL-001"]},
+    {"id": "IMPL-001", "type": "implementation", "title": "Posting implementation", "status": "present", "path": "specification.md", "links": ["TASK-001", "VER-001"]},
+    {"id": "VER-001", "type": "verification", "title": "Ledger suite", "status": "passing", "path": "verification.md", "links": ["AC-001", "IMPL-001"], "evidence": ["verification.md"]}
+  ]
+}

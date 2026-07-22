@@ -20,6 +20,16 @@ description: >-
 Execute the implementation plan at `plans/$ARGUMENTS/99-execution-plan.md`. The first
 argument is the feature name; an optional flag selects the commit mode.
 
+## Execution-entry gate
+
+When CodeOps traceability exists, run the readiness check before modifying implementation files:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
+```
+
+Do not execute while it reports a blocker. During execution, keep task, implementation, and verification nodes synchronized with the Markdown plan's `[ ]` → `[~]` → `[x]` transitions. A runtime ambiguity invalidates readiness: record it, reopen the owning upstream artifact, resolve it with the user, update affected links, rerun readiness, and only then resume.
+
 This skill covers **execution only**. To create a plan, use the make-plan skill.
 
 ## Resolve the plan path first (layout-aware)

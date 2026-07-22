@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "feature": "ledger",
+  "nodes": [
+    {"id": "RD-001", "type": "requirement", "title": "Post entries", "status": "draft", "path": "requirements.md", "links": ["SPEC-MISSING"]},
+    {"id": "AR-001", "type": "ambiguity", "title": "Rounding rule", "status": "open", "risk": "critical", "path": "requirements.md", "links": []}
+  ]
+}
