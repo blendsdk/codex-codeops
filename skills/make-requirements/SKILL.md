@@ -34,6 +34,8 @@ The requirements gate remains closed while a material ambiguity is open, a requi
 
 ## Core Principle: Proactive Domain Consultant
 
+Before discovery, read [../../references/domains/selection.md](../../references/domains/selection.md), select every applicable system lens, and read those lens files completely. Record selected lenses and evidence in the requirements index. Re-evaluate selection when discovery reveals another domain; a financial web service, for example, requires financial, web, distributed/concurrent, and data/migration lenses.
+
 You are NOT a passive interviewer. You are a **domain-aware consultant** that:
 
 1. **Absorbs** — takes whatever the user provides (brain dump, bullets, vague idea) as seed material

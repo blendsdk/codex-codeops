@@ -28,6 +28,8 @@ python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
 
 Report its surviving structural/readiness failures alongside, but never as substitutes for, the semantic audit. Deterministic checks own identifiers, links, statuses, and coverage shape; reviewers own truth, completeness, consistency, feasibility, and risk.
 
+Read [../../references/domains/selection.md](../../references/domains/selection.md), verify the artifact selected all applicable domain lenses, and add one audit cluster per selected lens. A generic security or feasibility pass does not substitute for compiler semantics, financial integrity, concurrency, or migration analysis.
+
 > **Resolve artifact paths layout-aware.** A requirements set or plan named in `$ARGUMENTS` lives at
 > a flat path (`requirements/`, `plans/<feature>/`) or, in a nested-layout repo, under
 > `codeops/features/<f>/…` — resolve it via **[../../_shared/layout-convention.md](../../_shared/layout-convention.md)**.

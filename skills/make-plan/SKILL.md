@@ -22,6 +22,8 @@ Resolve every structural or readiness blocker, then perform the semantic Zero-Am
 
 ## What you produce
 
+Re-run [../../references/domains/selection.md](../../references/domains/selection.md) before component decomposition. Requirements-stage lens selection is evidence, not a permanent assumption. Apply every selected lens to specifications, acceptance criteria, failure narratives, and test strategy.
+
 A folder `plans/<feature-name>/` containing:
 
 ```
