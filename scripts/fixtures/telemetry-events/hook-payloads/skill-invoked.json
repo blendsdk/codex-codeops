@@ -1,0 +1,17 @@
+{
+  "session_id": "sess-fixture-01",
+  "transcript_path": "/home/user/.claude/projects/acme/sess-fixture-01.jsonl",
+  "cwd": "/home/user/acme",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Skill",
+  "tool_input": {
+    "skill": "exec_plan",
+    "args": "checkout --auto-commit"
+  },
+  "tool_response": {
+    "success": true
+  },
+  "duration": {
+    "elapsed_milliseconds": 2150
+  }
+}

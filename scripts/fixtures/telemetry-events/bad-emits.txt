@@ -1,0 +1,6 @@
+# Each non-comment line is one set of arguments to `emit` that the utility must refuse
+# whole-line: nothing appended, one stderr warning, exit 0.
+# Line 1: unknown event type. Line 2: illegal enum value (decision). Line 3: unknown key.
+bogus_event a=b
+finding_decided agent=phase-reviewer feature=checkout phase=P1 severity=major lens=security decision=maybe fix_applied=true hash=ab12cd34
+review_run agent=phase-reviewer feature=checkout phase=P1 lenses=correctness findings_critical=0 findings_major=0 findings_minor=0 unknown_key=x

@@ -1,0 +1,245 @@
+#!/usr/bin/env bash
+#
+# codeops-worktree — spin up / tear down git worktrees for running parallel
+# Claude Code agents on separate feature branches, one worktree per agent.
+#
+# CodeOps Skills Version: 3.12.0
+#
+# A worktree is a second working folder that shares the ONE .git of the repo, so
+# every branch/commit is visible everywhere and you never re-clone. The number of
+# folders you need is the number of agents running *at once*, not the number of
+# features.
+#
+# Usage:
+#   codeops-worktree new <topic> [--from <base>] [--branch <name>] [--path <dir>] [--launch] [--dry-run]
+#   codeops-worktree ls
+#   codeops-worktree rm  <topic|path> [--force] [--delete-branch] [--dry-run]
+#   codeops-worktree help
+#
+# Examples:
+#   codeops-worktree new billing            # -> feat/billing in ../<repo>-billing
+#   codeops-worktree new billing --launch    # ...and start `claude` in it
+#   codeops-worktree new hotfix --from master --branch fix/login
+#   codeops-worktree ls
+#   codeops-worktree rm billing --delete-branch
+#
+# New branches fork from the marker's integrationBranch (codeops/.codeops.yml) when
+# that key is set — so a devel/acceptance workflow needs no flag — otherwise from the
+# repo's default branch. Override per-run with --from.
+#
+# Run it from anywhere inside the repo (the main checkout or any worktree).
+
+set -euo pipefail
+
+die()  { printf 'codeops-worktree: %s\n' "$*" >&2; exit 1; }
+note() { printf '%s\n' "$*" >&2; }
+
+DRY_RUN=0
+# Execute a command, or — in dry-run mode — print it (shell-quoted) instead.
+# Only the state-changing calls go through run(); read-only probes still run so
+# the preview reflects the branch the real command would actually pick.
+run() {
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    printf '  [dry-run] would run: %s\n' "$(printf '%q ' "$@")" >&2
+    return 0
+  fi
+  "$@"
+}
+
+require_repo() {
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+    || die "not inside a git repository — cd into your project first."
+}
+
+# The main worktree is always the first entry of `git worktree list`. Sibling
+# folders are placed next to IT, so nested worktrees don't spawn nested siblings.
+main_worktree_root() {
+  git worktree list --porcelain | awk '/^worktree /{print substr($0, 10); exit}'
+}
+
+# Normalize a topic into a safe slug: lowercase, dash-separated, alnum only.
+# Anything else (spaces, slashes, "..") collapses to a dash and is trimmed — so a
+# slug can never traverse paths or carry a separator.
+slugify() {
+  printf '%s' "$1" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's#[^a-z0-9]+#-#g; s#^-+##; s#-+$##'
+}
+
+branch_exists_local()  { git show-ref --verify --quiet "refs/heads/$1"; }
+branch_exists_remote() { git show-ref --verify --quiet "refs/remotes/origin/$1"; }
+
+# The configured integration branch from the CodeOps marker, if any: the branch
+# where feature work integrates and derived files (the portfolio roadmap, CLAUDE.md)
+# get reconciled. This is committed config that is only parsed, never executed, and
+# the marker is a tracked file so it is present in every worktree checkout. Empty
+# output + non-zero return when there is no marker or no key.
+marker_integration_branch() {
+  local top marker val
+  top="$(git rev-parse --show-toplevel 2>/dev/null)" || return 1
+  marker="$top/codeops/.codeops.yml"
+  [[ -f "$marker" ]] || return 1
+  # `|| true` so a no-match grep (or a SIGPIPE from head) can't trip pipefail when
+  # this resolver is called outside an `if`/`||` context.
+  val="$(grep -E '^[[:space:]]*integrationBranch:' "$marker" 2>/dev/null | head -1 \
+        | sed -E 's/^[[:space:]]*integrationBranch:[[:space:]]*//; s/[[:space:]]*#.*$//; s/[[:space:]]+$//' || true)"
+  [[ -n "$val" ]] || return 1
+  printf '%s\n' "$val"
+}
+
+# The branch new features fork from: the marker's integrationBranch if set (so the
+# base agrees with the branch-aware skills), else origin/HEAD if known, else main,
+# else master, else whatever is currently checked out.
+default_base_branch() {
+  local ib
+  if ib="$(marker_integration_branch)"; then
+    printf '%s\n' "$ib"; return
+  fi
+  local ref
+  if ref=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null); then
+    printf '%s\n' "${ref#refs/remotes/origin/}"; return
+  fi
+  local b
+  for b in main master; do
+    if branch_exists_local "$b"; then printf '%s\n' "$b"; return; fi
+  done
+  git rev-parse --abbrev-ref HEAD
+}
+
+cmd_new() {
+  local topic="" base="" branch="" path="" launch=0
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --from)   base="${2:-}";   shift 2 ;;
+      --branch) branch="${2:-}"; shift 2 ;;
+      --path)   path="${2:-}";   shift 2 ;;
+      --launch|-l) launch=1;     shift ;;
+      --dry-run)   DRY_RUN=1;    shift ;;
+      -*)       die "unknown option for 'new': $1" ;;
+      *)        [[ -z "$topic" ]] && topic="$1" || die "unexpected argument: $1"; shift ;;
+    esac
+  done
+  [[ -n "$topic" ]] || die "usage: codeops-worktree new <topic> [--from <base>] [--branch <name>] [--path <dir>] [--launch] [--dry-run]"
+
+  local slug; slug="$(slugify "$topic")"
+  [[ -n "$slug" ]] || die "topic '$topic' has no usable characters — pick a name with letters or digits."
+  [[ -n "$branch" ]] || branch="feat/${slug}"
+
+  local root parent repo
+  root="$(main_worktree_root)"
+  parent="$(dirname "$root")"
+  repo="$(basename "$root")"
+  [[ -n "$path" ]] || path="${parent}/${repo}-${slug}"
+
+  [[ -e "$path" ]] && die "target path already exists: $path"
+
+  # Decide how to create the worktree from branch state.
+  if branch_exists_local "$branch"; then
+    note "Branch '$branch' already exists — checking it out into a new worktree."
+    run git worktree add "$path" "$branch"
+  elif branch_exists_remote "$branch"; then
+    note "Remote branch 'origin/$branch' found — creating a tracking worktree."
+    run git worktree add --track -b "$branch" "$path" "origin/$branch"
+  else
+    [[ -n "$base" ]] || base="$(default_base_branch)"
+    note "Creating new branch '$branch' from '$base'."
+    run git worktree add -b "$branch" "$path" "$base"
+  fi
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    printf '\n🔎 [dry-run] would create worktree (nothing was changed)\n'
+  else
+    printf '\n✅ Worktree ready\n'
+  fi
+  printf '   branch : %s\n' "$branch"
+  printf '   folder : %s\n' "$path"
+  printf '\nStart an agent there:\n   cd %q && claude\n' "$path"
+  printf '\nParallel-safety reminders:\n'
+  printf '   • Keep this agent to ONE feature/lane — its own codeops/features/<f>/ files never clash.\n'
+  printf '   • analyze_project is branch-aware here — it previews/stages, never rewriting the shared\n'
+  printf '     CLAUDE.md on a feature branch. But do NOT run setup_routing here: its routing block is\n'
+  printf '     a repo-wide CLAUDE.md write — run it on the integration branch.\n'
+  printf '   • After the PRs merge, reconcile the portfolio on the integration branch: `update the roadmap`.\n'
+  printf '   • Tear this down when done:  codeops-worktree rm %s\n\n' "$slug"
+
+  if [[ "$launch" -eq 1 ]]; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      printf '  [dry-run] would run: cd %q && exec claude\n' "$path" >&2
+    else
+      command -v claude >/dev/null 2>&1 || die "--launch given but 'claude' is not on PATH."
+      note "Launching claude in $path ..."
+      cd "$path" && exec claude
+    fi
+  fi
+}
+
+cmd_ls() {
+  git worktree list
+}
+
+cmd_rm() {
+  local target="" force=0 del_branch=0
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --force|-f)      force=1;     shift ;;
+      --delete-branch) del_branch=1; shift ;;
+      --dry-run)       DRY_RUN=1;    shift ;;
+      -*)              die "unknown option for 'rm': $1" ;;
+      *)               [[ -z "$target" ]] && target="$1" || die "unexpected argument: $1"; shift ;;
+    esac
+  done
+  [[ -n "$target" ]] || die "usage: codeops-worktree rm <topic|path> [--force] [--delete-branch] [--dry-run]"
+
+  # Resolve target -> worktree path. Accept an explicit path or a topic/slug.
+  local path=""
+  if [[ -d "$target" ]]; then
+    path="$(cd "$target" && git rev-parse --show-toplevel 2>/dev/null || true)"
+  fi
+  if [[ -z "$path" ]]; then
+    local slug root repo cand
+    slug="$(slugify "$target")"
+    root="$(main_worktree_root)"; repo="$(basename "$root")"
+    cand="$(dirname "$root")/${repo}-${slug}"
+    if git worktree list --porcelain | grep -qxF "worktree ${cand}"; then
+      path="$cand"
+    fi
+  fi
+  [[ -n "$path" ]] || die "no worktree found for '$target' (try: codeops-worktree ls)."
+
+  # Capture the branch before removing, in case --delete-branch was asked.
+  local branch=""
+  branch="$(git -C "$path" rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+
+  local rm_args=(worktree remove)
+  [[ "$force" -eq 1 ]] && rm_args+=(--force)
+  rm_args+=("$path")
+  run git "${rm_args[@]}"
+  [[ "$DRY_RUN" -eq 1 ]] || note "Removed worktree: $path"
+
+  if [[ "$del_branch" -eq 1 && -n "$branch" && "$branch" != "HEAD" ]]; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      run git branch -D "$branch"
+    else
+      git branch -D "$branch" && note "Deleted branch: $branch"
+    fi
+  fi
+}
+
+# Print the leading comment block as help — stops at the first non-comment line,
+# so it never leaks code (and survives edits to the header without a fixed range).
+usage() {
+  awk 'NR==1 {next} /^#/ {sub(/^# ?/, ""); print; next} {exit}' "$0"
+}
+
+main() {
+  local sub="${1:-help}"; shift || true
+  case "$sub" in
+    new)            require_repo; cmd_new "$@" ;;
+    ls|list)        require_repo; cmd_ls "$@" ;;
+    rm|remove)      require_repo; cmd_rm "$@" ;;
+    help|-h|--help) usage ;;
+    *)              die "unknown command: $sub (try: codeops-worktree help)" ;;
+  esac
+}
+
+main "$@"

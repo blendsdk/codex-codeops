@@ -1,0 +1,19 @@
+{
+  "session_id": "sess-fixture-06",
+  "transcript_path": "/home/user/.claude/projects/acme/sess-fixture-06.jsonl",
+  "cwd": "/home/user/acme",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Agent",
+  "tool_input": {
+    "description": "Ground the packet",
+    "prompt": "Where is the retry policy defined? Answer with file:line evidence only.",
+    "subagent_type": "codebase-scout"
+  },
+  "tool_response": {
+    "totalDurationMs": 12000,
+    "usage": {}
+  },
+  "duration": {
+    "elapsed_milliseconds": 12000
+  }
+}

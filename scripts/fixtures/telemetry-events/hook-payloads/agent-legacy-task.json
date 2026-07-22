@@ -1,0 +1,19 @@
+{
+  "session_id": "sess-fixture-04",
+  "transcript_path": "/home/user/.claude/projects/acme/sess-fixture-04.jsonl",
+  "cwd": "/home/user/acme",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Task",
+  "tool_input": {
+    "description": "Security audit of phase P2",
+    "prompt": "[codeops-dispatch agent=security-auditor feature=checkout phase=P2]\nAudit the phase diff against the active security profile checklists.",
+    "subagent_type": "codeops:security-auditor"
+  },
+  "tool_response": {
+    "totalDurationMs": 61000,
+    "usage": {}
+  },
+  "duration": {
+    "elapsed_milliseconds": 61000
+  }
+}

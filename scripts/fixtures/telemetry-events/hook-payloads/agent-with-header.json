@@ -1,0 +1,19 @@
+{
+  "session_id": "sess-fixture-02",
+  "transcript_path": "/home/user/.claude/projects/acme/sess-fixture-02.jsonl",
+  "cwd": "/home/user/acme",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Agent",
+  "tool_input": {
+    "description": "Review phase P3 diff",
+    "prompt": "[codeops-dispatch agent=phase-reviewer feature=checkout phase=P3]\nReview the attached phase diff against the packet. Report findings with severity, lens, file:line, and remedy.",
+    "subagent_type": "codeops:phase-reviewer"
+  },
+  "tool_response": {
+    "totalDurationMs": 154321,
+    "usage": {}
+  },
+  "duration": {
+    "elapsed_milliseconds": 154321
+  }
+}

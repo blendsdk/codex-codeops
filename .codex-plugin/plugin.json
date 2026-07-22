@@ -1,0 +1,39 @@
+{
+  "name": "codeops",
+  "version": "0.1.0",
+  "description": "Rigorous requirements, recursive ambiguity elimination, planning, execution, review, and project tracking for complex systems.",
+  "author": {
+    "name": "blendsdk",
+    "url": "https://github.com/blendsdk"
+  },
+  "homepage": "https://github.com/blendsdk/codex-codeops",
+  "repository": "https://github.com/blendsdk/codex-codeops",
+  "license": "MIT",
+  "keywords": [
+    "codeops",
+    "requirements",
+    "planning",
+    "verification",
+    "project-management"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "CodeOps",
+    "shortDescription": "Specification-first engineering for complex systems",
+    "longDescription": "Turn an idea or existing system into ambiguity-free requirements, grounded specifications, executable plans, verified code, and durable project state.",
+    "developerName": "blendsdk",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/blendsdk/codex-codeops",
+    "defaultPrompt": [
+      "Turn my idea into complete requirements.",
+      "Create an ambiguity-free implementation plan.",
+      "Show my CodeOps project status and next step."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

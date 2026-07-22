@@ -1,0 +1,246 @@
+# Preflight — Report Format, Presentation & Persistence (detail)
+
+> **CodeOps Skills Version**: 3.12.0
+
+Covers Steps 4-8 of the protocol: compiling the report, presenting findings and collecting
+decisions, pass/fail determination, applying fixes, and roadmap sync — plus iterative re-scan
+numbering, report persistence, and same-agent-bias safeguards.
+
+## Step 4: Compile the Preflight Report
+
+Every finding gets a numbered, structured entry.
+
+### Finding template
+
+```markdown
+### PF-[NNN]: [Finding Title] [severity-icon] [SEVERITY]
+
+**Dimension:** [Which of the 13 dimensions]
+**Location:** [File path + section/line reference in the artifact]
+**Codebase Evidence:** [File path + line reference in the actual code, if applicable]
+**The Problem:** [Clear, specific description of what's wrong and WHY it matters]
+
+**Options:**
+
+| Option | Description | Pros | Cons |
+|--------|-------------|------|------|
+| A | [Description] | [Pros] | [Cons] |
+| B | [Description] | [Pros] | [Cons] |
+| C | [Description] | [Pros] | [Cons] |
+
+**Recommendation:** Option [X] — [concise rationale]
+
+**User Decision:** Pending
+```
+
+**Rules for findings:**
+
+- **Options must be genuinely viable, never strawmen** — present ≥2 options only when ≥2 are
+  genuinely viable. When one resolution clearly dominates, present it alone, state it is the only
+  viable one, and name what you considered and dropped and why. Never pad to a count to manufacture
+  a choice.
+- **Every finding MUST have a recommendation, with rationale** — never just "Option B is better".
+- **High-stakes findings (CRITICAL/MAJOR) get the hardening challenger — ONE per preflight scan,
+  not one per finding.** Per `_shared/recommendation-hardening.md` (challenger budget): spawn a
+  single challenger that receives the whole CRITICAL/MAJOR finding batch (statement + surviving
+  options per finding, without your picks) PLUS the scan's Codebase Context summary, and returns
+  per-finding verdicts to reconcile *before* recording recommendations. Hard cap: 2 challenger
+  spawns per scan. Close findings with the `Confidence:` / `Hardening:` disclosure where that
+  protocol requires it (Med/Low confidence, changed pick, or high stakes — presentation-only,
+  not a required saved field).
+- **Findings are numbered sequentially** — `PF-001`, `PF-002`, ... Numbers never reuse across iterations.
+- **Location must be specific** — "plans/my-feature/03-api-design.md, section 'Error Handling'", not
+  "somewhere in the plan".
+- **Codebase Evidence is required** for findings in dimensions 2, 4, 5, 6, 11, and 13 — cite the
+  actual file and code. For other dimensions, include it when relevant. If you can't verify a claim
+  against the code, say so: "Unable to verify against the codebase; this finding is based on the
+  document alone."
+
+### Report header template
+
+```markdown
+## Preflight Report: [Artifact Name]
+
+> **Status**: REVIEW IN PROGRESS — [X] findings ([C] critical, [M] major, [m] minor, [O] observation)
+> **Iteration**: [N] (first scan / re-scan after fixes)
+> **Artifact**: [type] at [path]
+> **Codebase Grounded**: [N] source files examined, [M] references verified
+> **Last Updated**: [Date]
+
+### Codebase Context Summary
+
+**Tech Stack:** [actual stack from manifest]
+**Architecture:** [brief architecture description from code examination]
+**Key Files Examined:** [list of most relevant files read during reconnaissance]
+
+### Summary by Dimension
+
+| # | Dimension | Findings | Highest Severity |
+|---|-----------|----------|-----------------|
+| 1 | Ambiguities | [count] | [icon] |
+| 2 | Implicit Assumptions | [count] | [icon] |
+| ... | ... | ... | ... |
+| 13 | Codebase Alignment | [count] | [icon] |
+
+### Summary by Severity
+
+| Severity | Count | Status |
+|----------|-------|--------|
+| CRITICAL | [N] | [all resolved? / X pending] |
+| MAJOR | [N] | [all resolved? / X pending] |
+| MINOR | [N] | [all resolved? / X pending] |
+| OBSERVATION | [N] | [all resolved? / X pending] |
+
+---
+
+[Individual findings follow]
+```
+
+Use the severity icons from SKILL.md (red/orange/yellow/blue circles) in the actual report.
+
+## Step 5: Present findings and collect decisions
+
+1. **Present grouped by severity** — CRITICAL first, then MAJOR, MINOR, OBSERVATION.
+2. **Present per the batch rules below** (they are authoritative for pacing) — each finding shown
+   with problem, options, recommendation.
+3. **Collect and record the user's decision for every finding** before the report is final:
+   `**User Decision:** [their choice]`.
+
+### Batch presentation rules
+
+- **<= 5 findings** — present all at once, let the user respond to each.
+- **6-15 findings** — present by severity group (all criticals, then all majors, etc.).
+- **> 15 findings** — present in batches of 5-8, grouped by severity, wait for confirmation between batches.
+
+**Previous decisions are respected (hard rule).** A finding that duplicates a decision already
+recorded in the artifact's Ambiguity Register — including a named `⏸ Deferred` row — is NOT
+re-presented for decision: record it as `Accepted Risk — deferred per AR #N` (or cross-reference
+the resolving AR #) and move on. Re-litigating decisions the user already made is a protocol
+violation, not thoroughness.
+
+### Agent behavior during resolution
+
+| User says | Agent response |
+|---|---|
+| "Fix it per your recommendation" | Record `Resolved — User accepted recommendation: [Option X]`. Valid. |
+| "Go with Option A" | Record `Resolved — User chose Option A`. |
+| "This isn't actually an issue" | Record `Dismissed — User: "[reasoning]"`. Valid — only the user can dismiss. |
+| "I'll fix this later" | Ask to record as a known accepted risk (won't block the pass but noted). If yes: `Accepted Risk — User deferred: "[reason]"` — the preflight face of the shared `⏸ Deferred` status (`_shared/zero-ambiguity-gate.md`); name the decision, owner, and revisit-trigger in the reason. |
+| "You decide" | "I've given my recommendation above. Confirm you'd like Option [X]?" — user MUST explicitly confirm. |
+
+## Step 6: Determine pass/fail
+
+See the Pass tiers table in SKILL.md. A clean first-scan pass is a valid outcome — never invent
+findings to justify the review.
+
+## Step 7: Apply fixes (only if requested)
+
+The user may ask the agent to apply fixes:
+
+- **"Apply all fixes"** — modify the artifact documents per the resolved findings (normal file writes).
+- **"Apply fixes for PF-003 and PF-007"** — apply specific fixes only.
+- **"I'll fix them myself"** — do nothing; the report is a checklist.
+- **"Apply fixes and re-scan"** — apply, then immediately run another iteration.
+
+> The agent MUST NOT apply fixes without explicit instruction. Preflight is a **review** protocol,
+> not a **modification** protocol. Finding issues and fixing issues are separate steps.
+
+## Step 8: Roadmap sync
+
+After a preflight **pass**, sync the roadmap via the roadmap skill if one is in play:
+
+- **If `plans/00-roadmap.md` exists:** advance the audited target's row —
+  - an **RD** that passed → stage `RD Preflighted`
+  - a **plan** that passed → stage `Plan Preflighted`
+
+  Update the row's `Stage`, `Status`, and `Last Updated` (update-first mandate).
+- **If `plans/00-roadmap.md` does NOT exist:** these hooks are inert — no error, no auto-creation.
+
+A BLOCKED outcome does NOT advance the roadmap. See the roadmap skill for the full protocol.
+
+## Iterative re-scanning
+
+### How iterations work
+
+1. **Iteration 1** — full 13-dimension scan of the original artifact (with full reconnaissance).
+2. **Fixes applied** — user resolves findings (manually or via "apply fixes").
+3. **Iteration 2+** — re-scan focusing on: **verify fixes** (each resolved finding actually fixed),
+   **regression check** (fixes introduced no new issues), **fresh scan** (re-examine all 13 — fixes
+   shift context), **codebase re-check** (re-verify changed code references).
+
+### Re-scan numbering
+
+Findings continue the sequential numbering from the previous iteration. If iteration 1 ended at
+PF-012, iteration 2 starts at PF-013. Numbers never reuse — this keeps clear which findings belong
+to which scan.
+
+### Re-scan report header
+
+```markdown
+## Preflight Report: [Artifact Name] — Iteration [N]
+
+> **Status**: [status]
+> **Previous Iteration**: [X] findings — [all resolved / Y carried forward]
+> **This Iteration**: [Z] new findings
+> **Carried Forward**: [list of PF-### still open from previous iterations]
+```
+
+### Convergence
+
+The loop continues until one of:
+
+- **Clean pass** — zero findings (or only accepted minor/observation notes).
+- **User stops** — "Good enough, let's proceed" (note this in the report).
+- **Diminishing returns** — only observations remain; suggest concluding.
+
+## Report persistence
+
+Save the report alongside the artifact (locations in SKILL.md). It is a permanent audit trail.
+
+### Relationship to the Ambiguity Register
+
+Separate documents with different purposes:
+
+| Document | Created by | Purpose | Contains |
+|---|---|---|---|
+| **Ambiguity Register** (`00-ambiguity-register.md`) | make-plan / make-requirements skills | Track decisions made DURING creation | User decisions on design choices |
+| **Preflight Report** (`00-preflight-report.md`) | preflight | Track issues found DURING review | Post-creation defects, gaps, codebase misalignments, and resolutions |
+
+When a finding relates to an existing Ambiguity Register entry, cross-reference it:
+
+```markdown
+**Related:** AR #7 decided on JWT auth, but this finding identifies a gap
+in the token refresh flow that AR #7 didn't cover.
+```
+
+Do not re-litigate an Ambiguity Register decision unless new information invalidates it — reference
+the AR entry and explain what changed.
+
+## Same-agent bias awareness — NON-NEGOTIABLE
+
+When the same model created the artifact and reviews it, systematic blind spots are likely — shared
+training biases, knowledge gaps, and reasoning patterns. A bug missed during creation is exactly
+the kind of bug that will be missed during review. Structural safeguards:
+
+1. **Fresh context required** — if the artifact was created in the CURRENT session, note it at the
+   top of the report:
+   ```
+   SAME-SESSION REVIEW: This artifact was created in the current session.
+   Same-agent bias risk is elevated. Consider running preflight in a new session
+   for maximum review independence.
+   ```
+2. **Standard-first checking** — for any behavior that must conform to an external standard (RFC,
+   protocol, spec, regulation), verify by **citing the specific standard text**, not from memory.
+   If you can't cite it, flag the limitation:
+   ```
+   Unable to verify conformance with [standard] — agent does not have
+   access to the full standard text. Flag for human review.
+   ```
+3. **Adversarial question checklist** — before concluding the scan, ask yourself:
+   - "What assumption did I make during creation that I might be unconsciously confirming now?"
+   - "What external standard or convention might this violate that I'm not aware of?"
+   - "What would a domain expert who disagrees with my approach flag as wrong?"
+   If any surface concerns, add them as observation findings.
+4. **User recommendation** — if the artifact is high-stakes (security/compliance/architecturally
+   foundational), recommend: "Consider having a human domain expert review this in addition to
+   the automated preflight."

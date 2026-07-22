@@ -1,0 +1,18 @@
+# Roadmap: Legacy UI
+
+> **Feature-Set**: Legacy UI
+> **Status**: Archived
+> **Created**: 2023-06-01
+> **Last Updated**: 2024-10-01 09:00
+> **Progress**: 1 / 1 (100%)
+> **CodeOps Skills Version**: 3.4.1
+
+## Legend
+
+⬜ Backlog · ✏️ RD Drafted · 🔎 RD Preflighted · 📋 Plan Created · 🔬 Plan Preflighted · 🔄 Executing · ✅ Done · ⛔ Blocked · ⏸️ Deferred
+
+## Tracker
+
+| ID | Title | RD | Plan | Stage | Status | Last Updated | Depends-on / Blocker |
+|----|-------|----|------|-------|--------|--------------|----------------------|
+| RD-01 | jQuery widgets | — | — | Done | ✅ | 2024-10-01 | — |

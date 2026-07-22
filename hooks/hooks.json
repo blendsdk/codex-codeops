@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat \"${PLUGIN_ROOT}/standards/coding-standards.md\""
+          },
+          {
+            "type": "command",
+            "command": "cat \"${PLUGIN_ROOT}/standards/output-style.md\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'input=$(cat); case \"$input\" in *\"codeops/.codeops.yml\"*) printf %s\\n \"CodeOps warning: codeops/.codeops.yml is the layout marker and is owned by setup_codeops; edit it only through the migration/setup workflow.\" >&2 ;; esac; exit 0'"
+          }
+        ]
+      }
+    ]
+  }
+}

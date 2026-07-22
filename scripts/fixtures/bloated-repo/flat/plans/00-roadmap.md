@@ -1,0 +1,31 @@
+# Roadmap: Widget Platform
+
+> **Feature-Set**: Widget Platform
+> **Status**: In Progress
+> **Created**: 2025-01-05
+> **Last Updated**: 2025-06-01 10:00
+> **Progress**: 1 / 3 (33%)
+> **CodeOps Skills Version**: 3.4.1
+
+## Legend
+
+⬜ Backlog · ✏️ RD Drafted · 🔎 RD Preflighted · 📋 Plan Created · 🔬 Plan Preflighted · 🔄 Executing · ✅ Done · ⛔ Blocked · ⏸️ Deferred
+
+## Tracker
+
+| ID | Title | RD | Plan | Stage | Status | Last Updated | Depends-on / Blocker |
+|----|-------|----|------|-------|--------|--------------|----------------------|
+| RD-01 | Rendering core | — | — | Done | ✅ | 2025-05-01 | — |
+| RD-02 | Theme tokens | — | — | Executing | 🔄 | 2025-05-15 | This began as a one-line status note but grew as the theme work dragged on; we first blocked on the upstream token format, then reworked the cascade resolution order after design changed the palette, and finally deferred the dark-mode variant until metering lands, so this cell now carries far more prose than a status column should. |
+| RD-03 | Data export | — | — | Blocked (was: Plan Created) | ⛔ | 2025-05-20 | waiting on DEF-1 |
+| ↳ DEF-1 | Export library spike | — | — | Backlog | ⬜ | 2025-05-20 | blocks RD-03 |
+
+## Notes
+
+- 2025-05-01: RD-01 shipped after the initial rendering spike; captured a long retrospective here
+  about the canvas vs. DOM tradeoff, the benchmark numbers, and why we picked the retained-mode
+  renderer over the immediate-mode prototype. None of this is read by any tooling.
+- 2025-05-15: started RD-02; the theme token pipeline needed a rewrite and this log grew a
+  paragraph describing every option we considered for the cascade resolution order.
+- 2025-05-20: RD-03 blocked on a missing export library; pulled DEF-1 out and wrote several
+  sentences here restating what the Tracker row already records.

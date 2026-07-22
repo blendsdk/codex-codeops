@@ -1,0 +1,21 @@
+{
+  "name": "codeops-marketplace",
+  "interface": {
+    "displayName": "CodeOps"
+  },
+  "plugins": [
+    {
+      "name": "codeops",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/blendsdk/codex-codeops.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
