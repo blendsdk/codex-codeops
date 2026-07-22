@@ -198,11 +198,11 @@ If a previous upgrade was interrupted (some documents stamped with the target ve
 
 - **The upgrade does NOT auto-advance the roadmap.** Roadmap status is unchanged by an upgrade.
 - Cross-references to update during the upgrade: make-plan → the make-plan skill; requirements →
-  the make-requirements skill; techdocs → the techdocs skill; git-commands → the `/gitcm` and
-  `/gitcmp` commands; project conventions → the project's AGENTS.md (or detected project
+  the make-requirements skill; techdocs → the techdocs skill; git-commands → the the `git-commit` skill and
+  the `git-commit` skill in push mode commands; project conventions → the project's AGENTS.md (or detected project
   conventions); coding/testing → your project's coding/testing standards (AGENTS.md).
 - Related skills/commands: make-plan, make-requirements, exec-plan, roadmap, techdocs,
-  `/gitcm`, `/gitcmp`.
+  the `git-commit` skill, the `git-commit` skill in push mode.
 
 **Key principles:** version-agnostic full re-evaluation (not incremental patches); content-first
 (the gate catches gaps before structural upgrades); non-destructive (user content preserved

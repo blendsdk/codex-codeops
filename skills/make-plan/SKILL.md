@@ -82,7 +82,7 @@ These rules are universal. For build/test/verify commands, package manager, stru
 
 ## Hard rules for every generated plan
 
-- **No raw git commands in plan documents.** Plans must not contain `git add/commit/push` or bash blocks running git. When a plan needs to commit, it references the **/gitcm** (commit) or **/gitcmp** (commit + push) command. Execution commit behavior is owned by the exec-plan skill.
+- **No raw git commands in plan documents.** Plans must not contain `git add/commit/push` or bash blocks running git. When a plan needs to commit, it references the **git-commit skill** (commit) or **git-commit skill in push mode** (commit + push) command. Execution commit behavior is owned by the exec-plan skill.
 - **Specification-first testing ordering is non-negotiable** (see Phase 2 and [templates.md](templates.md)): spec tests → red phase → implement → green phase → impl tests → verify.
 - **Zero-Ambiguity Gate (Phase 1C) must pass before ANY plan document is written.** No exceptions.
 
@@ -197,4 +197,4 @@ See the **roadmap skill** for the full Roadmap Keeper protocol.
 - **roadmap skill** — `make-plan` sets `Plan Created`; the roadmap tracks stages.
 - **upgrade-plan skill** — upgrades outdated plans; the gate applies to new decisions only.
 - **techdocs skill** — architecture docs read during Phase 1.2 and updated during execution.
-- For coding, testing, and git standards, follow **your project's coding standards (AGENTS.md)** and use **/gitcm** / **/gitcmp** for commits.
+- For coding, testing, and git standards, follow **your project's coding standards (AGENTS.md)** and use **git-commit skill** / **git-commit skill in push mode** for commits.

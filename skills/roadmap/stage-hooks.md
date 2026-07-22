@@ -49,7 +49,7 @@ complete the per-feature roadmap transition (codeops/features/<f>/00-roadmap.md)
   any such drift.
 - **Parallel worktrees — integration-branch deferral:** on a **non-integration branch** the
   portfolio write is **deferred** so concurrent worktrees never collide on the shared
-  `codeops/00-roadmap.md`. Resolve the integration branch the way `analyze_project` does — the
+  `codeops/00-roadmap.md`. Resolve the integration branch the way `analyze-project` does — the
   `integrationBranch` marker key, else `origin/HEAD`, else `main`/`master`; if `git` is unavailable,
   treat the current branch as integration (unchanged behaviour). The **per-feature** roadmap write
   stays immediate — it is isolated per feature, so it never conflicts.

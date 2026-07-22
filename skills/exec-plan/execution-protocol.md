@@ -27,7 +27,7 @@ If the execution plan can't be loaded cleanly, **STOP** and handle as follows:
 | `plans/[feature-name]/` doesn't exist | STOP — suggest the make-plan skill, or check for typos in the feature name |
 | `plans/[feature-name]/` exists but `99-execution-plan.md` is missing | STOP — plan is incomplete; suggest recreating it with the make-plan skill |
 | `99-execution-plan.md` exists but has no tasks | STOP — plan is empty; suggest recreating it with the make-plan skill |
-| All tasks already marked `[x]` | Report "All tasks are already complete." Suggest re-analyzing the project via the `/analyze_project` command |
+| All tasks already marked `[x]` | Report "All tasks are already complete." Suggest re-analyzing the project via the `analyze-project` skill |
 | No verify command resolvable — the plan's Verify lines are empty/generic AND neither the project's AGENTS.md nor its manifests name one | STOP — ask the user to name the verify command, write it into the plan's Verify lines, then proceed. **Never invent a command** (a plausible-looking `npm test` that was never configured verifies nothing) |
 
 ### Version Check (auto-suggest)

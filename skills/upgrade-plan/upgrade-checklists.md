@@ -63,7 +63,7 @@ Re-evaluate each plan document against the make-plan skill's current standards.
 
 ### Cross-references (all plan documents)
 - [ ] References point to current skill/command names (make-plan skill, make-requirements skill,
-      techdocs skill, `/gitcm` and `/gitcmp` commands, the project's AGENTS.md)?
+      techdocs skill, the `git-commit` skill commands, the project's AGENTS.md)?
 - [ ] No references to deprecated or renamed rules / MCP calls?
 
 ---
@@ -99,5 +99,5 @@ Re-evaluate each requirements document against the make-requirements skill's cur
 
 ### Cross-references (all requirements documents)
 - [ ] References point to current skill/command names (make-requirements skill, make-plan skill,
-      techdocs skill, `/gitcm` and `/gitcmp` commands, the project's AGENTS.md)?
+      techdocs skill, the `git-commit` skill commands, the project's AGENTS.md)?
 - [ ] No references to deprecated or renamed rules / MCP calls?

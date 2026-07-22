@@ -49,7 +49,7 @@ Determine the layout via **[../../_shared/layout-convention.md](../../_shared/la
 |------|----------|
 | *(none)* / `--ask-commit` | **Default.** After each verified task, ask the user whether to commit. |
 | `--no-commit` | Never commit, never ask. Pure implementation. |
-| `--auto-commit` | Automatically commit + push (via `/gitcmp`) after each verified task. |
+| `--auto-commit` | Automatically commit + push (via the `git-commit` skill in push mode) after each verified task. |
 
 Full prompt wording, end-of-plan reminders, and commit-message format live in
 [commit-modes.md](commit-modes.md) — read it before the first commit decision.
@@ -182,7 +182,7 @@ Brief rules for verification failure, plan deviation, and mid-task interruption 
 2. **Techdocs:** if techdocs exist, do a comprehensive update via the techdocs skill; otherwise
    ask whether to create them.
 3. **Re-analyze:** ask whether to re-analyze the project and update the project's AGENTS.md via
-   the `/analyze_project` command.
+   the `analyze-project` skill.
 4. **Roadmap:** set the RD row to `Done` via the roadmap skill if a roadmap exists.
 
 ## Conventions
@@ -190,5 +190,5 @@ Brief rules for verification failure, plan deviation, and mid-task interruption 
 - Follow your project's coding and testing standards (the project's AGENTS.md, or detected
   project conventions). If no AGENTS.md exists, detect build/test/verify commands from manifest
   files and use only facts you can read — do not invent settings.
-- Commit using `/gitcm` (commit only) or `/gitcmp` (commit + push), or a normal git commit.
+- Commit using the `git-commit` skill (commit only) or the `git-commit` skill in push mode (commit + push), or a normal git commit.
 - Related skills: make-plan (creation), upgrade-plan (outdated plans), preflight, roadmap, techdocs.

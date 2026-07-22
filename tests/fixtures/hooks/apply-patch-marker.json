@@ -1,0 +1,12 @@
+{
+  "session_id": "fixture-session",
+  "turn_id": "fixture-turn",
+  "cwd": "/tmp/project",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "apply_patch",
+  "tool_input": {
+    "patch": "*** Update File: codeops/.codeops.yml"
+  },
+  "model": "fixture-model",
+  "permission_mode": "default"
+}

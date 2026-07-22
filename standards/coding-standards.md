@@ -44,7 +44,7 @@ Do not duplicate these standards in `~/.codex/AGENTS.md` — the plugin injects 
   independent challenger; disclose `Confidence:`/`Hardening:` where that protocol requires).
 
 > Project-specific commands, structure, and conventions live in this project's `AGENTS.md`
-> (generate/refresh it with `/analyze_project`). Multi-step CodeOps workflows are available as
+> (generate/refresh it with the `analyze-project` skill). Multi-step CodeOps workflows are available as
 > skills: `make-plan`, `exec-plan`, `make-requirements`, `retro-requirements`, `grill-me`,
-> `preflight`, `techdocs`, `roadmap`, `upgrade-plan`, `setup-codeops`, `setup-routing`; and as
-> commands: `/gitcm`, `/gitcmp`, `/analyze_project`, `/migrate_clinerules` (plus thin aliases).
+> `preflight`, `techdocs`, `roadmap`, `upgrade-plan`, `setup-codeops`, and `setup-routing`.
+> Guarded commits, GitHub issues, comment cleanup, and outcome reviews are skills as well.

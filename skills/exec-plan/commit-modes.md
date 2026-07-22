@@ -7,7 +7,7 @@ decision.
 chance to review changes before they hit the repository. Files are always saved to disk
 regardless of commit mode, so no work is ever lost — only the git operation is gated.
 
-Commit using `/gitcm` (commit only) or `/gitcmp` (commit + push), or a normal git commit.
+Commit using the `git-commit` skill (commit only) or the `git-commit` skill in push mode (commit + push), or a normal git commit.
 
 ---
 
@@ -17,7 +17,7 @@ Commit using `/gitcm` (commit only) or `/gitcmp` (commit + push), or a normal gi
 |------|------|----------|
 | **Ask (default)** | *(no flag)* or `--ask-commit` | After each verified task, ask the user whether/how to commit. |
 | **No-commit** | `--no-commit` | Never commit, never ask. Pure implementation. The user handles git. |
-| **Auto-commit** | `--auto-commit` | Automatically commit + push via `/gitcmp` after each verified task. No prompts. |
+| **Auto-commit** | `--auto-commit` | Automatically commit + push via the `git-commit` skill in push mode after each verified task. No prompts. |
 
 The commit step is only triggered when ALL of these are true:
 
@@ -45,8 +45,8 @@ After each task completes and verification passes, ask the user:
 
 Offer these options:
 
-1. **Commit and push** — commit + push via `/gitcmp`, then continue to the next task.
-2. **Commit only (no push)** — commit via `/gitcm`, then continue to the next task.
+1. **Commit and push** — commit + push via the `git-commit` skill in push mode, then continue to the next task.
+2. **Commit only (no push)** — commit via the `git-commit` skill, then continue to the next task.
 3. **Skip, continue to next task** — no commit; ask again after the next task.
 4. **Skip all, commit at the end** — no commit, and **stop asking** for the rest of the plan.
    At plan completion, present the end-of-plan commit prompt below.
@@ -59,8 +59,8 @@ When all tasks are complete and there are uncommitted changes, ask:
 
 > "All tasks complete. You have uncommitted changes. How would you like to proceed?"
 
-1. **Commit and push** — commit + push all changes via `/gitcmp`.
-2. **Commit only (no push)** — commit all changes via `/gitcm`.
+1. **Commit and push** — commit + push all changes via the `git-commit` skill in push mode.
+2. **Commit only (no push)** — commit all changes via the `git-commit` skill.
 3. **Don't commit** — leave changes uncommitted; the user handles git manually.
 
 ---
@@ -82,7 +82,7 @@ When `--no-commit` is specified:
 
 When `--auto-commit` is specified:
 
-- ✅ After each verified task, automatically commit + push via `/gitcmp`.
+- ✅ After each verified task, automatically commit + push via the `git-commit` skill in push mode.
 - ✅ No prompts — fully automated. **Exception:** a quality-gate pause (🔴/🟠 finding from the
   post-phase quality step) still stops for the user's ruling; auto-commit resumes after it.
 - ✅ Follow the commit message format below.
@@ -108,6 +108,6 @@ Ref: plans/[feature-name]/99-execution-plan.md
 Task: [X.X.X]
 ```
 
-`/gitcm` and `/gitcmp` handle staging, the message file, and the commit/push for you. If you
+the `git-commit` skill handles staging, the message file, and the commit/push for you. If you
 commit with a plain `git commit` instead, write the message above to a file and pass it with
 `-F` rather than cramming it into `-m`.
