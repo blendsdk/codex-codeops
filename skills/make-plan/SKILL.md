@@ -18,7 +18,7 @@ python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
 
 Resolve every structural or readiness blocker, then perform the semantic Zero-Ambiguity Gate. If plan work exposes an upstream defect, reopen and correct the owning requirement or specification and revalidate downstream artifacts rather than patching the task text alone.
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ## What you produce
 
@@ -51,7 +51,7 @@ Determine the layout via **[../../_shared/layout-convention.md](../../_shared/la
 Not every change is a feature. Ad-hoc work (a bugfix, chore, small change) is a **task** (`T-NN`), and a *non-trivial* task gets a **single mini-plan**, not the full multi-document set. When the work is a task (see the routing rule in **[../../_shared/layout-convention.md](../../_shared/layout-convention.md)**):
 
 - Write **only** the mini-plan at the resolved task path (flat: `plans/<task-slug>/99-execution-plan.md`; nested: `codeops/features/<f>/plans/<task-slug>/99-execution-plan.md`) — an execution doc with an **Objective**, a short **task checklist**, and a **Verify** line. **No** `00–07` docs, **no** RD, **no** Zero-Ambiguity Gate.
-- Stamp it `> **Type**: Task (lightweight) · **Feature**: <f> · **CodeOps Skills Version**: 3.12.0` and a `> **Progress**:` line (in flat layout drop the `**Feature**:` part).
+- Stamp it `> **Type**: Task (lightweight) · **Feature**: <f> · **CodeOps Artifact Schema**: 1` and a `> **Progress**:` line (in flat layout drop the `**Feature**:` part).
 - Specification-first ordering still applies *when the task warrants tests* (e.g. a bugfix gets a regression test first); a trivial doc/config tweak may not.
 - A **trivial** task needs no plan at all — it is just a roadmap row + the commit (point the user to the roadmap skill, then do the work).
 
@@ -60,7 +60,7 @@ Mini-plan shape:
 ```markdown
 # Task T-05: Debounce the search input
 
-> **Type**: Task (lightweight) · **Feature**: search · **CodeOps Skills Version**: 3.12.0
+> **Type**: Task (lightweight) · **Feature**: search · **CodeOps Artifact Schema**: 1
 > **Progress**: 0/3 tasks (0%)
 
 ## Objective
@@ -134,7 +134,7 @@ Gate opens ONLY when: every row Status = `✅ Resolved` with the user's explicit
 ## Phase 2 — Create Plan Documents
 
 1. Create the plan folder (`plans/<feature-name>/` flat, or `codeops/features/<f>/plans/<plan>/` nested — resolve via the convention doc).
-2. Write each document using the templates in **[templates.md](templates.md)** — including its **Reference, don't restate** rule (one owning doc per fact; everything else cites ST-# / 03-doc § / AR-# with at most a one-line gloss). Stamp `00-index.md` and `99-execution-plan.md` with `> **CodeOps Skills Version**: 3.12.0`.
+2. Write each document using the templates in **[templates.md](templates.md)** — including its **Reference, don't restate** rule (one owning doc per fact; everything else cites ST-# / 03-doc § / AR-# with at most a one-line gloss). Stamp `00-index.md` and `99-execution-plan.md` with `> **CodeOps Artifact Schema**: 1`.
 3. Every design decision, scope decision, and error-handling strategy must carry an `AR #` back-reference to the register (only exceptions: universally obvious facts and zero-semantic-impact formatting).
 4. `07-testing-strategy.md` must contain concrete **Specification Test Cases (ST-*)** with input→expected-output pairs, each traced to a requirement / spec doc / AR entry. Expectations come from the SPEC, never from imagined implementation behavior.
 4b. **Confirm the verify command once.** The command that fills every Verify line comes from the

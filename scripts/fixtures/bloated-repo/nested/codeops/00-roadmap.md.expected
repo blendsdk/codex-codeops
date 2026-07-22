@@ -3,7 +3,7 @@
 > **Status**: Active
 > **Last Updated**: 2025-06-01 10:00
 > **Features**: 0 / 1 done
-> **CodeOps Skills Version**: 3.4.1
+> **CodeOps Artifact Schema**: 3.4.1
 
 ## Legend
 

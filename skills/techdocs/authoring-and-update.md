@@ -1,6 +1,6 @@
 # techdocs — Authoring, Update Protocol & Health Check (Phases 5–6 + review_techdocs)
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 Read this before authoring any document, before any auto-update, and when running
 `review_techdocs`.

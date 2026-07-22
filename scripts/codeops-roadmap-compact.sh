@@ -2,7 +2,7 @@
 #
 # codeops-roadmap-compact.sh — deterministic roadmap slimming engine.
 #
-# CodeOps Skills Version: 3.12.0
+# CodeOps Artifact Schema: 1
 #
 # The roadmap skill's `compact` action owns the JUDGMENT (rewriting a verbose table cell down to a
 # terse phrase); this script owns the MECHANICAL, testable, safety-critical half (the same

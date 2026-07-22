@@ -77,4 +77,4 @@ Run this before finalizing the plan documents. The **Specification-First Testing
 - [ ] Tables are properly formatted
 - [ ] Task numbers follow the convention (Phase.Session.Task)
 - [ ] Checkboxes included for tracking
-- [ ] `00-index.md` and `99-execution-plan.md` are stamped with `> **CodeOps Skills Version**: 3.12.0`
+- [ ] `00-index.md` and `99-execution-plan.md` are stamped with `> **CodeOps Artifact Schema**: 1`

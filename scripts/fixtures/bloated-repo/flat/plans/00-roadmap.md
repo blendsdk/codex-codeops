@@ -5,7 +5,7 @@
 > **Created**: 2025-01-05
 > **Last Updated**: 2025-06-01 10:00
 > **Progress**: 1 / 3 (33%)
-> **CodeOps Skills Version**: 3.4.1
+> **CodeOps Artifact Schema**: 3.4.1
 
 ## Legend
 

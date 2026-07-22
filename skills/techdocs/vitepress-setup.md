@@ -1,6 +1,6 @@
 # techdocs — VitePress Setup (Phase 3)
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 Scaffold VitePress for the `docs/` set: install it, generate the config, add npm scripts, and
 ignore build output. Read this when first scaffolding the docs site, and whenever new pages are

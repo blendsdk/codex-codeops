@@ -30,7 +30,7 @@ requirements/
 > **Status**: [Draft | Review | Complete]
 > **Created**: [Date]
 > **Architecture**: [Tech stack summary]
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ---
 
@@ -92,7 +92,7 @@ Every requirement document follows this structure:
 > **Created**: [Date]
 > **Project**: [Project Name]
 > **Depends On**: [List of RD dependencies, or "—" if none]
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ---
 

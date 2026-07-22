@@ -1,6 +1,6 @@
 # CodeOps Layout Convention (shared reference)
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 This is the **single source of truth** for where CodeOps artifacts live. It is a shared
 reference document, **not a skill** — it lives at the **plugin root** in `_shared/` (deliberately

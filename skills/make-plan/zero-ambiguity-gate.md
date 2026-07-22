@@ -1,6 +1,6 @@
 # Phase 1C: Zero-Ambiguity Gate — caller preamble (make-plan)
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 The gate itself is defined ONCE in **[../../_shared/zero-ambiguity-gate.md](../../_shared/zero-ambiguity-gate.md)**
 — read it now, before Phase 2. This preamble only binds it to make-plan:

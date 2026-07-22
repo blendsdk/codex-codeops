@@ -16,7 +16,7 @@ description: >-
 
 # techdocs — Technical Architecture Documentation
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 Create and maintain a living, VitePress-compatible technical architecture documentation set in
 the project's `docs/` directory, capturing accumulated design knowledge across requirements and

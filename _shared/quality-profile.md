@@ -1,6 +1,6 @@
 # Quality Profile (shared convention)
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 This is the **single canonical definition** of the per-repo quality profile and the quality-agent
 conventions built on it. It lives at the plugin root in `_shared/`; dispatching skills link here

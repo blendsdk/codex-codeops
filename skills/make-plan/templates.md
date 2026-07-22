@@ -1,6 +1,6 @@
 # Plan Document Templates
 
-Read this when writing the Phase 2 documents. Create files in `plans/<feature-name>/`. Stamp `00-index.md` and `99-execution-plan.md` with `> **CodeOps Skills Version**: 3.12.0`. Every `[Date]` / `[YYYY-MM-DD HH:MM]` placeholder is filled from `date '+%Y-%m-%d %H:%M'` — never an invented timestamp.
+Read this when writing the Phase 2 documents. Create files in `plans/<feature-name>/`. Stamp `00-index.md` and `99-execution-plan.md` with `> **CodeOps Artifact Schema**: 1`. Every `[Date]` / `[YYYY-MM-DD HH:MM]` placeholder is filled from `date '+%Y-%m-%d %H:%M'` — never an invented timestamp.
 
 Folder layout:
 
@@ -46,7 +46,7 @@ excerpt at dispatch time — excerpting for a handoff packet is not restatement)
 > **Status**: Planning Complete
 > **Created**: [Date]
 > **Implements**: RD-NN   (only if based on a requirements document; omit otherwise)
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ## Overview
 
@@ -392,7 +392,7 @@ once in the document), and MUST structure feature phases with the specification-
 > **Parent**: [Index](00-index.md)
 > **Last Updated**: [YYYY-MM-DD HH:MM]
 > **Progress**: 0/X tasks (0%)
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ## Overview
 

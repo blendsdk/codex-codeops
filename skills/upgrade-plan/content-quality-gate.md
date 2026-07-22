@@ -1,6 +1,6 @@
 # Phase 2B — Content Quality Gate (caller preamble, upgrade-plan)
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 The Content Quality Gate IS the shared Zero-Ambiguity Gate, scoped to **existing documents**: the
 gate itself is defined ONCE in **[../../_shared/zero-ambiguity-gate.md](../../_shared/zero-ambiguity-gate.md)**

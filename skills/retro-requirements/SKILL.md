@@ -18,7 +18,7 @@ description: >-
 
 # Reverse Requirements Engineering
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 Analyze an existing codebase — any language, any framework — and produce a
 structured **reconstruction brief** that can be fed to the make-requirements

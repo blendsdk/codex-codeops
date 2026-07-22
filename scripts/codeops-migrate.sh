@@ -288,7 +288,7 @@ find plans requirements -type d -empty -delete 2>/dev/null || true
 
 # Marker — written LAST, and only after every move step succeeded, so neither an interrupted
 # nor a FAILED run can leave a false "already migrated" flag.
-# integrationBranch names where features integrate and derived files (portfolio roadmap, CLAUDE.md)
+# integrationBranch names where features integrate and derived files (portfolio roadmap, AGENTS.md)
 # regenerate — so parallel feature worktrees don't collide. Resolve the repo default: origin/HEAD,
 # else the current branch, else main. Consumers auto-detect the same default when the key is absent.
 integration_branch="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
@@ -329,7 +329,7 @@ cat > codeops/00-roadmap.md <<PORTFOLIO || fail_apply "write codeops/00-roadmap.
 > **Status**: Active
 > **Last Updated**: $today
 > **Features**: 0 / 1 done
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ## Legend
 

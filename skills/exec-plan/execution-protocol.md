@@ -30,21 +30,13 @@ If the execution plan can't be loaded cleanly, **STOP** and handle as follows:
 | All tasks already marked `[x]` | Report "All tasks are already complete." Suggest re-analyzing the project via the `analyze-project` skill |
 | No verify command resolvable — the plan's Verify lines are empty/generic AND neither the project's AGENTS.md nor its manifests name one | STOP — ask the user to name the verify command, write it into the plan's Verify lines, then proceed. **Never invent a command** (a plausible-looking `npm test` that was never configured verifies nothing) |
 
-### Version Check (auto-suggest)
+### Artifact schema check
 
-After loading, check the version stamp against the current **CodeOps Skills Version: 3.12.0**:
-
-1. Read `00-index.md` or `99-execution-plan.md`.
-2. Look for `> **CodeOps Version**: X.Y.Z` (or `CodeOps Skills Version`).
-3. Compare against `3.3.2` (current; `3.0.0`–`3.3.1` remain compatible — pre-3.3.0 task-list
-   format differences are handled by the format detection below; no document migration, and
-   never suggest an upgrade on format grounds).
-
-| Condition | Action |
-|-----------|--------|
-| Matches `3.0.0`, `3.1.0`, `3.2.0`, `3.3.0`, `3.3.1`, or `3.3.2` | Proceed normally — plan is compatible |
-| Older than `3.0.0` | Suggest: "This plan was created with an older CodeOps version (current: 3.3.2). Consider running the upgrade-plan skill. Proceed anyway?" |
-| No version stamp | Suggest: "This plan has no version stamp. Consider running the upgrade-plan skill to bring it to current standards. Proceed anyway?" |
+Read `00-index.md` or `99-execution-plan.md`. Schema 1 plans must also have valid traceability and
+pass the execution-entry readiness gate. A legacy `CodeOps Skills Version` stamp or no schema
+stamp triggers a read-only upgrade assessment. Do not execute a legacy plan merely because its
+task checkbox shape can be parsed; the user must approve migration or explicitly accept the
+recorded compatibility risk.
 
 Suggestion only — the user may proceed without upgrading.
 

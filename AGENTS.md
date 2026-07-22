@@ -21,6 +21,7 @@ Run:
 
 ```bash
 ./scripts/validate-codex.sh
+./scripts/docs-check.sh
 ./scripts/migration-check.sh
 ./scripts/roadmap-sync-check.sh
 ./scripts/compact-check.sh

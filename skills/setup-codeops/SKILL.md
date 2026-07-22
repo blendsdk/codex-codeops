@@ -6,7 +6,7 @@ description: >-
 
 # CodeOps Layout Setup (`setup-codeops`)
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 Set up the CodeOps **nested `codeops/` layout** for the git repo the user is currently in. Run as
 `/codeops:setup-codeops` or the typeable alias `/setup-codeops`. This is the one skill that

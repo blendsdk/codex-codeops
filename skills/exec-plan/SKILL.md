@@ -15,7 +15,7 @@ description: >-
 
 # exec-plan — Execute an Implementation Plan
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 Execute the implementation plan at `plans/$ARGUMENTS/99-execution-plan.md`. The first
 argument is the feature name; an optional flag selects the commit mode.
@@ -91,9 +91,9 @@ summary template. The essentials:
 4. If the plan is missing/empty/already complete, **STOP** — see the load table in
    [execution-protocol.md](execution-protocol.md). Generally suggest the make-plan skill.
 
-**Version check:** look for `> **CodeOps Version**: X.Y.Z` (or `CodeOps Skills Version`) in
-`00-index.md` / `99-execution-plan.md`. If it is older than **3.0.0** or missing, suggest the
-upgrade-plan skill, then ask whether to proceed anyway. Suggestion only — the user may proceed.
+**Schema check:** schema 1 plans require valid traceability and readiness. A legacy
+`CodeOps Skills Version` stamp or missing schema triggers a read-only upgrade assessment; ask
+before migration or execution with recorded compatibility risk. Never silently upgrade.
 
 ### Step 2 — Execute tasks (per-task loop)
 

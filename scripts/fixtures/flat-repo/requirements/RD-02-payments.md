@@ -1,7 +1,7 @@
 # RD-02: Payment gateway
 
 > **Status**: Drafted
-> **CodeOps Skills Version**: 2.0.0
+> **CodeOps Artifact Schema**: 2.0.0
 
 ## Requirement
 

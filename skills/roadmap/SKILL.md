@@ -16,7 +16,7 @@ description: >-
 
 # roadmap — Live Feature-Set Roadmap Keeper
 
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ## Codex derived-status rule
 

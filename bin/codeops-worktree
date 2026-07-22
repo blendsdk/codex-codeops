@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
 # codeops-worktree — spin up / tear down git worktrees for running parallel
-# Claude Code agents on separate feature branches, one worktree per agent.
+# Codex agents on separate feature branches, one worktree per agent.
 #
-# CodeOps Skills Version: 3.12.0
+# CodeOps Artifact Schema: 1
 #
 # A worktree is a second working folder that shares the ONE .git of the repo, so
 # every branch/commit is visible everywhere and you never re-clone. The number of
@@ -18,7 +18,7 @@
 #
 # Examples:
 #   codeops-worktree new billing            # -> feat/billing in ../<repo>-billing
-#   codeops-worktree new billing --launch    # ...and start `claude` in it
+#   codeops-worktree new billing --launch    # ...and start `codex` in it
 #   codeops-worktree new hotfix --from master --branch fix/login
 #   codeops-worktree ls
 #   codeops-worktree rm billing --delete-branch
@@ -70,7 +70,7 @@ branch_exists_local()  { git show-ref --verify --quiet "refs/heads/$1"; }
 branch_exists_remote() { git show-ref --verify --quiet "refs/remotes/origin/$1"; }
 
 # The configured integration branch from the CodeOps marker, if any: the branch
-# where feature work integrates and derived files (the portfolio roadmap, CLAUDE.md)
+# where feature work integrates and derived files (the portfolio roadmap, AGENTS.md)
 # get reconciled. This is committed config that is only parsed, never executed, and
 # the marker is a tracked file so it is present in every worktree checkout. Empty
 # output + non-zero return when there is no marker or no key.
@@ -153,22 +153,21 @@ cmd_new() {
   fi
   printf '   branch : %s\n' "$branch"
   printf '   folder : %s\n' "$path"
-  printf '\nStart an agent there:\n   cd %q && claude\n' "$path"
+  printf '\nStart an agent there:\n   cd %q && codex\n' "$path"
   printf '\nParallel-safety reminders:\n'
   printf '   • Keep this agent to ONE feature/lane — its own codeops/features/<f>/ files never clash.\n'
-  printf '   • analyze_project is branch-aware here — it previews/stages, never rewriting the shared\n'
-  printf '     CLAUDE.md on a feature branch. But do NOT run setup_routing here: its routing block is\n'
-  printf '     a repo-wide CLAUDE.md write — run it on the integration branch.\n'
+  printf '   • analyze-project is branch-aware here — preview repository-wide AGENTS.md changes.\n'
+  printf '   • Run setup-routing on the integration branch when it changes shared codeops/codeops.json.\n'
   printf '   • After the PRs merge, reconcile the portfolio on the integration branch: `update the roadmap`.\n'
   printf '   • Tear this down when done:  codeops-worktree rm %s\n\n' "$slug"
 
   if [[ "$launch" -eq 1 ]]; then
     if [[ "$DRY_RUN" -eq 1 ]]; then
-      printf '  [dry-run] would run: cd %q && exec claude\n' "$path" >&2
+      printf '  [dry-run] would run: cd %q && exec codex\n' "$path" >&2
     else
-      command -v claude >/dev/null 2>&1 || die "--launch given but 'claude' is not on PATH."
-      note "Launching claude in $path ..."
-      cd "$path" && exec claude
+      command -v codex >/dev/null 2>&1 || die "--launch given but 'codex' is not on PATH."
+      note "Launching codex in $path ..."
+      cd "$path" && exec codex
     fi
   fi
 }

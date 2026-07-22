@@ -7,7 +7,7 @@ upgrading `plans/[feature-name]/`, and the **requirements checklists** when upgr
 
 For every document: re-evaluate against current standards (the make-plan skill's current standards
 for plans; the make-requirements skill's current standards for requirements), add the version stamp
-`> **CodeOps Skills Version**: 3.12.0` where stamps belong, and write in any content fixes resolved
+`> **CodeOps Artifact Schema**: 1` where stamps belong, and write in any content fixes resolved
 during Phase 2B with an `AR #` back-reference. Always honor the Content Preservation Rules in
 SKILL.md — never destroy user work.
 
@@ -18,7 +18,7 @@ SKILL.md — never destroy user work.
 Re-evaluate each plan document against the make-plan skill's current standards.
 
 ### `00-index.md`
-- [ ] Version stamp present? → Add `> **CodeOps Skills Version**: 3.12.0` if missing.
+- [ ] Version stamp present? → Add `> **CodeOps Artifact Schema**: 1` if missing.
 - [ ] Follows the current index template structure?
 - [ ] Navigation links to all plan documents?
 - [ ] Document count and overview accurate?
@@ -51,7 +51,7 @@ Re-evaluate each plan document against the make-plan skill's current standards.
 - [ ] Test categories clearly defined?
 
 ### `99-execution-plan.md`
-- [ ] Version stamp present? → Add `> **CodeOps Skills Version**: 3.12.0` if missing.
+- [ ] Version stamp present? → Add `> **CodeOps Artifact Schema**: 1` if missing.
 - [ ] Commit-mode flags documented? (`--ask-commit`, `--no-commit`, `--auto-commit`)
 - [ ] Session protocol section present and current?
 - [ ] Success criteria includes a post-completion re-analysis step?
@@ -79,7 +79,7 @@ Re-evaluate each requirements document against the make-requirements skill's cur
 - [ ] `AR #` back-references added to all RD documents for resolved content gaps?
 
 ### `README.md`
-- [ ] Version stamp present? → Add `> **CodeOps Skills Version**: 3.12.0` if missing.
+- [ ] Version stamp present? → Add `> **CodeOps Artifact Schema**: 1` if missing.
 - [ ] Follows the current README template?
 - [ ] Dependency graph present and accurate?
 - [ ] Domain glossary present and complete?
@@ -87,7 +87,7 @@ Re-evaluate each requirements document against the make-requirements skill's cur
 - [ ] Ambiguity Register listed in the document index?
 
 ### Individual RD documents (`RD-XXX-*.md`)
-- [ ] Version stamp present? → Add `> **CodeOps Skills Version**: 3.12.0` if missing.
+- [ ] Version stamp present? → Add `> **CodeOps Artifact Schema**: 1` if missing.
 - [ ] Security considerations section present and complete? (per your project's coding standards — AGENTS.md)
 - [ ] Acceptance criteria defined for each requirement?
 - [ ] Dependencies on other RDs documented?

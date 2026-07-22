@@ -21,7 +21,7 @@ verbatim when creating either. The portfolio is a separate, higher-altitude temp
 > **Created**: [YYYY-MM-DD]
 > **Last Updated**: [YYYY-MM-DD HH:MM]
 > **Progress**: [Done RDs] / [Total RDs] ([Z]%)
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ## Legend
 
@@ -49,7 +49,7 @@ verbatim when creating either. The portfolio is a separate, higher-altitude temp
   treated as hand-maintained: the sync engine preserves it verbatim and does not touch it. A
   computed value may carry a trailing ` · <note>` annotation (e.g. `2 / 2 (100%) · hardening done`);
   the engine refreshes the count and keeps the ` · …` suffix.
-- **CodeOps Skills Version** — the release stamp (currently `3.12.0`).
+- **CodeOps Artifact Schema** — the artifact-schema stamp (currently `1`).
 
 ## Tracker columns
 
@@ -90,7 +90,7 @@ Links are relative to the roadmap file itself. Flat layout (`plans/00-roadmap.md
 > **Created**: 2026-05-01
 > **Last Updated**: 2026-05-14 16:20
 > **Progress**: 1 / 4 (25%)
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ## Legend
 
@@ -152,7 +152,7 @@ the feature rolls up `✅` normally.
 > **Status**: Active
 > **Last Updated**: [YYYY-MM-DD HH:MM]
 > **Features**: [Done] / [Total] done
-> **CodeOps Skills Version**: 3.12.0
+> **CodeOps Artifact Schema**: 1
 
 ## Legend
 

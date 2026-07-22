@@ -1,7 +1,7 @@
 # Execution Plan: Invoicing core
 
 > **Implements**: RD-01
-> **CodeOps Skills Version**: 2.0.0
+> **CodeOps Artifact Schema**: 2.0.0
 
 ## Tasks
 

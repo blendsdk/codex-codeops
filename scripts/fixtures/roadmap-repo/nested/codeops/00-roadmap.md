@@ -3,7 +3,7 @@
 > **Status**: Active
 > **Last Updated**: 2025-06-01 10:00
 > **Features**: 2 / 5 done (logixcontrol tracked out-of-band)
-> **CodeOps Skills Version**: 3.6.0
+> **CodeOps Artifact Schema**: 3.6.0
 
 ## Legend
 
