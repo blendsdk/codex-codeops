@@ -198,23 +198,18 @@ handling. Never fill gaps by guessing.
 
 ## Execution mode — inline first (routing-aware)
 
-When the project's AGENTS.md carries a routing policy (see the setup-routing skill), route by
-PHASE, not by task, and prefer inline (measured basis: the 2026-07-04 dispatch pilot — per-task
-dispatch cost 1.5–2× inline tokens; each executor bootstrap ≈ 13k tokens and does not amortize
-across tasks):
+When `codeops/codeops.json` carries routing policy (see the setup-routing skill), route by PHASE,
+not by task, and prefer inline unless isolation, independence, context control, or a capability
+match materially improves the result:
 
-1. **Inline by default.** If the session model already satisfies the phase's tag (or there is no
-   routing block), implement the phase inline. One context amortizes one bootstrap across all of
-   the phase's tasks — the measured cheapest shape.
-2. **Phase dispatch — only when a cheaper model is warranted.** A phase MAY be dispatched as ONE
-   pinned-model executor (`plan-task-executor` / `plan-task-executor-opus`, shipped in the
-   plugin's `agents/` directory) only when BOTH hold: (a) the phase's tag maps to a CHEAPER
-   model than the session model, and (b) the phase is large enough to amortize one executor
-   bootstrap (~13k tokens) — a couple of small tasks are cheaper inline even on the pricier
-   model.
-3. **Per-task or parallel dispatch is opt-in ONLY** — on the user's explicit request, for
-   wall-clock parallelism or for isolating a very large plan from context exhaustion. It costs
-   more tokens, not fewer; say so when the user asks for it.
+1. **Inline for tightly coupled work.** Keep the primary agent responsible for decisions, durable
+   state, plan/roadmap updates, and work whose tasks share substantial context.
+2. **Dispatch bounded phases.** Use an executor role for a self-contained phase when a fresh
+   context, different capability/effort, or isolation from the decision conversation is useful.
+3. **Parallelize only independent work.** Read-heavy reconnaissance and independent reviews are
+   preferred candidates. Parallel writes require disjoint ownership and an explicit merge plan.
+4. **Select reviewers by risk.** Every non-trivial phase gets correctness review; add security,
+   financial-integrity, concurrency, performance, semantics, or migration reviewers from tags.
 
 **The phase packet.** When a phase IS dispatched, the parent composes the packet; the executor
 receives nothing else and must not need anything else:
@@ -240,10 +235,9 @@ stops and returns a blocker report. The parent then runs the zero-ambiguity loop
 user (STOP → options → decision → AR `(runtime)` entry) and re-dispatches with the enriched
 packet. An executor never asks the user directly and never guesses.
 
-**Missing-executor guard.** If the routing policy names executors that are not present in the
-agent registry (e.g. the plugin's `agents/` isn't loaded, or the project overrode them and the
-override is gone), run the phase inline and tell the user dispatch was skipped and why.
-Dispatch is an optimization — the protocol's guarantees hold either way.
+**Missing-executor guard.** If a named role is unavailable, spawn a generic subagent with the
+complete packet or run the phase inline and report why. Dispatch is an optimization — the
+protocol's guarantees hold either way.
 
 ---
 
@@ -289,13 +283,11 @@ Task mark formats:
 - [x] 1.1.1 Task description ✅ (completed: YYYY-MM-DD HH:MM)
 ```
 
-### Native task-list mirror (visibility aid)
+### Native progress mirror (visibility aid)
 
-Where the session provides native task tools (TaskCreate/TaskUpdate — Codex ≥2.1.142),
-mirror the CURRENT phase's tasks into them at session start and update statuses alongside the
-markdown marks, so the user sees live progress in the UI. The mirror is a convenience layer
-only — **`99-execution-plan.md` remains the single durable source of truth**, and its absence
-or divergence never blocks execution. Skip silently where the tools are unavailable.
+Where the session provides a plan or goal UI, mirror the current phase's tasks and update their
+statuses alongside the Markdown marks. The mirror is a convenience layer only —
+**`99-execution-plan.md` remains the durable source of truth**. Skip silently when unavailable.
 
 ### Task-list format detection (dual-format)
 

@@ -114,11 +114,10 @@ context inherits the same blind spots. Run it **tiered by stakes**:
 
 ### The challenger mechanism
 
-1. Dispatch **one** `design-challenger` agent (shipped in the plugin's `agents/` directory; a
-   fresh context by construction). Give it the problem statement and the surviving options — but
-   **NOT** your chosen pick. Packet convention: `_shared/quality-profile.md`. If the
-   design-challenger agent is not available in the registry, spawn a plain subagent (the Agent
-   tool, fresh context) with the same prompt contract instead.
+1. Dispatch **one** independent `design-challenger` role in a fresh subagent context. Give it the
+   problem statement and surviving options — but **NOT** your chosen pick. Packet convention:
+   `_shared/quality-profile.md`. A generated custom agent is optional; a generic subagent with the
+   complete challenger contract is equivalent.
 2. Instruct it to produce **its own** best recommendation and the strongest case for it, blind to
    your choice. Challenger prompt template:
 

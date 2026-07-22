@@ -93,10 +93,9 @@ For each branch, follow this drilling pattern:
 - Include trade-offs for each option
 - If the user's domain has industry-standard approaches, mention them
 - If you have a recommendation, state it and explain why
-- **Prefer structured multiple-choice prompts** (the AskUserQuestion tool) where the session
-  provides them — an enumerated option set with descriptions is exactly this shape, and one
-  structured prompt beats a free-text round-trip. Fall back to numbered text options where the
-  tool is unavailable.
+- **Prefer structured multiple-choice prompts** where the active Codex surface provides them — an
+  enumerated option set with descriptions is exactly this shape. Fall back to numbered text
+  options where structured input is unavailable.
 
 > **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes — the user decides. Apply the recommendation-hardening protocol (`_shared/recommendation-hardening.md`) to consequential recommendations; challenger escalation follows ONLY that protocol's high-stakes definition — grill-me has no private trigger, and the user may always request a challenger explicitly.
 
