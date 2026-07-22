@@ -3,60 +3,29 @@
 > **CodeOps Skills Version**: 3.12.0
 
 This is the **single canonical definition** of the per-repo quality profile and the quality-agent
-conventions built on it. It lives at the plugin root in `_shared/` (deliberately outside
-`skills/`, like `layout-convention.md` and `zero-ambiguity-gate.md`). The dispatching skills —
-exec-plan, preflight, setup-routing, and the commands that consume telemetry — link here instead
-of carrying their own copies. Change the convention in one place: here.
+conventions built on it. It lives at the plugin root in `_shared/`; dispatching skills link here
+instead of carrying copies.
 
-## The profile block
+## Structured profile
 
-A repo opts into the quality loop through one sentinel-fenced block in its project `AGENTS.md`:
+Quality and routing configuration lives in `codeops/codeops.json`, validated against
+`schemas/codeops-config.schema.json`. `AGENTS.md` contains project guidance, not mutable machine
+configuration.
 
-```markdown
-## Quality profile (CodeOps)
-<!-- CODEOPS-QUALITY:START -->
-lenses: [security, concurrency]
-security_profile: [auth-protocol]
-perf_critical: false
-review_hook: on
-telemetry: on
-agent_models: {phase-reviewer: {effort: xhigh}, codebase-scout: gpt-5.6}
-<!-- CODEOPS-QUALITY:END -->
-```
+The quality section controls independent review and stop conditions. The routing section controls
+optional roles, effort, model pins, sandboxes, and concurrency. Domain/risk tags in the active
+specification select additional reviewer roles. Outcome metrics are disabled unless
+`metrics.enabled` is explicitly `true`.
 
-The markers are exactly `<!-- CODEOPS-QUALITY:START -->` and `<!-- CODEOPS-QUALITY:END -->` —
-the same convention as the CODEOPS-ROUTING sentinels, so tooling can rewrite the block in place.
+### Parsing, absence, and ownership
 
-### Fields
-
-Every key is optional; a missing key takes its default. `[]` is a valid, meaningful value.
-
-| Key | Values | Default | Effect |
-|-----|--------|---------|--------|
-| `lenses` | list of **add-on** lens names (see the enum below) | `[]` | Extra review lenses for the phase reviewer, beyond the always-on base |
-| `security_profile` | list of security-profile names (see the enum below) | `[]` | Non-empty list activates the security auditor with the **union** of the named checklists in ONE dispatch per phase |
-| `perf_critical` | `true` \| `false` | `false` | `true` activates the perf auditor on code-touching phases |
-| `review_hook` | `on` \| `off` | `on` (when the block exists) | `off` switches the whole quality loop off while keeping the profile on record |
-| `telemetry` | `on` \| `off` | `on` | Per-repo telemetry kill switch (`off` silences `codeops-events.sh` for this repo) |
-| `agent_models` | map of agent name → model, or → `{model, effort}` | `{}` | Per-repo model and/or effort override (see Model & effort resolution) |
-
-### Parsing, absence, ownership
-
-- **Absence rule.** No block in the repo's `AGENTS.md` → the quality loop is **fully dormant**:
-  no agents dispatch, no skill-side events emit, behavior is exactly as before the loop existed.
-  Repos opt in via `/setup-routing`, which proposes and writes the block.
-- **Parsing rule — lenient per key.** An unknown key, or a key with an unusable value, is warned
-  about once in-session and treated as absent; the remaining keys still apply. Reading the
-  profile must never block work. (Emit-side telemetry validation is the opposite — strict — but
-  that gate lives in `scripts/codeops-events.sh` and protects the dataset, not the workflow.)
-- **Corrupt sentinels.** A START marker without its END (or vice versa) makes the block
-  unparseable: skills treat the profile as absent and say so; setup-routing refuses to merge
-  into a corrupt pair rather than guessing at boundaries.
-- **Ownership — shared.** setup-routing writes and updates the block; direct hand-edits are
-  legitimate and expected (flipping `review_hook`, adding a lens). There is deliberately no
-  guard hook on it.
-- `agent_models` naming an agent that never activates in this repo is tolerated: warn, ignore.
-  So is a value the enums do not recognize — the entry drops, the rest of the map still applies.
+- Missing quality configuration selects strict CodeOps defaults for planned complex-system work:
+  independent review on, at least one reviewer, and stop on major findings.
+- Invalid structured configuration is a readiness blocker; do not silently discard malformed
+  policy and continue with unknown guarantees.
+- setup-routing proposes and updates structured policy. Hand edits are valid and validated.
+- A missing optional custom agent never disables review; use a complete dynamic packet or inline
+  fallback.
 
 ## Taxonomies
 
@@ -75,7 +44,7 @@ Every key is optional; a missing key takes its default. `[]` is a valid, meaning
 The base lenses `correctness` + `maintainability` + `standards` are always on for every review;
 the profile's `lenses` list names **add-ons only**. Disambiguation: a violation of a written
 standard is `standards`; a design-quality judgment with no written rule behind it is
-`maintainability` — keeping the two distinguishable in telemetry.
+`maintainability` — keeping the two distinguishable in findings and outcome evidence.
 
 ### security_profile enum (5)
 
@@ -87,7 +56,7 @@ standard is `standards`; a design-quality judgment with no written rule behind i
 | `tenant-isolation` | Multi-tenant boundaries: cross-tenant reads/writes, scoping, leakage |
 | `mcp-agent` | Agent/MCP integrations: prompt injection, tool abuse, secret exfiltration |
 
-The per-profile checklists live in `agents/security-auditor.md`; this table is the naming
+The per-profile checklists live in `agent-templates/security-auditor.md`; this table is the naming
 authority. Both enums are grow-only: adding a value here legalizes it everywhere (the structural
 guards read the enums from this file).
 
@@ -106,26 +75,26 @@ returning empty output.
 
 | Condition | Effect |
 |-----------|--------|
-| No profile block | Everything dormant — no dispatches, no skill-side emissions |
-| Block present, `review_hook: off` | Loop announced as off; no dispatches |
-| Block present (hook on) | Post-phase quality review runs for **all executed phases and task mini-plans** (whole-task diff); trivial tasks are never reviewed |
+| No structured profile | Strict defaults: one correctness review for every non-trivial executed phase |
+| `quality.independentReview: false` | Allowed only outside strict mode; announce that independent review is disabled |
+| Independent review on | Post-phase quality review runs for **all executed phases and task mini-plans** (whole-task diff); trivial tasks are never reviewed |
 | Docs-only diff | Phase reviewer still runs; security/perf auditors skip — the skip is logged, never silent |
-| `security_profile` non-empty | Security auditor dispatches once per phase with the union of the named checklists, and **supersedes** the reviewer's `security` lens |
-| `perf_critical: true` + diff touches code | Perf auditor dispatches and **supersedes** the reviewer's `perf` lens |
+| Security risk tags active | Security auditor dispatches once per phase with the union of applicable checklists and supersedes the reviewer's security lens |
+| Performance-critical tag + code diff | Performance auditor dispatches and supersedes the reviewer's performance lens |
 
 Supersession exists so the same ground is never reviewed twice at different depths: a dedicated
 agent replaces the reviewer's matching add-on lens for that phase.
 
 ## Dispatch packets & header
 
-**Line 1 of every quality-agent dispatch prompt** is the machine-readable header:
+**Line 1 of every quality-agent dispatch prompt** is a compact scope header:
 
 ```
 [codeops-dispatch agent=<name> feature=<slug> phase=<id>]
 ```
 
-The telemetry hook parses it from the completion payload; a dispatch without the header still
-produces a completion event with those fields omitted, so missing headers are measurable.
+The header makes parallel results attributable and auditable. Outcome metrics never parse prompt
+or response content.
 
 | Agent | Packet contents (the agent receives nothing else and must need nothing else) |
 |-------|------------------------------------------------------------------------------|

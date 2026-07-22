@@ -58,8 +58,8 @@ Before a phase's first task (and before a T-NN mini-plan's first task), record t
 commit as the phase-start ref: run `git rev-parse HEAD` and write `> **Phase ref**: <sha>` into
 that phase's header in `99-execution-plan.md` (for a mini-plan, its single header). The
 post-phase quality step diffs `<phase-ref>..HEAD` — without the ref there is nothing to review.
-When the repo has an active quality profile, emit `phase_started` at this moment (see Telemetry
-emissions below).
+When opt-in outcome metrics are enabled, record only a content-free execution-stage event through
+`codeops_outcomes.py`; metrics never gate execution.
 
 **Spec-author dispatch (profile-gated).** Tasks marked `[spec-author]` dispatch the
 spec-test-author agent — packet per `_shared/quality-profile.md` — BEFORE any implementation
@@ -118,42 +118,33 @@ Runs after a phase's last task verifies — and after a T-NN mini-plan's work ve
 whole-task diff. Activation rules, packets, supersession, and caps are defined in
 `_shared/quality-profile.md`; this section owns the order of operations:
 
-1. **Determine activation.** No profile block, or `review_hook: off` → skip silently (no
-   skill-side emissions; hook events still fire natively). Trivial tasks are never reviewed.
+1. **Determine activation.** Strict defaults review every non-trivial phase. Adaptive mode may
+   explicitly disable independent review; announce that choice. Trivial tasks are never reviewed.
    A docs-only diff → phase-reviewer only, and the auditor skip is logged — never silent.
-2. **Dispatch in parallel:** the phase-reviewer plus every active auditor (security-auditor when
-   the profile names security profiles; perf-auditor when `perf_critical` and the diff touches
-   code), each with the dispatch header on line 1 of its prompt and its packet
+2. **Dispatch in parallel:** the correctness reviewer plus every risk-selected auditor (security,
+   financial integrity, concurrency, performance, semantics, or migration), each with the
+   dispatch header on line 1 of its prompt and its packet
    (diff = `git diff <phase-ref>..HEAD`).
 3. **Merge findings** (RV/SA/PE) and present them in severity-grouped batches (reuse the
    preflight skill's batch pacing). 🔴 CRITICAL / 🟠 MAJOR findings PAUSE execution for the
    user's ruling in ALL commit modes; 🟡 MINOR findings are report-only.
-4. **Emit `finding_decided`** per finding immediately after each ruling batch.
+4. **Record decisions durably** in the finding and traceability artifacts after each ruling batch.
 5. **Accepted fixes:** implement → verify → follow-up commit per the commit mode. If any 🔴/🟠
    fix was applied, dispatch ONE re-review scoped to the fix diff — never a third pass. A fix
    the re-review still rejects is reported; the user decides.
-6. **Emit `review_run`** (one per reviewer/auditor that ran) **and `phase_completed`**, then
-   proceed to the next phase.
+6. **Attach review evidence** to the task/verification nodes, optionally record a content-free
+   review outcome, then proceed to the next phase.
 
 A dispatch that fails or dies mid-loop is reported — the phase completes UNreviewed only on the
 user's explicit say-so.
 
-### Telemetry emissions (profile-gated)
+### Outcome evidence (opt-in)
 
-Skill-side events emit only when the repo has an active quality profile; a dormant repo emits
-nothing beyond the plugin's native hook events. Every emission is ONE call of the utility at the
-plugin root — `"${PLUGIN_ROOT}/scripts/codeops-events.sh" emit …` (from a skill's base
-directory that is `../../scripts/codeops-events.sh`) — and can never block execution: the
-utility always exits 0. Pinned moments:
-
-| Event | Moment |
-|-------|--------|
-| `phase_started` | when the phase-start ref is recorded |
-| `task_completed` | at each task's `[x]` promotion |
-| `blocker_reported` | when a blocker is raised to the user |
-| `commit_gate` | once per commit-decision point in every mode (`blocked_by_finding=true` while a 🔴/🟠 ruling holds it) |
-| `spec_test_cycle` | once per phase, at the post-phase quality step, when authored/red_confirmed/post_impl_failures are all known |
-| `finding_decided`, `review_run`, `phase_completed` | inside the post-phase quality step (steps 4 and 6 above) |
+When `codeops/codeops.json` sets `metrics.enabled` to `true`, record only enumerated, content-free
+outcomes through `"${PLUGIN_ROOT}/scripts/codeops_outcomes.py" emit`. Useful events include
+verification results, rework cycles, scope drift, invalidated assumptions, runtime ambiguities,
+review completion, escaped findings, and recovery accuracy. Event recording always exits without
+changing gate results. Never include prompts, paths, source content, finding prose, or user text.
 
 ### Verify-output capture (NON-NEGOTIABLE)
 

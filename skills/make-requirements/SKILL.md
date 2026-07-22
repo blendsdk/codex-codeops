@@ -146,10 +146,8 @@ at Phase 2B before any RD is written — see **`zero-ambiguity-gate.md`**. The
 register is saved permanently at **`requirements/00-ambiguity-register.md`** and
 every decision in every RD back-references its AR # entry.
 
-**Telemetry (profile-gated):** when the repo has an active quality profile, emit
-`gate_summary` once at the moment the Phase 2B gate PASSES — gate `zero_ambiguity`,
-with rounds/questions/decisions/deferrals counts (one `codeops-events.sh emit` call;
-an emission failure never blocks the gate).
+When opt-in outcome metrics are enabled, record only the enumerated requirements result and
+aggregate round/decision counts. Never store questions, decisions, names, paths, or content.
 
 ---
 

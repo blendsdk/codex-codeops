@@ -191,10 +191,8 @@ Are there any branches I missed, or decisions you want to revisit?
 **The user must explicitly confirm** before you move on or transition to another
 protocol.
 
-**Telemetry (profile-gated):** when the repo has an active quality profile, emit `gate_summary`
-once at this confirmation — gate `grill-me`, with the session's rounds/questions/decisions/
-deferrals counts (one `"${PLUGIN_ROOT}/scripts/codeops-events.sh" emit` call; an
-emission failure never blocks the session).
+When opt-in outcome metrics are enabled, record only aggregate rounds, decisions, and deferrals
+with an enumerated result. Never store the topic, questions, answers, or decision content.
 
 ## Agent Behavior Rules
 

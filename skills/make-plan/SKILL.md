@@ -120,7 +120,8 @@ Before writing documents (and again before each execution phase), re-check: Comp
 
 The mechanism is the **Ambiguity Register** (`00-ambiguity-register.md`): a numbered inventory of every gap, ambiguity, unstated assumption, and open question, hunted systematically across all 12 categories. The full category checklist, register template, gate-enforcement rules, no-deferral policy, traceability requirement, surface-during-authoring rule, and interactions with the grill-me / upgrade-plan skills are in **[zero-ambiguity-gate.md](zero-ambiguity-gate.md)** — **read it now, before Phase 2.**
 
-**Telemetry (profile-gated):** when the repo has an active quality profile, emit `gate_summary` once at the moment this gate PASSES — gate `zero_ambiguity`, with rounds/questions/decisions/deferrals counts and the feature slug (one `codeops-events.sh emit` call; an emission failure never blocks the gate).
+When opt-in outcome metrics are enabled, record only the enumerated planning result and aggregate
+round/decision counts. Never store feature names, questions, decisions, or artifact content.
 
 Gate opens ONLY when: every row Status = `✅ Resolved` with the user's explicit decision, the user has confirmed the complete register, zero items deferred, and the header reads `✅ GATE PASSED`. If zero ambiguities are found, still create the register file proving the review ran. You may recommend an option, but you may never decide for the user.
 

@@ -10,6 +10,7 @@ Create **exactly** this minimal skeleton — nothing more (FR-6, AR #12):
 ```
 codeops/
 ├── .codeops.yml          # the layout marker (schema below)
+├── codeops.json          # structured quality/routing/metrics policy
 ├── 00-roadmap.md         # empty portfolio roadmap (0 features)
 └── features/             # empty; per-feature dirs are created LAZILY on first RD/plan/task
 ```
@@ -22,10 +23,29 @@ front. Those appear lazily when the first RD, plan, or task is authored (AR #5).
 1. Confirm the repo is a git repo (suggest `git init` if not).
 2. Create `codeops/features/` (the empty features dir).
 3. Write `codeops/.codeops.yml` (the marker — `setup-codeops` is its sole writer).
-4. Write `codeops/00-roadmap.md` (empty portfolio — see the portfolio template in the `roadmap`
+4. Write `codeops/codeops.json` with the strict defaults below.
+5. Write `codeops/00-roadmap.md` (empty portfolio — see the portfolio template in the `roadmap`
    skill; seed it with zero features and an empty Archived section).
-5. Report what was created and what to do next (`make-requirements` / `make-plan` for the first
+6. Run `codeops_state.py status`; no feature graph exists yet, so report setup state rather than
+   claiming project readiness.
+7. Report what was created and what to do next (`make-requirements` / `make-plan` for the first
    feature; the feature folder is created lazily then).
+
+## `codeops/codeops.json` (write verbatim)
+
+```json
+{
+  "schema": 1,
+  "mode": "strict",
+  "artifacts": {"layout": "nested", "root": "codeops"},
+  "quality": {
+    "independentReview": true,
+    "minimumReviewers": 1,
+    "stopOnMajorFinding": true
+  },
+  "metrics": {"enabled": false}
+}
+```
 
 ## `codeops/.codeops.yml` (write verbatim)
 
@@ -50,7 +70,8 @@ default when it is absent — so this line is a convenience/pin, not a requireme
 
 ## Notes
 
-- The marker is what flips the repo into nested layout — write it **last** so a half-finished
+- The marker is what flips the repo into nested layout — write it **last** after the structured
+  config and roadmap, so a half-finished
   scaffold never looks "set up".
 - Scaffolding is intentionally simple, so it lives in skill prose; only the *migration* path
   needs the deterministic engine. For migration, see [migration.md](migration.md).

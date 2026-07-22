@@ -27,7 +27,8 @@
 
 2. **Render the preview** to the user, faithfully reflecting the engine output: the feature slug
    and where it came from (roadmap header vs. repo/dir name), a count and summary of the moves,
-   the two created files (`codeops/.codeops.yml`, `codeops/00-roadmap.md`), and every warning.
+   the created control files (`codeops/codeops.json`, `codeops/.codeops.yml`, and
+   `codeops/00-roadmap.md`), and every warning.
 
 3. **Confirm (once).** Ask a single yes/no: apply this migration with `git mv`? Skip this prompt
    only when the user passed `--yes`.

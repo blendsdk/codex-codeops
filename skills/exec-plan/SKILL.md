@@ -8,7 +8,7 @@ description: >-
   or --auto-commit (commit + push after each verified task). Reads the feature's execution plan,
   finds the next incomplete task, and runs the per-task loop (implement, update the execution
   plan immediately, verify, then commit per mode) following specification-first task ordering.
-  When the repo's AGENTS.md carries a CodeOps quality-profile block, a profile-gated quality loop
+  Under the repo's CodeOps quality policy, a risk-derived quality loop
   reviews each executed phase (reviewer + auditor agents); critical/major findings pause for a
   user ruling in every commit mode.
 ---
@@ -142,16 +142,16 @@ source of truth and tells the skill where to pick up.
 
 ## Quality loop (profile-gated)
 
-When the repo's `AGENTS.md` carries a quality-profile block, every executed phase (and task
-mini-plan) ends with a post-phase quality review; without the block this loop is **fully
-dormant**. Activation rules, lenses, supersession, dispatch packets, and budget caps are defined
+Every non-trivial executed phase (and task mini-plan) ends with a post-phase quality review under
+strict defaults unless an allowed adaptive-mode policy explicitly disables it. Activation rules,
+lenses, supersession, dispatch packets, and budget caps are defined
 once in **[../../_shared/quality-profile.md](../../_shared/quality-profile.md)** — this skill
 links to them, never restates them.
 
 The flow: the protocol records a phase-start ref when the phase begins; after the phase's last
-task verifies, the phase-reviewer and any active auditors are dispatched **in parallel** on the
-phase diff, their findings are merged and presented in severity-grouped batches, and each ruling
-is emitted to telemetry.
+task verifies, the correctness reviewer and any active auditors are dispatched **in parallel** on
+the phase diff, their findings are merged and presented in severity-grouped batches, and each
+ruling is recorded in durable finding and traceability artifacts.
 
 > **🚨 Finding gate (load-bearing).** 🔴 CRITICAL and 🟠 MAJOR findings PAUSE execution for the
 > user's ruling in ALL commit modes — auto-commit never bypasses the pause. 🟡 MINOR findings are

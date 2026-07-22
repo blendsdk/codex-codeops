@@ -21,7 +21,9 @@ Run:
 
 ```bash
 ./scripts/validate-codex.sh
+./scripts/migration-check.sh
+./scripts/roadmap-sync-check.sh
+./scripts/compact-check.sh
 ```
 
 The validation entry point must remain deterministic and safe to run from the repository root.
-

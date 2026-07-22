@@ -1,5 +1,0 @@
-{
-  "session_id": "sess-broken",
-  "hook_event_name": "PostToolUse",
-  "tool_name": "Agent",
-  "tool_input": {

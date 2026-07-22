@@ -100,6 +100,7 @@ expected_moves=(
   "MOVE plans/00-roadmap.md -> codeops/features/$SLUG/00-roadmap.md"
   "MOVE plans/_archive/billing-v1/ -> codeops/_archive/billing-v1/"
   "CREATE codeops/.codeops.yml"
+  "CREATE codeops/codeops.json"
   "CREATE codeops/00-roadmap.md"
 )
 for line in "${expected_moves[@]}"; do

@@ -230,6 +230,7 @@ for m in "${moves[@]}"; do
   printf 'MOVE %s -> %s\n' "${m%%|*}" "${m##*|}"
 done
 printf 'CREATE codeops/.codeops.yml\n'
+printf 'CREATE codeops/codeops.json\n'
 printf 'CREATE codeops/00-roadmap.md\n'
 for w in "${warnings[@]:-}"; do
   [[ -n "$w" ]] && printf 'WARN %s\n' "$w"
@@ -293,6 +294,19 @@ find plans requirements -type d -empty -delete 2>/dev/null || true
 integration_branch="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
 [[ -n "$integration_branch" ]] || integration_branch="$(git symbolic-ref --quiet --short HEAD 2>/dev/null)"
 [[ -n "$integration_branch" ]] || integration_branch="main"
+cat > codeops/codeops.json <<'JSON' || fail_apply "write codeops/codeops.json"
+{
+  "schema": 1,
+  "mode": "strict",
+  "artifacts": {"layout": "nested", "root": "codeops"},
+  "quality": {
+    "independentReview": true,
+    "minimumReviewers": 1,
+    "stopOnMajorFinding": true
+  },
+  "metrics": {"enabled": false}
+}
+JSON
 cat > codeops/.codeops.yml <<YML || fail_apply "write codeops/.codeops.yml"
 # CodeOps layout marker. Presence of this file opts the repo into the nested layout.
 # Sole writer: the setup_codeops skill (via codeops-migrate.sh). Schema: _shared/layout-convention.md

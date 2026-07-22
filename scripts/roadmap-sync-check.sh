@@ -352,11 +352,11 @@ fi
 # =============================================================================
 # ST-11 — the project verify command lists this suite.
 # =============================================================================
-section "ST-11: CLAUDE.md verify command lists roadmap-sync-check.sh"
-if grep -qF 'roadmap-sync-check.sh' "$REPO_ROOT/CLAUDE.md"; then
-  pass "CLAUDE.md references ./scripts/roadmap-sync-check.sh"
+section "ST-11: AGENTS.md verify command lists roadmap-sync-check.sh"
+if grep -qF 'roadmap-sync-check.sh' "$REPO_ROOT/AGENTS.md"; then
+  pass "AGENTS.md references ./scripts/roadmap-sync-check.sh"
 else
-  fail "CLAUDE.md verify command does not list roadmap-sync-check.sh"
+  fail "AGENTS.md verify command does not list roadmap-sync-check.sh"
 fi
 
 # =============================================================================

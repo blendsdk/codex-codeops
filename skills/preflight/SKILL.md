@@ -159,10 +159,9 @@ The lead context always merges the returned PA-NNN findings into the single `PF-
 every user interaction — auditors never talk to the user. Sequential scanning remains correct
 when subagents are unavailable.
 
-**Telemetry:** with an active quality profile, emit `preflight_run` when the report is compiled,
-`finding_decided` per finding immediately after each ruling batch, and `gate_summary`
-(gate `preflight_gate`) at the verdict step (one `codeops-events.sh emit` call each; failures
-never block the scan).
+When opt-in outcome metrics are enabled, record only enumerated review results and rework counts
+through `codeops_outcomes.py`. Finding content and user decisions remain solely in project
+artifacts and never enter the metrics store.
 
 ## Iterative re-scanning
 
