@@ -4,7 +4,7 @@ CodeOps is a specification-first engineering system for building complex softwar
 
 It is designed for work where an unstated assumption can become a correctness defect: programming languages and compilers, financial systems, protocols, distributed services, security-sensitive applications, developer tools, and substantial web applications.
 
-> **Development status:** This repository contains the active Codex port. The workflow corpus and initial plugin package are present, but the port has not yet passed its 1.0 parity and release gates. Do not treat the current version as production-ready.
+> **Development status:** The plugin is installable and under active pre-1.0 validation. Core workflows, deterministic state, project tracking, domain lenses, and Codex-native routing are present; comparative complex-system evaluations remain release gates.
 
 ## The workflow
 
@@ -40,17 +40,38 @@ The port begins from the proven CodeOps workflow set:
 - safe artifact upgrades and migration; and
 - CodeOps project setup.
 
-Codex-native traceability, readiness proofs, recovery, agent routing, and outcome evaluation are being implemented under the [port program](plans/codex-port/00-index.md).
+Codex-native traceability, readiness proofs, recovery, agent routing, and outcome evaluation are governed by the [port program](plans/codex-port/00-index.md).
 
 ## Installation
 
-Installation commands will be published here after the clean-environment marketplace and plugin installation tests pass. The intended source is:
+Add the GitHub repository as a Codex marketplace, then install CodeOps:
 
-```text
-git@github.com:blendsdk/codex-codeops.git
+```bash
+codex plugin marketplace add blendsdk/codex-codeops --ref main
+codex plugin add codeops@codeops-marketplace
 ```
 
-The release documentation will include verified install, update, disable, uninstall, and hook-trust procedures. Commands are intentionally not presented as working until the corresponding conformance tests pass.
+These commands have been verified against the published repository. Start a new Codex thread after installation so skills and hooks are discovered.
+
+Codex requires non-managed hooks to be reviewed before they run. Open `/hooks`, inspect the CodeOps SessionStart and edit-warning definitions, and trust them if they match this repository.
+
+Verify installation with `codex plugin list`; `codeops@codeops-marketplace` should report `installed, enabled`.
+
+## Update and uninstall
+
+```bash
+codex plugin marketplace upgrade codeops-marketplace
+codex plugin add codeops@codeops-marketplace
+```
+
+Remove the plugin, and optionally its marketplace:
+
+```bash
+codex plugin remove codeops@codeops-marketplace
+codex plugin marketplace remove codeops-marketplace
+```
+
+Start a new thread after install, update, disable, or removal. See [installation details](docs/installation.md) for trust, development, and troubleshooting notes.
 
 ## Development
 

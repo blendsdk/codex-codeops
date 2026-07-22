@@ -56,7 +56,7 @@ validate_native_terms() {
 
 validate_links() {
   python3 scripts/validate_markdown_links.py \
-    skills _shared standards plans README.md AGENTS.md
+    skills _shared standards references docs plans README.md AGENTS.md
 }
 
 run_check "plugin manifest" python3 scripts/validate_plugin.py .
