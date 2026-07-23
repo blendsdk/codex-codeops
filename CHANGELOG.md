@@ -2,6 +2,16 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 0.2.0-beta.6 — 2026-07-23
+
+- Keep single-document preflight audits scoped to their selected target while
+  using related artifacts only as context.
+- Bound corrective rescans, preserve finding identity by root cause, and stop
+  cleanly when minor findings are explicitly accepted.
+- Store narrow preflight evidence separately so sibling requirements and whole
+  plans cannot advance from an out-of-scope pass.
+- Add deterministic validation for preflight scope and convergence contracts.
+
 ## 0.2.0-beta.5 — 2026-07-23
 
 - Make `status` a successful observation for structurally valid projects whose
