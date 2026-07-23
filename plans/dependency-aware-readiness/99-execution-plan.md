@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-07-23 14:07
-> **Progress**: 19/51 tasks (37%)
+> **Last Updated**: 2026-07-23 14:55
+> **Progress**: 28/51 tasks (55%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -104,35 +104,46 @@ conformance tests and all five repository gates passed.
 
 ## Phase 3: Revisions and Atomic Transitions
 
-> **Phase baseline tree**: recorded by exec-plan before the first phase mutation
+> **Phase baseline tree**: `89c71e415264bd30021bba6510428936c66c922b`
 
 ### Step 3.1: Specification Tests
 
 **Reference**: `03-03-migration-and-invalidation.md` §Atomic Transition Protocol ·
 ST-21–ST-24, ST-36, ST-37, ST-42–ST-46, ST-48 · AR-8, AR-18–AR-20, AR-29
 
-- [ ] 3.1.1 [spec-author] Add canonical revision, snapshot mismatch, relationship-specific invalidation, and normalization cases — `tests/conformance/test_state_v2_spec.py`
-- [ ] 3.1.2 [spec-author] Add legal/illegal lifecycle, compare-and-swap, lock-owner proof, explicit recovery, interruption journal, and post-write rollback cases — `tests/conformance/test_state_migration_spec.py`
-- [ ] 3.1.3 Run Phase-3 specification modules red while every earlier and schema-1 specification module remains green — `tests/conformance/test_state_v2_spec.py`, `tests/conformance/test_state_migration_spec.py`
+- [x] 3.1.1 [spec-author] Add canonical revision, snapshot mismatch, relationship-specific invalidation, and normalization cases — `tests/conformance/test_state_v2_spec.py` ✅ (completed: 2026-07-23 14:52)
+- [x] 3.1.2 [spec-author] Add legal/illegal lifecycle, compare-and-swap, lock-owner proof, explicit recovery, interruption journal, and post-write rollback cases — `tests/conformance/test_state_migration_spec.py` ✅ (completed: 2026-07-23 14:53)
+- [x] 3.1.3 Run Phase-3 specification modules red while every earlier and schema-1 specification module remains green — `tests/conformance/test_state_v2_spec.py`, `tests/conformance/test_state_migration_spec.py` ✅ (completed: 2026-07-23 14:53)
 
 ### Step 3.2: Implementation
 
 **Reference**: `03-01-graph-schema.md` §Normative node fields ·
 `03-03-migration-and-invalidation.md` §Atomic Transition Protocol
 
-- [ ] 3.2.1 Implement semantic-source normalization, versioned SHA-256 revisions, snapshot validation, and stale propagation — `scripts/codeops_state_lib/revisions.py`
-- [ ] 3.2.2 Implement lock-safe compare-and-swap, atomic replacement, transition journals, and explicit recovery — `scripts/codeops_state_lib/transitions.py`
-- [ ] 3.2.3 Expose target transition/status contracts through the thin CLI, then run Phase-3 specification modules green — `scripts/codeops_state.py`, `scripts/codeops_state_lib/rendering.py`
-- [ ] 3.2.4 Expose `transition-recover` request/result/exit contracts with explicit roll-forward/rollback — `scripts/codeops_state.py`, `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/rendering.py`
+- [x] 3.2.1 Implement semantic-source normalization, versioned SHA-256 revisions, snapshot validation, and stale propagation — `scripts/codeops_state_lib/revisions.py` ✅ (completed: 2026-07-23 14:55)
+- [x] 3.2.2 Implement lock-safe compare-and-swap, atomic replacement, transition journals, and explicit recovery — `scripts/codeops_state_lib/transitions.py` ✅ (completed: 2026-07-23 14:59)
+- [x] 3.2.3 Expose target transition/status contracts through the thin CLI, then run Phase-3 specification modules green — `scripts/codeops_state.py`, `scripts/codeops_state_lib/rendering.py` ✅ (completed: 2026-07-23 14:59)
+- [x] 3.2.4 Expose `transition-recover` request/result/exit contracts with explicit roll-forward/rollback — `scripts/codeops_state.py`, `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/rendering.py` ✅ (completed: 2026-07-23 15:01)
 
 ### Step 3.3: Implementation Tests and Hardening
 
 **Reference**: `03-03-migration-and-invalidation.md` §Error Handling
 
-- [ ] 3.3.1 Add concurrent-writer, stale-lock, interrupted-journal, moved-source, cross-platform normalization, and path-safety tests — `tests/conformance/test_state_migration_impl.py`
-- [ ] 3.3.2 Rerun all earlier/schema-1 specification modules, assert collection, and run the confirmed full verification gate — `scripts/validate-codex.sh`, `tests/conformance/test_state_v1_compat_spec.py`
+- [x] 3.3.1 Add concurrent-writer, stale-lock, interrupted-journal, moved-source, cross-platform normalization, and path-safety tests — `tests/conformance/test_state_migration_impl.py` ✅ (completed: 2026-07-23 15:01)
+- [x] 3.3.2 Rerun all earlier/schema-1 specification modules, assert collection, and run the confirmed full verification gate — `scripts/validate-codex.sh`, `tests/conformance/test_state_v1_compat_spec.py` ✅ (completed: 2026-07-23 15:03)
 
 **Verify**: run all five commands confirmed in AR-14.
+
+**Phase review remediation**: the initial independent review found unsafe recovery-owner trust,
+post-replace cleanup gaps, caller-selectable gate bypass, incomplete projected/post-write
+validation, missing lifecycle evidence enforcement, optional snapshots, non-durable recovery
+images, incomplete lock/journal binding, and absent production multi-graph invalidation. The user
+accepted every recommended fix. The transition engine now derives governing gates, persists
+lifecycle evidence, requires relationship snapshots, proves recorded process absence, serializes
+recovery, retains uncertain state, validates complete projected and committed portfolios, and
+journals downstream invalidation across graphs. Focused state verification passes; one-time
+re-review findings were resolved under the user's delegated technical authority, and the final
+97-test state suite plus all five repository gates passed on 2026-07-23 15:45.
 
 ## Phase 4: Traceability Graph Migration
 

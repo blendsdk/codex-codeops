@@ -1,104 +1,174 @@
 {
-  "schema": 2,
   "feature": "dependency-aware-readiness",
   "nodes": [
     {
+      "edges": [
+        {
+          "relation": "depends-on",
+          "target": "dependency-aware-readiness/CRIT-READINESS"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "dependency-aware-readiness/TASK-PHASE-3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "dependency-aware-readiness/TASK-PHASE-4"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "dependency-aware-readiness/TASK-PHASE-5"
+        }
+      ],
+      "evidence": [
+        "plans/dependency-aware-readiness/99-execution-plan.md"
+      ],
       "id": "PLAN-READINESS",
-      "type": "plan",
-      "title": "Dependency-aware readiness implementation plan",
-      "status": "approved",
-      "semanticSources": [{
-        "path": "plans/dependency-aware-readiness/00-index.md",
-        "selector": {"kind": "whole-file"},
-        "normalization": "utf8-lf-trim-trailing-v1",
-        "digest": "sha256"
-      }],
       "revision": "sha256:dd1738716e4ac1d9efb6933bb98bd563a664c871acf32be3089dd4c14433ac27",
-      "edges": [
-        {"relation": "depends-on", "target": "dependency-aware-readiness/CRIT-READINESS"},
-        {"relation": "implemented-by", "target": "dependency-aware-readiness/TASK-PHASE-3"},
-        {"relation": "implemented-by", "target": "dependency-aware-readiness/TASK-PHASE-4"},
-        {"relation": "implemented-by", "target": "dependency-aware-readiness/TASK-PHASE-5"}
+      "semanticSources": [
+        {
+          "digest": "sha256",
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "path": "plans/dependency-aware-readiness/00-index.md",
+          "selector": {
+            "kind": "whole-file"
+          }
+        }
       ],
-      "validations": [],
-      "evidence": ["plans/dependency-aware-readiness/99-execution-plan.md"]
-    },
-    {
-      "id": "CRIT-READINESS",
-      "type": "criterion",
-      "title": "Dependency-aware readiness acceptance criteria",
       "status": "approved",
-      "semanticSources": [{
-        "path": "plans/dependency-aware-readiness/07-testing-strategy.md",
-        "selector": {"kind": "whole-file"},
-        "normalization": "utf8-lf-trim-trailing-v1",
-        "digest": "sha256"
-      }],
-      "revision": "sha256:3f8fd10d9984c48eb78bafa1d413f688a0fb5d7d4c9f08155809ab1a2be07325",
+      "title": "Dependency-aware readiness implementation plan",
+      "type": "plan",
+      "validations": [
+        {
+          "gate": "execution",
+          "relation": "depends-on",
+          "revision": "sha256:3f8fd10d9984c48eb78bafa1d413f688a0fb5d7d4c9f08155809ab1a2be07325",
+          "upstream": "dependency-aware-readiness/CRIT-READINESS",
+          "validatedAt": "2026-07-23T15:15:00Z"
+        },
+        {
+          "gate": "execution",
+          "relation": "implemented-by",
+          "revision": "sha256:b6e3270ec379fdbd5aa1cb4cf03018c8190ba4920da82a9428f04e2a7684bce0",
+          "upstream": "dependency-aware-readiness/TASK-PHASE-3",
+          "validatedAt": "2026-07-23T15:15:00Z"
+        },
+        {
+          "gate": "execution",
+          "relation": "implemented-by",
+          "revision": "sha256:b6e3270ec379fdbd5aa1cb4cf03018c8190ba4920da82a9428f04e2a7684bce0",
+          "upstream": "dependency-aware-readiness/TASK-PHASE-4",
+          "validatedAt": "2026-07-23T15:15:00Z"
+        },
+        {
+          "gate": "execution",
+          "relation": "implemented-by",
+          "revision": "sha256:5f0010ec1a5aaed32e5f4bc32da2c8710ea8c597a369d2443e076c06f7b0f6e1",
+          "upstream": "dependency-aware-readiness/TASK-PHASE-5",
+          "validatedAt": "2026-07-23T15:15:00Z"
+        }
+      ]
+    },
+    {
       "edges": [
-        {"relation": "tested-by", "target": "dependency-aware-readiness/TEST-READINESS"}
+        {
+          "relation": "tested-by",
+          "target": "dependency-aware-readiness/TEST-READINESS"
+        }
       ],
-      "validations": []
-    },
-    {
-      "id": "TEST-READINESS",
-      "type": "test",
-      "title": "Dependency-aware readiness conformance suite",
-      "status": "planned",
-      "semanticSources": [{
-        "path": "plans/dependency-aware-readiness/07-testing-strategy.md",
-        "selector": {"kind": "whole-file"},
-        "normalization": "utf8-lf-trim-trailing-v1",
-        "digest": "sha256"
-      }],
+      "id": "CRIT-READINESS",
       "revision": "sha256:3f8fd10d9984c48eb78bafa1d413f688a0fb5d7d4c9f08155809ab1a2be07325",
-      "edges": [],
+      "semanticSources": [
+        {
+          "digest": "sha256",
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "path": "plans/dependency-aware-readiness/07-testing-strategy.md",
+          "selector": {
+            "kind": "whole-file"
+          }
+        }
+      ],
+      "status": "approved",
+      "title": "Dependency-aware readiness acceptance criteria",
+      "type": "criterion",
       "validations": []
     },
     {
+      "edges": [],
+      "id": "TEST-READINESS",
+      "revision": "sha256:3f8fd10d9984c48eb78bafa1d413f688a0fb5d7d4c9f08155809ab1a2be07325",
+      "semanticSources": [
+        {
+          "digest": "sha256",
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "path": "plans/dependency-aware-readiness/07-testing-strategy.md",
+          "selector": {
+            "kind": "whole-file"
+          }
+        }
+      ],
+      "status": "planned",
+      "title": "Dependency-aware readiness conformance suite",
+      "type": "test",
+      "validations": []
+    },
+    {
+      "edges": [],
       "id": "TASK-PHASE-3",
-      "type": "task",
+      "revision": "sha256:b6e3270ec379fdbd5aa1cb4cf03018c8190ba4920da82a9428f04e2a7684bce0",
+      "semanticSources": [
+        {
+          "digest": "sha256",
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "path": "plans/dependency-aware-readiness/03-03-migration-and-invalidation.md",
+          "selector": {
+            "kind": "whole-file"
+          }
+        }
+      ],
+      "status": "pending",
       "title": "Revisions and atomic transitions",
-      "status": "pending",
-      "semanticSources": [{
-        "path": "plans/dependency-aware-readiness/03-03-migration-and-invalidation.md",
-        "selector": {"kind": "whole-file"},
-        "normalization": "utf8-lf-trim-trailing-v1",
-        "digest": "sha256"
-      }],
-      "revision": "sha256:b6e3270ec379fdbd5aa1cb4cf03018c8190ba4920da82a9428f04e2a7684bce0",
-      "edges": [],
+      "type": "task",
       "validations": []
     },
     {
+      "edges": [],
       "id": "TASK-PHASE-4",
-      "type": "task",
-      "title": "Traceability graph migration",
-      "status": "pending",
-      "semanticSources": [{
-        "path": "plans/dependency-aware-readiness/03-03-migration-and-invalidation.md",
-        "selector": {"kind": "whole-file"},
-        "normalization": "utf8-lf-trim-trailing-v1",
-        "digest": "sha256"
-      }],
       "revision": "sha256:b6e3270ec379fdbd5aa1cb4cf03018c8190ba4920da82a9428f04e2a7684bce0",
-      "edges": [],
+      "semanticSources": [
+        {
+          "digest": "sha256",
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "path": "plans/dependency-aware-readiness/03-03-migration-and-invalidation.md",
+          "selector": {
+            "kind": "whole-file"
+          }
+        }
+      ],
+      "status": "pending",
+      "title": "Traceability graph migration",
+      "type": "task",
       "validations": []
     },
     {
-      "id": "TASK-PHASE-5",
-      "type": "task",
-      "title": "Workflow integration and pilot closeout",
-      "status": "pending",
-      "semanticSources": [{
-        "path": "plans/dependency-aware-readiness/03-04-workflow-integration.md",
-        "selector": {"kind": "whole-file"},
-        "normalization": "utf8-lf-trim-trailing-v1",
-        "digest": "sha256"
-      }],
-      "revision": "sha256:5f0010ec1a5aaed32e5f4bc32da2c8710ea8c597a369d2443e076c06f7b0f6e1",
       "edges": [],
+      "id": "TASK-PHASE-5",
+      "revision": "sha256:5f0010ec1a5aaed32e5f4bc32da2c8710ea8c597a369d2443e076c06f7b0f6e1",
+      "semanticSources": [
+        {
+          "digest": "sha256",
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "path": "plans/dependency-aware-readiness/03-04-workflow-integration.md",
+          "selector": {
+            "kind": "whole-file"
+          }
+        }
+      ],
+      "status": "pending",
+      "title": "Workflow integration and pilot closeout",
+      "type": "task",
       "validations": []
     }
-  ]
+  ],
+  "schema": 2
 }

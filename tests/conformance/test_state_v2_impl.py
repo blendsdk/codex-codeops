@@ -636,6 +636,13 @@ class SchemaTwoImplementationTests(unittest.TestCase):
             "RD-A",
             "requirement",
             edges=[{"relation": "release-coupled", "target": "sample/RD-B"}],
+            validations=[{
+                "upstream": "sample/RD-B",
+                "relation": "release-coupled",
+                "revision": REVISION,
+                "gate": "release",
+                "validatedAt": "2026-07-23T00:00:00Z",
+            }],
         )
         right = base_node("RD-B", "requirement")
         with tempfile.TemporaryDirectory() as raw:

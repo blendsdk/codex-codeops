@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .closure import Closure, build_closure
 from .models import CONTRACT_MATURITIES, Node, StructuralProblem
+from .revisions import snapshot_problems
 
 
 TARGET_TYPES = {
@@ -198,6 +199,9 @@ def evaluate_target(
             tuple(sorted(set(nodes) - augmented_members)),
         )
     problems = evaluate(gate, closure, nodes, sources)
+    problems.extend(
+        snapshot_problems(gate, closure.members, closure.paths, nodes, sources)
+    )
     member_requests: list[tuple[str, str]] = []
     target_node = nodes[target]
     if gate == "feature-acceptance":

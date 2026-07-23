@@ -45,6 +45,16 @@ def node(
     return value
 
 
+def snapshot(upstream: str, relation: str, gate: str) -> dict[str, str]:
+    return {
+        "upstream": upstream,
+        "relation": relation,
+        "revision": REVISION,
+        "gate": gate,
+        "validatedAt": "2026-07-23T00:00:00Z",
+    }
+
+
 class SchemaTwoSpecificationTests(unittest.TestCase):
     maxDiff = None
 
@@ -194,6 +204,9 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
                             "requiredMaturity": "stable",
                         }
                     ],
+                    validations=[
+                        snapshot("compiler/CONTRACT-IR", "consumes-contract", "plan")
+                    ],
                 ),
                 node("CONTRACT-IR", "contract", maturity="provisional"),
             ],
@@ -226,6 +239,9 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
                             "target": "compiler/CONTRACT-IR",
                             "requiredMaturity": "provisional",
                         }
+                    ],
+                    validations=[
+                        snapshot("compiler/CONTRACT-IR", "consumes-contract", "plan")
                     ],
                 ),
                 node("CONTRACT-IR", "contract", maturity="stable"),
@@ -648,6 +664,11 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
                         {"relation": "specified-by", "target": "erp/SPEC-001"},
                         {"relation": "accepted-by", "target": "erp/AC-001"},
                     ],
+                    validations=[
+                        snapshot("erp/AC-001", "accepted-by", "requirements"),
+                        snapshot("erp/AC-001", "accepted-by", "specifications"),
+                        snapshot("erp/SPEC-001", "specified-by", "specifications"),
+                    ],
                 ),
                 node("SPEC-001", "specification"),
                 node("AC-001", "criterion"),
@@ -724,6 +745,9 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
                 node(
                     "RD-A", "requirement",
                     edges=[{"relation": "release-coupled", "target": "_releases/RD-B"}],
+                    validations=[
+                        snapshot("_releases/RD-B", "release-coupled", "release")
+                    ],
                 ),
                 node("RD-B", "requirement"),
             ],
@@ -771,6 +795,156 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
         )
         self.assertEqual(json.loads(repository.stdout)["graphs"], 1)
         self.assertEqual(json.loads(fixture.stdout)["graphs"], 2)
+
+    def test_st_21_matching_dependency_snapshot_is_current(self) -> None:
+        snapshot = {
+            "upstream": "sample/RD-UP",
+            "relation": "depends-on",
+            "revision": REVISION,
+            "gate": "requirements",
+            "validatedAt": "2026-07-23T12:00:00Z",
+        }
+        graph = self.graph(
+            "sample",
+            [
+                node(
+                    "RD-DOWN",
+                    "requirement",
+                    edges=[{"relation": "depends-on", "target": "sample/RD-UP"}],
+                    validations=[snapshot],
+                ),
+                node("RD-UP", "requirement"),
+            ],
+        )
+        result = self.run_state(
+            {"sample": graph}, "readiness", "--gate", "requirements",
+            "--target", "sample/RD-DOWN",
+        )
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_st_22_snapshot_revision_mismatch_blocks_dependent(self) -> None:
+        snapshot = {
+            "upstream": "sample/RD-UP",
+            "relation": "depends-on",
+            "revision": "sha256:" + ("1" * 64),
+            "gate": "requirements",
+            "validatedAt": "2026-07-23T12:00:00Z",
+        }
+        graph = self.graph(
+            "sample",
+            [
+                node(
+                    "RD-DOWN",
+                    "requirement",
+                    edges=[{"relation": "depends-on", "target": "sample/RD-UP"}],
+                    validations=[snapshot],
+                ),
+                node("RD-UP", "requirement"),
+            ],
+        )
+        result = self.run_state(
+            {"sample": graph}, "readiness", "--gate", "requirements",
+            "--target", "sample/RD-DOWN",
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("stale-snapshot", {item["code"] for item in self.payload(result)["blockers"]})
+
+    def test_st_23_related_revision_is_not_an_invalidation_edge(self) -> None:
+        graph = self.graph(
+            "sample",
+            [
+                node(
+                    "RD-DOWN",
+                    "requirement",
+                    edges=[{"relation": "related", "target": "sample/RD-UP"}],
+                ),
+                node("RD-UP", "requirement"),
+            ],
+        )
+        result = self.run_state(
+            {"sample": graph}, "readiness", "--gate", "requirements",
+            "--target", "sample/RD-DOWN",
+        )
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_st_24_release_snapshot_is_gate_specific(self) -> None:
+        snapshot = {
+            "upstream": "sample/RD-B",
+            "relation": "release-coupled",
+            "revision": "sha256:" + ("1" * 64),
+            "gate": "release",
+            "validatedAt": "2026-07-23T12:00:00Z",
+        }
+        graph = self.graph(
+            "sample",
+            [
+                node(
+                    "RELEASE-1", "release",
+                    required=["sample/RD-A"], optional=[], excluded=[],
+                ),
+                node(
+                    "RD-A", "requirement",
+                    edges=[{"relation": "release-coupled", "target": "sample/RD-B"}],
+                    validations=[snapshot],
+                ),
+                node("RD-B", "requirement"),
+            ],
+        )
+        requirements = self.run_state(
+            {"sample": graph}, "readiness", "--gate", "requirements",
+            "--target", "sample/RD-A",
+        )
+        release = self.run_state(
+            {"sample": graph}, "readiness", "--gate", "release",
+            "--target", "sample/RELEASE-1",
+        )
+        self.assertEqual(requirements.returncode, 0, requirements.stdout)
+        self.assertEqual(release.returncode, 1)
+        self.assertIn("stale-snapshot", {item["code"] for item in self.payload(release)["blockers"]})
+
+    def test_missing_blocking_snapshot_is_reported(self) -> None:
+        graph = self.graph(
+            "erp",
+            [
+                node(
+                    "RD-001",
+                    "requirement",
+                    edges=[{"relation": "depends-on", "target": "erp/RD-002"}],
+                ),
+                node("RD-002", "requirement"),
+            ],
+        )
+        result = self.run_state(
+            {"erp": graph}, "readiness", "--gate", "requirements",
+            "--target", "erp/RD-001",
+        )
+        self.assertIn(
+            "missing-snapshot",
+            {item["code"] for item in self.payload(result)["blockers"]},
+        )
+
+    def test_snapshot_without_persisted_relationship_is_reported(self) -> None:
+        graph = self.graph(
+            "erp",
+            [
+                node(
+                    "RD-001",
+                    "requirement",
+                    validations=[
+                        snapshot("erp/RD-002", "depends-on", "requirements")
+                    ],
+                ),
+                node("RD-002", "requirement"),
+            ],
+        )
+        result = self.run_state(
+            {"erp": graph}, "readiness", "--gate", "requirements",
+            "--target", "erp/RD-001",
+        )
+        self.assertIn(
+            "extraneous-snapshot",
+            {item["code"] for item in self.payload(result)["blockers"]},
+        )
 
 
 if __name__ == "__main__":

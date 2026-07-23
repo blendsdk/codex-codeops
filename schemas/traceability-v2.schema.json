@@ -93,7 +93,17 @@
       "properties": {
         "upstream": {"$ref": "#/$defs/canonicalIdentity"},
         "relation": {
-          "enum": ["depends-on", "consumes-contract", "release-coupled"]
+          "enum": [
+            "specified-by",
+            "accepted-by",
+            "tested-by",
+            "implemented-by",
+            "verified-by",
+            "affected-by",
+            "depends-on",
+            "consumes-contract",
+            "release-coupled"
+          ]
         },
         "revision": {"$ref": "#/$defs/revision"},
         "gate": {

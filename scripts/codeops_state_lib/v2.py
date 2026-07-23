@@ -24,6 +24,7 @@ from .gates import (
 from .models import Graph, Node, StructuralProblem
 from .rendering import problem_json, problem_text
 from .schema import parse_graph_v2, validate_portfolio_v2
+from .transitions import recover, transition
 
 
 GLOBAL_CODES = {
@@ -266,14 +267,36 @@ def _base_result(loaded: Loaded, problems: list[StructuralProblem], root: Path) 
 
 def run(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("validate", "readiness", "status"))
+    parser.add_argument(
+        "command",
+        choices=("validate", "readiness", "status", "transition", "transition-recover"),
+    )
     parser.add_argument("--root", default=".")
     parser.add_argument("--feature")
     parser.add_argument("--target")
     parser.add_argument("--gate")
+    parser.add_argument("--request")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve()
+    if args.command in {"transition", "transition-recover"}:
+        if args.request is None:
+            parser.error(f"{args.command} requires --request")
+        request_path = Path(args.request)
+        if not request_path.is_absolute():
+            request_path = (Path.cwd() / request_path).resolve()
+        code, result = (
+            transition(root, request_path)
+            if args.command == "transition"
+            else recover(root, request_path)
+        )
+        if args.as_json:
+            print(json.dumps(result, indent=2, sort_keys=True))
+        else:
+            print(f"{result['result']}: {result.get('target') or result.get('operationId', '')}")
+            for blocker in result.get("blockers", []):
+                print(f"{blocker['code']}: {blocker['message']}")
+        return code
     loaded = _load(root)
     nodes = {node.canonical_id: node for graph in loaded.graphs for node in graph.nodes}
     sources = {node.canonical_id: graph.source for graph in loaded.graphs for node in graph.nodes}

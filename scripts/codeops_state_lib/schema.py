@@ -545,7 +545,17 @@ def _parse_validations(
         if (
             not isinstance(snapshot.upstream, str)
             or not CANONICAL_ID_RE.fullmatch(snapshot.upstream)
-            or snapshot.relation not in {"depends-on", "consumes-contract", "release-coupled"}
+            or snapshot.relation not in {
+                "specified-by",
+                "accepted-by",
+                "tested-by",
+                "implemented-by",
+                "verified-by",
+                "affected-by",
+                "depends-on",
+                "consumes-contract",
+                "release-coupled",
+            }
             or not isinstance(snapshot.revision, str)
             or not REVISION_RE.fullmatch(snapshot.revision)
             or snapshot.gate not in GATES
