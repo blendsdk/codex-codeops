@@ -13,12 +13,16 @@ Create a detailed, multi-document implementation plan for a software feature or 
 Maintain the feature's typed requirement → specification/invariant → acceptance criterion → specification test → task chain in `traceability.json`; follow [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). A plan is not ready merely because its documents exist. Before presenting it as executable, run:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . --feature <feature>
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+  --gate plan --target <target>
 ```
 
-Use the exact `feature` value from the selected feature's `traceability.json`; never substitute a
+Use the exact RD, task, or planning-group `<target>` from `traceability.json`; never broaden the
+planning modification set to its feature or siblings. Use the exact `feature` value from the selected feature's `traceability.json`; never substitute a
 directory guess. This keeps unrelated draft features from blocking the selected plan. Resolve every
 in-scope structural or readiness blocker, then perform the semantic Zero-Ambiguity Gate.
+Record approval only through the exact compare-and-swap request in the traceability reference:
+`transition --request <request.json>` with gate `plan` and the selected target.
 
 ## Planning scope contract
 

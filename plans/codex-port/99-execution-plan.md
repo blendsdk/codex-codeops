@@ -91,7 +91,9 @@
 - [x] 6.5 Validate the Linux CLI install/update/uninstall lifecycle and shipped hook behavior; document interactive disable and trust boundaries.
 - [x] 6.6 Write and validate the root `README.md` against RD-021, including tested install, quick-start, update, disable, and uninstall commands.
 - [x] 6.7 Complete tutorials, reference docs, migration guide, and troubleshooting.
-- [ ] 6.8 Pilot on a real complex project milestone and incorporate findings.
+- [ ] 6.8 Pilot on a real complex project milestone and incorporate findings. The corrective
+  readiness rerun passed, but it is not a substitute for the external real-project milestone;
+  see `tests/evidence/dependency-aware-readiness-pilot.json`.
 - [x] 6.9 Pass final beta readiness and independent release review.
 
 **Verify:** The 1.0 release gate in `07-testing-strategy.md` passes with retained evidence.

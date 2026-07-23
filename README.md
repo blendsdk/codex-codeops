@@ -42,6 +42,10 @@ The port begins from the proven CodeOps workflow set:
 
 Codex-native traceability, readiness proofs, recovery, agent routing, and outcome evaluation are governed by the [port program](plans/codex-port/00-index.md).
 
+Readiness commands are target-scoped: skills resolve the exact graph node and matching lifecycle
+gate, while dependency closure supplies diagnostics without implicitly advancing sibling work.
+Schema-1 graphs remain compatible and can be atomically upgraded to schema 2.
+
 The retained [evaluation evidence](docs/evaluation.md) currently passes compiler, financial, and multi-tenant web ambiguity benchmarks against Claude CodeOps 3.12.0.
 For a first project, follow the [complex-project quick start](docs/tutorial.md).
 

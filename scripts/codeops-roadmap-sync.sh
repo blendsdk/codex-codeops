@@ -16,7 +16,8 @@
 # trailing ` · …` / ` (…)` annotation is preserved verbatim); a hand-maintained value (e.g. `n/a`,
 # free text) is left untouched and reported as informational HELD, and that row's Status is not
 # re-rolled. It never infers or changes a Stage cell, never touches Notes or prose, and never
-# executes repo data.
+# executes repo data. When schema-2 traceability exists, it validates the authoritative portfolio
+# before touching the derived view; lifecycle skills query each exact target and own stage judgment.
 #
 # Usage:
 #   codeops-roadmap-sync.sh            # rewrite the computed values in place
@@ -42,6 +43,14 @@ command -v python3 >/dev/null 2>&1 || {
   printf 'ERROR: python3 is required for roadmap parsing.\n' >&2
   exit 3
 }
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if find codeops/features -path '*/traceability.json' -print -quit 2>/dev/null | grep -q .; then
+  if ! python3 "$SCRIPT_DIR/codeops_state.py" validate --root . >/dev/null; then
+    printf 'ERROR: authoritative traceability is invalid; roadmap sync refused.\n' >&2
+    exit 1
+  fi
+fi
 
 # Layout detection — the canonical grep from _shared/layout-convention.md.
 layout="flat"

@@ -278,3 +278,10 @@ Before finalizing, run through commonly forgotten requirements:
 > project. See your project's security coding standards (AGENTS.md) for the full
 > standard. Acceptance criteria for these map to your project's testing standards
 > (AGENTS.md).
+
+## Schema-2 traceability seed
+
+New requirement sets create schema-2 nodes with feature-local IDs, semantic `sources`, current
+`revision`, and relationship `snapshots`. Link requirements to explicit specification or planning
+group targets. Never copy semantic requirement text into the graph and never add sibling
+membership merely because files share a directory.

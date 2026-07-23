@@ -10,12 +10,20 @@ Run the setup skill in dry-run mode first. Review all source-relative-link warni
 
 Project instructions belong in `AGENTS.md` for Codex. Do not mechanically copy global Claude instructions or model-routing blocks. Preserve repository commands and conventions that remain true, then express routing and quality policy in `codeops/codeops.json` or `.codex/config.toml`.
 
-## Traceability adoption
+## Traceability adoption and schema upgrade
 
-Legacy Markdown artifacts remain readable. Add feature `traceability.json` incrementally, then run:
+Legacy Markdown artifacts and schema-1 graphs remain readable. Upgrade graphs with a deterministic
+preview and explicit resolutions:
 
 ```bash
-python3 /path/to/plugin/scripts/codeops_state.py readiness --root .
+python3 /path/to/plugin/scripts/codeops_state.py traceability-upgrade --root . \
+  --feature my-feature --preview upgrade.json
+python3 /path/to/plugin/scripts/codeops_state.py traceability-upgrade --root . \
+  --feature my-feature --preview upgrade.json --resolutions resolutions.json --apply
+python3 /path/to/plugin/scripts/codeops_state.py validate --root .
 ```
 
-Do not mark legacy work ready until every active requirement, specification, criterion, test, task, implementation, and verification node has valid links and semantic review passes.
+Review the preview; resolve every classified ambiguity or explicitly omit the link. Apply is
+atomic, creates a protected backup, and reports recovery-required state instead of guessing after
+an interrupted write. Do not mark legacy work ready until every active node has valid links,
+current source revisions and snapshots, and semantic review passes.

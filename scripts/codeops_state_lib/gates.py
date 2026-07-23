@@ -182,7 +182,10 @@ def evaluate_target(
                 for edge in owner.edges
             ):
                 for edge in owner.edges:
-                    if edge.relation in {"tested-by", "implemented-by", "verified-by"}:
+                    if edge.relation in {"tested-by", "verified-by"} or (
+                        edge.relation == "implemented-by"
+                        and nodes.get(edge.target, nodes[target]).node_type == "implementation"
+                    ):
                         evidence_additions.add(edge.target)
         for edge in nodes[target].edges:
             if edge.relation == "verified-by":

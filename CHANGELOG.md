@@ -4,6 +4,8 @@ All notable changes to CodeOps for Codex are recorded here.
 
 ## 0.2.0-beta.7 — 2026-07-23
 
+- Add schema-2 target-scoped readiness, atomic lifecycle transitions, and recoverable graph
+  upgrades across requirements, audit, planning, execution, roadmap, acceptance, and release.
 - Scope readiness gates to the selected feature so unrelated draft work does
   not block planning or execution.
 - Treat traceability node IDs as feature-local and require explicit

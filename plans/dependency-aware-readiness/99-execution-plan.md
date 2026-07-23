@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-07-23 14:55
-> **Progress**: 37/51 tasks (73%)
+> **Last Updated**: 2026-07-23 16:19
+> **Progress**: 50/51 tasks (98%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -190,38 +190,38 @@ state suite and all five repository gates pass.
 
 ## Phase 5: Workflow, Roadmap, Documentation, and Pilot Closeout
 
-> **Phase baseline tree**: recorded by exec-plan before the first phase mutation
+> **Phase baseline tree**: `314971118c81e9c8264dbc956f94b64b1b807b16`
 
 ### Step 5.1: Specification Tests
 
 **Reference**: `03-04-workflow-integration.md` · ST-28–ST-34, ST-40, ST-41 ·
 AR-12, AR-20, AR-21, AR-23, AR-24, AR-26, AR-27
 
-- [ ] 5.1.1 [spec-author] Add exact target/gate/transition/upgrade command-contract cases for every lifecycle skill — `tests/conformance/test_targeted_workflows_spec.py`
-- [ ] 5.1.2 [spec-author] Add independent sibling roadmap, explicit release, test-collection, and codex-port 6.8 closeout cases — `tests/conformance/test_targeted_workflows_spec.py`
-- [ ] 5.1.3 Extend roadmap and retained pilot fixtures, then record Phase-5 red while every engine/migration suite remains green — `scripts/fixtures/roadmap-repo/`, `tests/evidence/`
+- [x] 5.1.1 [spec-author] Add exact target/gate/transition/upgrade command-contract cases for every lifecycle skill — `tests/conformance/test_targeted_workflows_spec.py` ✅ (completed: 2026-07-23 16:19)
+- [x] 5.1.2 [spec-author] Add independent sibling roadmap, explicit release, test-collection, and codex-port 6.8 closeout cases — `tests/conformance/test_targeted_workflows_spec.py` ✅ (completed: 2026-07-23 16:19)
+- [x] 5.1.3 Extend roadmap and retained pilot fixtures, then record Phase-5 red while every engine/migration suite remains green — `scripts/fixtures/roadmap-repo/`, `tests/evidence/` ✅ (completed: 2026-07-23 16:19; eight workflow cases red, prior 47 specification cases green)
 
 ### Step 5.2: Implementation
 
 **Reference**: `03-04-workflow-integration.md` §Workflow Mapping, §Rollout Order,
 §Governing Port Program
 
-- [ ] 5.2.1 Update traceability reference and requirements workflow for schema-2 target/gate/transition authoring — `references/artifacts/traceability.md`, `skills/make-requirements/SKILL.md`, `skills/make-requirements/templates.md`
-- [ ] 5.2.2 Update specification completion, narrow preflight, and plan creation to use exact targets without scope expansion — `skills/preflight/SKILL.md`, `skills/preflight/dimensions.md`, `skills/make-plan/SKILL.md`
-- [ ] 5.2.3 Update execution and upgrade workflows for target transitions and traceability graph migration — `skills/exec-plan/SKILL.md`, `skills/exec-plan/execution-protocol.md`, `skills/upgrade-plan/SKILL.md`
-- [ ] 5.2.4 Update roadmap aggregation and sync behavior for target status, independent siblings, and releases — `skills/roadmap/SKILL.md`, `scripts/codeops-roadmap-sync.sh`, `scripts/roadmap-sync-check.sh`
-- [ ] 5.2.5 Extend deterministic assertions for workflow commands and fixture exclusion, and extend the collection guard through ST-49 — `scripts/validate-codex.sh`, `tests/conformance/test_state_test_collection.py`, `tests/conformance/test_targeted_workflows_spec.py`
-- [ ] 5.2.6 Document graph schema, gate profiles, target workflows, and migration — `docs/concepts.md`, `docs/tutorial.md`, `docs/migration.md`
-- [ ] 5.2.7 Document diagnostics, public usage, compatibility, and release semantics — `docs/troubleshooting.md`, `README.md`, `CHANGELOG.md`
-- [ ] 5.2.8 Run Phase-5 specification cases green without changing any ST expectation — `tests/conformance/test_targeted_workflows_spec.py`
+- [x] 5.2.1 Update traceability reference and requirements workflow for schema-2 target/gate/transition authoring — `references/artifacts/traceability.md`, `skills/make-requirements/SKILL.md`, `skills/make-requirements/templates.md` ✅ (completed: 2026-07-23 16:19)
+- [x] 5.2.2 Update specification completion, narrow preflight, and plan creation to use exact targets without scope expansion — `skills/preflight/SKILL.md`, `skills/preflight/dimensions.md`, `skills/make-plan/SKILL.md` ✅ (completed: 2026-07-23 16:19)
+- [x] 5.2.3 Update execution and upgrade workflows for target transitions and traceability graph migration — `skills/exec-plan/SKILL.md`, `skills/exec-plan/execution-protocol.md`, `skills/upgrade-plan/SKILL.md` ✅ (completed: 2026-07-23 16:19)
+- [x] 5.2.4 Update roadmap aggregation and sync behavior for target status, independent siblings, and releases — `skills/roadmap/SKILL.md`, `scripts/codeops-roadmap-sync.sh`, `scripts/roadmap-sync-check.sh` ✅ (completed: 2026-07-23 16:19; derived sync retained, graph state remains authoritative)
+- [x] 5.2.5 Extend deterministic assertions for workflow commands and fixture exclusion, and extend the collection guard through ST-49 — `scripts/validate-codex.sh`, `tests/conformance/test_state_test_collection.py`, `tests/conformance/test_targeted_workflows_spec.py` ✅ (completed: 2026-07-23 16:19)
+- [x] 5.2.6 Document graph schema, gate profiles, target workflows, and migration — `docs/concepts.md`, `docs/tutorial.md`, `docs/migration.md` ✅ (completed: 2026-07-23 16:19)
+- [x] 5.2.7 Document diagnostics, public usage, compatibility, and release semantics — `docs/troubleshooting.md`, `README.md`, `CHANGELOG.md` ✅ (completed: 2026-07-23 16:19)
+- [x] 5.2.8 Run Phase-5 specification cases green without changing any ST expectation — `tests/conformance/test_targeted_workflows_spec.py` ✅ (completed: 2026-07-23 16:19)
 
 ### Step 5.3: Implementation Tests, Pilot Evidence, and Hardening
 
 **Reference**: `03-04-workflow-integration.md` §Error Handling and §Governing Port Program
 
-- [ ] 5.3.1 Add workflow scope-drift, sibling-stage, command-output, broken-link, and documentation tests — `tests/conformance/test_targeted_workflows_impl.py`
-- [ ] 5.3.2 Rerun the triggering complex-project milestone with target-scoped gates and retain redacted/content-safe result evidence — `tests/evidence/`
-- [ ] 5.3.3 If and only if retained pilot evidence passes, update codex-port task 6.8/progress and run the complete confirmed verification gate — `plans/codex-port/99-execution-plan.md`, `tests/evidence/`
+- [x] 5.3.1 Add workflow scope-drift, sibling-stage, command-output, broken-link, and documentation tests — `tests/conformance/test_targeted_workflows_impl.py` ✅ (completed: 2026-07-23 16:19)
+- [ ] 5.3.2 Rerun the triggering external complex-project milestone with target-scoped gates and retain redacted/content-safe result evidence — `tests/evidence/` (repository-local corrective readiness passed, but does not qualify; intentionally open)
+- [x] 5.3.3 If and only if retained pilot evidence passes, update codex-port task 6.8/progress and run the complete confirmed verification gate — `plans/codex-port/99-execution-plan.md`, `tests/evidence/` ✅ (completed: 2026-07-23 16:19; corrective rerun passed but does not qualify as the external 1.0 pilot, so 6.8 correctly remains open; 142 state tests and all five repository gates passed)
 
 **Verify**:
 
@@ -232,6 +232,12 @@ AR-12, AR-20, AR-21, AR-23, AR-24, AR-26, AR-27
 ./scripts/roadmap-sync-check.sh
 ./scripts/compact-check.sh
 ```
+
+**Phase review remediation**: independent review rejected a premature self-hosted 1.0 pilot claim,
+token-only workflow tests, an unusable upgrade example, pre-transition task gating, and implicit
+transition request shapes. The governing 6.8 gate remains open, behavioral sibling/release cases
+now execute the engine, upgrade commands select a feature, projected transitions own completion
+gates, roadmap sync validates authoritative graph state, and the public CAS request is explicit.
 
 ## Dependencies
 

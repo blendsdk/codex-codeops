@@ -23,8 +23,20 @@ description: >-
 When a feature has `traceability.json`, treat the graph plus on-disk execution plans as the status evidence. Run this as a standalone command (never in an `&&` chain with roadmap reads):
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" status --root . --json
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" status --root . --target <target> --json
 ```
+
+Resolve and query each canonical target independently; updating one row must never advance its
+siblings. Feature and release aggregation is explicit:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+  --gate feature-acceptance --target <feature-target>
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+  --gate release --target <release-target>
+```
+
+A release includes only its declared members.
 
 `status` exits zero when valid project state is read, even when its JSON says `"ready": false`; not-ready is normal status data for draft or in-progress features. A nonzero exit means structurally invalid or unreadable state. Roadmaps summarize lifecycle, readiness, tasks, verification, findings, blockers, and deferrals; they never become an independent owner of those facts. If roadmap text conflicts with derived evidence, report drift and repair the derived view without silently changing authoritative artifacts.
 

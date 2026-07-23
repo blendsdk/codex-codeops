@@ -23,8 +23,13 @@ until the artifact passes clean.
 Begin with deterministic evidence when the project has CodeOps traceability:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+  --gate audit --target <target>
 ```
+
+Resolve `<target>` from the graph-owned artifact named by the user. Closure may supply review
+context, but the declared target is the modification set: a sibling issue is contextual unless
+the user explicitly expands that set. Graphless ad-hoc artifacts receive semantic audit only.
 
 Report its surviving structural/readiness failures alongside, but never as substitutes for, the semantic audit. Deterministic checks own identifiers, links, statuses, and coverage shape; reviewers own truth, completeness, consistency, feasibility, and risk.
 

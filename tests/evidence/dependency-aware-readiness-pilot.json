@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-07-23T16:20:00+02:00",
+  "purpose": "Content-safe corrective-plan readiness evidence; explicitly not codex-port task 6.8 evidence",
+  "sourcePlan": "plans/dependency-aware-readiness/99-execution-plan.md",
+  "command": "codeops_state.py readiness --root . --gate execution --target dependency-aware-readiness/PLAN-READINESS --json",
+  "target": "dependency-aware-readiness/PLAN-READINESS",
+  "gate": "execution",
+  "exitCode": 0,
+  "ready": true,
+  "graphCount": 1,
+  "closureNodeCount": 6,
+  "blockerCount": 0,
+  "diagnosticCount": 0,
+  "qualifiesForCodexPortTask6_8": false,
+  "qualificationReason": "This repository-local corrective rerun is self-hosted and does not complete a meaningful milestone in an external real complex project or provide full T7 comparative evidence.",
+  "contentPolicy": "No project source, semantic artifact text, paths outside this repository, or blocker content retained."
+}

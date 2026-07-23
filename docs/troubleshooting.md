@@ -16,6 +16,25 @@ Open `/hooks`. Non-managed plugin hooks are skipped until their exact definition
 
 Run `setup-codeops`, then create or migrate a feature and its `traceability.json`. A newly scaffolded empty portfolio is configured but cannot be implementation-ready.
 
+## A sibling blocks or advances unexpectedly
+
+Confirm the command includes both `--target` and `--gate`. The reported closure may name sibling
+or upstream context, but only the selected target may transition. Roadmap sync repairs derived
+rows; it must not mutate authoritative graph state.
+
+## Upgrade or transition requires recovery
+
+Do not delete the journal, backup, or lock metadata. Create a recovery request with the recorded
+operation ID and an explicit `roll-forward` or `rollback` action, then run:
+
+```bash
+python3 /path/to/plugin/scripts/codeops_state.py transition-recover --root . \
+  --request recovery-request.json
+```
+
+Inspect the durable images before choosing the action. A second apply is safe only after recovery
+completes.
+
 ## Generated agents are missing or stale
 
 ```bash

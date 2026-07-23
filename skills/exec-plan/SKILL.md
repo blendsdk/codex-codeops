@@ -25,10 +25,23 @@ argument is the feature name; an optional flag selects the commit mode.
 When CodeOps traceability exists, run the readiness check before modifying implementation files:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . --feature <feature>
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+  --gate execution --target <plan-target>
 ```
 
-Use the exact `feature` value from the selected feature's `traceability.json`; never guess from a
+Use the exact plan target from the selected graph. At task completion create a compare-and-swap
+request for `<task-target>` with its expected status/revision, requested status `verified`, gate
+`task-complete`, lifecycle evidence, and validation additions, then run:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" transition --root . \
+  --request <transition-request.json>
+```
+
+The transition evaluates `task-complete` against the projected verified state atomically; do not
+run the gate against the still-implemented task first. `[ ]`, `[~]`, and `[x]` correspond to
+`pending`, `implemented`, and `verified`. Never advance sibling
+tasks. Use the exact `feature` value from the selected feature's `traceability.json`; never guess from a
 directory name. Do not execute while the selected feature reports a blocker. During execution,
 keep task, implementation, and verification nodes synchronized with the Markdown plan's `[ ]` →
 `[~]` → `[x]` transitions.

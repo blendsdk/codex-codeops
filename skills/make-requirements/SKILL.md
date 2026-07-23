@@ -27,10 +27,17 @@ from, the make-plan skill — neither requires the other.
 For every accepted requirement and material ambiguity, maintain the feature's `traceability.json` according to [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). Requirements use stable `RD-*` identifiers; ambiguities and decisions use stable `AR-*` identifiers. Link each resolved ambiguity to every requirement or specification it affects. Before declaring requirements complete, run:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+  --gate requirements --target <target>
 ```
 
-The requirements gate remains closed while a material ambiguity is open, a requirement is not approved, a referenced artifact is missing, or the traceability graph is broken. The script validates structure; this skill remains responsible for semantic completeness.
+Resolve `<target>` from the graph (an RD, or an explicitly selected requirement-set/group);
+never infer it from a directory or widen it to sibling RDs. Closure is read context, not an
+authorized modification set. The requirements gate remains closed while a material ambiguity is
+open, a requirement is not approved, a referenced artifact is missing, or the traceability graph
+is broken. The script validates structure; this skill remains responsible for semantic completeness.
+Advance a draft target only with the exact compare-and-swap request defined in the traceability
+reference and `transition --request <request.json>` using gate `requirements`.
 
 ## Core Principle: Proactive Domain Consultant
 

@@ -45,13 +45,19 @@ are not converted silently into implementation assumptions.
 Run the deterministic check from the project root:
 
 ```bash
-python3 /path/to/codeops/scripts/codeops_state.py readiness --root .
+python3 /path/to/codeops/scripts/codeops_state.py readiness --root . \
+  --gate requirements --target my-feature/RD-01
+python3 /path/to/codeops/scripts/codeops_state.py readiness --root . \
+  --gate execution --target my-feature/PLAN-01
 ```
 
 When semantic preflight and deterministic readiness both pass, ask Codex to use
 `exec-plan`. Specification tests establish the oracle before production code.
 Each completed task records implementation, verification, review, and roadmap
 state before moving to the next task.
+
+Use the exact target ID from `traceability.json`. For a completed task, run the
+`task-complete` gate for that task and persist its transition; do not use a feature-wide check.
 
 ## 5. Resume safely
 

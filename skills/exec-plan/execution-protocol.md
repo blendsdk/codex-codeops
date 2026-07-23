@@ -38,6 +38,12 @@ stamp triggers a read-only upgrade assessment. Do not execute a legacy plan mere
 task checkbox shape can be parsed; the user must approve migration or explicitly accept the
 recorded compatibility risk.
 
+For schema-2 traceability, resolve the exact plan target and run `readiness --gate execution
+--target <plan-target>` before implementation. Before promoting a task to `[x]`, submit a public
+compare-and-swap `transition --request <transition-request.json>` from `implemented` to `verified`
+with gate `task-complete`; the transition evaluates the projected state atomically. A task
+transition never advances siblings; dependency closure is context, not a modification set.
+
 Suggestion only — the user may proceed without upgrading.
 
 ---

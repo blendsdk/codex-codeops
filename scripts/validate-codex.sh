@@ -123,8 +123,10 @@ assert 'exact expanded modification set' in make_plan
 assert 'explicitly approved `⏸ Deferred`' in make_plan
 assert 'after two post-gate ambiguity batches' in make_plan
 assert 'except the incrementally persisted Ambiguity' in make_plan
-assert 'readiness --root . --feature <feature>' in make_plan
-assert 'readiness --root . --feature <feature>' in exec_plan
+assert '--gate plan --target <target>' in make_plan.replace(' \\\n  ', ' ')
+assert '--gate execution --target <plan-target>' in exec_plan.replace(' \\\n  ', ' ')
+assert '--request <transition-request.json>' in exec_plan.replace(' \\\n  ', ' ')
+assert '`task-complete`' in exec_plan
 assert 'codeops_worktree_snapshot.py\" snapshot' in protocol
 assert 'codeops_worktree_snapshot.py\" diff' in protocol
 assert 'three consecutive failures with the same failure signature' in protocol

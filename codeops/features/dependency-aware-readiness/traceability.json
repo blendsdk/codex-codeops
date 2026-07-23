@@ -145,7 +145,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "implemented",
       "title": "Traceability graph migration",
       "type": "task",
       "validations": []

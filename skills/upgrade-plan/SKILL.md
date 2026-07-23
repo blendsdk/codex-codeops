@@ -21,7 +21,19 @@ Targets may be a requirements set, one feature plan, one feature, or the whole C
 4. Inventory user-owned semantics, completed/in-progress task marks, custom notes, identifiers, and links that must survive byte-for-byte or meaning-for-meaning.
 5. Produce an upgrade report listing additions, structural changes, semantic gaps, preserved content, risks, and rollback/recovery method.
 
-If every target is schema 1, traceability validates, and current semantic gates pass, report no upgrade needed.
+If every graph is schema 2, traceability validates, and current semantic gates pass, report no
+upgrade needed. For schema 1, use the public preview, resolution, apply, and validate protocol:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" traceability-upgrade --root . \
+  --feature <feature> --preview <preview>
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" traceability-upgrade --root . \
+  --feature <feature> --preview <preview> --resolutions <resolutions> --apply
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" validate --root .
+```
+
+The preview and closed-form resolutions are reviewable artifacts. Apply is atomic and may require
+`transition-recover`; never hand-edit around a recovery-required result.
 
 ## Phase 2 — Approval and content-quality gate
 

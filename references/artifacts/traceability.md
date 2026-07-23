@@ -1,6 +1,6 @@
 # Traceability contract
 
-CodeOps stores one `traceability.json` in each feature directory. It is an index over authoritative Markdown artifacts and implementation evidence, not a replacement for them.
+CodeOps schema 2 stores one `traceability.json` in each feature directory. It is an index over authoritative Markdown artifacts and implementation evidence, not a replacement for them.
 
 ## Required chain
 
@@ -33,10 +33,44 @@ Decisions and resolved ambiguities link to every downstream node they affect. Fi
 
 The validator rejects unknown structure and broken links. Readiness additionally requires zero open material ambiguities, zero unapproved deferrals, zero critical/major open findings, and complete forward coverage for the active gate.
 
-Use `codeops_state.py readiness --feature <feature>` for plan creation and execution so unrelated
-draft features do not block the selected workflow. Omit `--feature` only for an intentional
-portfolio-wide readiness gate. The selector matches the exact `feature` value in
-`traceability.json`; it never guesses from directory names.
+Every workflow resolves a canonical graph target and supplies its matching gate:
+`requirements`, `specifications`, `audit`, `plan`, `execution`, `task-complete`,
+`feature-acceptance`, or `release`. For example:
+
+```bash
+codeops_state.py readiness --root . --gate plan --target billing/RD-03
+```
+
+Target closure supplies dependencies and blocker paths as read context; it never authorizes
+editing or advancing siblings. Feature and release aggregates are explicit nodes. Schema 2 also
+records semantic sources, deterministic revisions, and relationship snapshots so changed
+upstream meaning makes downstream state stale. Lifecycle changes use public compare-and-swap
+`transition` requests.
+
+An exact transition request is a closed JSON object:
+
+```json
+{
+  "schema": 1,
+  "operationId": "unique-operation-id",
+  "target": "feature/RD-01",
+  "expected": {"status": "draft", "revision": "sha256:..."},
+  "requested": {"status": "approved"},
+  "gate": "requirements",
+  "sourceUpdates": [],
+  "validationAdditions": [],
+  "validationRemovals": [],
+  "staleReason": null,
+  "evidence": {"summary": "durable evidence summary"}
+}
+```
+
+Submit it with `codeops_state.py transition --root . --request <request.json>`. Use the gate
+owned by the target type; the engine validates the projected portfolio before committing.
+
+Schema 1 remains readable. Upgrade it with `traceability-upgrade`: generate a preview, provide
+closed-form resolutions for ambiguous links, apply atomically, then validate. Do not hand-convert
+graphs or delete recovery journals.
 
 Node IDs are feature-local because RD and task sequences reset per feature. Links within one graph
 use the local node ID. A deliberate cross-feature link uses `<feature>/<node-id>`; an unqualified

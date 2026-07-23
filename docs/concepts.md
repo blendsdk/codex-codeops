@@ -16,6 +16,15 @@ Markdown owns human-readable requirements, decisions, specifications, tests, and
 
 The deterministic state tool validates identifiers, paths, relationships, status, and coverage shape. Semantic review validates truth, completeness, consistency, feasibility, and risk. Both must pass.
 
+Readiness is target-scoped. A workflow selects one canonical node or group and one gate profile;
+the engine computes its dependency closure and shortest blocker paths. Closure is read context,
+not permission to edit or advance siblings. Feature and release nodes are explicit aggregates,
+and a release contains only declared members.
+
+Schema 2 binds semantic sources to normalized revisions and stores relationship snapshots.
+Changing upstream meaning therefore makes affected downstream claims stale. Legal lifecycle
+changes are atomic compare-and-swap transitions with recovery evidence.
+
 ## Project tracking
 
 Tracking combines lifecycle—discovery through archive—with readiness, task progress, verification, findings, blockers, dependencies, and deferrals. A new thread can reconstruct the next safe action from repository and Git evidence.

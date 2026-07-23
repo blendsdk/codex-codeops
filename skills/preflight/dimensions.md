@@ -18,6 +18,8 @@ Before scanning, you MUST:
    `plans/<name>/00-ambiguity-register.md`. Understand what decisions were already made and why.
 5. **Freeze the scope** — record the exact audit target, context documents, and authorized
    modification set. Reading a related document does not add it to the target.
+6. **Resolve graph identity** — when traceability exists, use the exact node/group target with
+   the `audit` gate. Closure is context; findings do not silently expand the modification set.
 
 ## Step 2: Codebase Reconnaissance — 🚨 NON-NEGOTIABLE
 
