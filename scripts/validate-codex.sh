@@ -109,6 +109,30 @@ assert 'proves only that document passed' in roadmap
 PY
 }
 
+validate_plan_execution_contracts() {
+  python3 - <<'PY'
+from pathlib import Path
+
+make_plan = Path('skills/make-plan/SKILL.md').read_text(encoding='utf-8')
+exec_plan = Path('skills/exec-plan/SKILL.md').read_text(encoding='utf-8')
+protocol = Path('skills/exec-plan/execution-protocol.md').read_text(encoding='utf-8')
+template = Path('skills/make-plan/templates.md').read_text(encoding='utf-8')
+
+assert '## Planning scope contract' in make_plan
+assert 'exact expanded modification set' in make_plan
+assert 'explicitly approved `⏸ Deferred`' in make_plan
+assert 'after two post-gate ambiguity batches' in make_plan
+assert 'except the incrementally persisted Ambiguity' in make_plan
+assert 'readiness --root . --feature <feature>' in make_plan
+assert 'readiness --root . --feature <feature>' in exec_plan
+assert 'codeops_worktree_snapshot.py\" snapshot' in protocol
+assert 'codeops_worktree_snapshot.py\" diff' in protocol
+assert 'three consecutive failures with the same failure signature' in protocol
+assert 'expected modification set' in protocol
+assert 'Phase baseline tree' in template
+PY
+}
+
 run_check "plugin manifest" python3 scripts/validate_plugin.py .
 run_check "skill manifests" validate_skills
 run_check "marketplace metadata" validate_marketplace
@@ -116,6 +140,7 @@ run_check "Codex-native shipped terminology" validate_native_terms
 run_check "local Markdown links" validate_links
 run_check "shell syntax" bash -n scripts/*.sh bin/codeops-worktree
 run_check "preflight scope and convergence contract" validate_preflight_contract
+run_check "plan and execution scope contracts" validate_plan_execution_contracts
 run_check "state conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
 run_check "retained adversarial parity evidence" validate_scenarios
 run_check "release evidence provenance" validate_release_evidence

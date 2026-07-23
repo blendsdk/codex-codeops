@@ -23,6 +23,7 @@ TERMINAL_AMBIGUITY = {"resolved", "deferred-approved"}
 APPROVED_CONTENT = {"approved", "superseded"}
 BLOCKING_FINDINGS = {"critical", "major"}
 TASK_RE = re.compile(r"^\s*- \[(?P<mark>[ x~])\]\s+(?P<body>.+)$", re.MULTILINE)
+FEATURE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
 STATUS_BY_TYPE = {
     "ambiguity": {"open", "resolved", "deferred-approved", "superseded"},
     "decision": {"approved", "superseded"},
@@ -188,18 +189,30 @@ def load_graph(path: Path, project_root: Path, problems: list[Problem]) -> Graph
 
 def validate_relationships(graphs: list[Graph], root: Path, problems: list[Problem]) -> dict[str, dict[str, Any]]:
     all_nodes: dict[str, dict[str, Any]] = {}
-    owners: dict[str, Path] = {}
+    graphs_by_feature: dict[str, Graph] = {}
     for graph in graphs:
+        if graph.feature in graphs_by_feature:
+            owner = graphs_by_feature[graph.feature].source
+            problems.append(Problem(
+                "ERROR",
+                graph.source,
+                f"feature {graph.feature!r} also exists in {owner}",
+            ))
+            continue
+        graphs_by_feature[graph.feature] = graph
         for node_id, node in graph.nodes.items():
-            if node_id in all_nodes:
-                problems.append(Problem("ERROR", graph.source, f"node id {node_id} also exists in {owners[node_id]}"))
-            else:
-                all_nodes[node_id] = node
-                owners[node_id] = graph.source
+            all_nodes[f"{graph.feature}/{node_id}"] = node
     for graph in graphs:
         for node_id, node in graph.nodes.items():
             for target in node.get("links", []):
-                if target not in all_nodes:
+                if target in graph.nodes:
+                    continue
+                if "/" in target:
+                    target_feature, target_node = target.split("/", 1)
+                    target_graph = graphs_by_feature.get(target_feature)
+                    if target_graph is not None and target_node in target_graph.nodes:
+                        continue
+                if target not in graph.nodes:
                     problems.append(Problem("ERROR", graph.source, f"{node_id} links to missing node {target}"))
             for evidence in node.get("evidence", []):
                 path = (graph.source.parent / evidence).resolve()
@@ -347,10 +360,37 @@ def execution_progress(root: Path) -> tuple[int, int, int]:
     return pending, implemented, verified
 
 
+def select_feature_graph(
+    graphs: list[Graph],
+    feature: str | None,
+    root: Path,
+    problems: list[Problem],
+) -> Graph | None:
+    """Resolve an optional exact feature selector without guessing between artifacts."""
+    if feature is None:
+        return None
+    if not FEATURE_RE.fullmatch(feature):
+        problems.append(Problem("ERROR", root, f"feature selector is invalid: {feature!r}"))
+        return None
+    matches = [graph for graph in graphs if graph.feature == feature]
+    if not matches:
+        problems.append(Problem("ERROR", root, f"feature not found: {feature}"))
+        return None
+    if len(matches) > 1:
+        sources = ", ".join(str(graph.source.relative_to(root)) for graph in matches)
+        problems.append(Problem("ERROR", root, f"feature {feature!r} is ambiguous across {sources}"))
+        return None
+    return matches[0]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("validate", "readiness", "status"))
     parser.add_argument("--root", default=".", help="project root (default: current directory)")
+    parser.add_argument(
+        "--feature",
+        help="limit readiness/status gating to the exact traceability feature name",
+    )
     parser.add_argument("--json", action="store_true", dest="as_json")
     return parser.parse_args()
 
@@ -365,8 +405,15 @@ def main() -> int:
         problems.append(Problem("ERROR", root, "no traceability.json files found"))
     graphs = [graph for path in paths if (graph := load_graph(path, root, problems)) is not None]
     nodes = validate_relationships(graphs, root, problems)
+    if args.command == "validate" and args.feature is not None:
+        problems.append(Problem("ERROR", root, "--feature is valid only for readiness or status"))
+    selected_graph = select_feature_graph(graphs, args.feature, root, problems)
     if args.command in {"readiness", "status"} and nodes:
-        problems.extend(readiness(nodes, root))
+        if args.feature is None:
+            for graph in graphs:
+                problems.extend(readiness(graph.nodes, graph.source))
+        elif selected_graph is not None:
+            problems.extend(readiness(selected_graph.nodes, selected_graph.source))
     pending, implemented, verified = execution_progress(root)
     blocking = sum(problem.level in {"ERROR", "BLOCK"} for problem in problems)
     graph_status = []
@@ -383,6 +430,7 @@ def main() -> int:
     drift = git_drift(root)
     result = {
         "ready": blocking == 0,
+        "selected_feature": selected_graph.feature if selected_graph is not None else None,
         "configured": config is not None,
         "graphs": len(graphs),
         "nodes": len(nodes),
@@ -395,6 +443,8 @@ def main() -> int:
         print(json.dumps(result, indent=2, sort_keys=True))
     else:
         print(f"CodeOps graphs: {result['graphs']} | nodes: {result['nodes']}")
+        if result["selected_feature"] is not None:
+            print(f"Readiness scope: {result['selected_feature']}")
         print(f"Tasks: {pending} pending | {implemented} implemented | {verified} verified")
         for feature in graph_status:
             print(f"Feature {feature['feature']}: {feature['lifecycle']} | {'ready' if feature['ready'] else 'blocked'}")

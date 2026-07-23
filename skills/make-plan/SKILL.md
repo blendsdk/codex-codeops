@@ -13,10 +13,28 @@ Create a detailed, multi-document implementation plan for a software feature or 
 Maintain the feature's typed requirement → specification/invariant → acceptance criterion → specification test → task chain in `traceability.json`; follow [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). A plan is not ready merely because its documents exist. Before presenting it as executable, run:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . --feature <feature>
 ```
 
-Resolve every structural or readiness blocker, then perform the semantic Zero-Ambiguity Gate. If plan work exposes an upstream defect, reopen and correct the owning requirement or specification and revalidate downstream artifacts rather than patching the task text alone.
+Use the exact `feature` value from the selected feature's `traceability.json`; never substitute a
+directory guess. This keeps unrelated draft features from blocking the selected plan. Resolve every
+in-scope structural or readiness blocker, then perform the semantic Zero-Ambiguity Gate.
+
+## Planning scope contract
+
+Record three boundaries before discovery:
+
+| Boundary | Meaning |
+|---|---|
+| **Planning target** | The selected RD, task, or standalone feature the plan will implement |
+| **Context artifacts** | Related requirements, plans, code, and docs read to verify the target |
+| **Modification set** | The requirement/specification artifacts the user has authorized make-plan to change |
+
+Reading an artifact does not authorize changing it. If planning exposes an upstream defect, reopen
+the owning requirement or specification and mark affected downstream traceability stale, but do
+not edit it until the user confirms the exact expanded modification set. If the correction would
+redesign sibling RDs or the requirement set, pause and offer a separate requirements revision
+instead of silently absorbing it into plan creation.
 
 > **CodeOps Artifact Schema**: 1
 
@@ -84,7 +102,8 @@ These rules are universal. For build/test/verify commands, package manager, stru
 
 - **No raw git commands in plan documents.** Plans must not contain `git add/commit/push` or bash blocks running git. When a plan needs to commit, it references the **git-commit skill** (commit) or **git-commit skill in push mode** (commit + push) command. Execution commit behavior is owned by the exec-plan skill.
 - **Specification-first testing ordering is non-negotiable** (see Phase 2 and [templates.md](templates.md)): spec tests → red phase → implement → green phase → impl tests → verify.
-- **Zero-Ambiguity Gate (Phase 1C) must pass before ANY plan document is written.** No exceptions.
+- **Zero-Ambiguity Gate (Phase 1C) must pass before any plan document except its incrementally
+  persisted `00-ambiguity-register.md` is written.** No other exceptions.
 
 ## Optional input: requirements documents
 
@@ -118,14 +137,21 @@ Before writing documents (and again before each execution phase), re-check: Comp
 
 ## Phase 1C — Zero-Ambiguity Gate (NON-NEGOTIABLE HARD GATE)
 
-**This gate MUST pass before ANY plan document is created. No exceptions, no overrides, no "good enough."** Plans built on ambiguity produce code the user did not ask for. Every item in every plan document must trace to an explicit, user-confirmed decision.
+**This gate MUST pass before any plan document except the incrementally persisted Ambiguity
+Register is created. No exceptions, no overrides, no "good enough."** Plans built on ambiguity
+produce code the user did not ask for. Every item in every plan document must trace to an explicit,
+user-confirmed decision.
 
 The mechanism is the **Ambiguity Register** (`00-ambiguity-register.md`): a numbered inventory of every gap, ambiguity, unstated assumption, and open question, hunted systematically across all 12 categories. The full category checklist, register template, gate-enforcement rules, no-deferral policy, traceability requirement, surface-during-authoring rule, and interactions with the grill-me / upgrade-plan skills are in **[zero-ambiguity-gate.md](zero-ambiguity-gate.md)** — **read it now, before Phase 2.**
 
 When opt-in outcome metrics are enabled, record only the enumerated planning result and aggregate
 round/decision counts. Never store feature names, questions, decisions, or artifact content.
 
-Gate opens ONLY when: every row Status = `✅ Resolved` with the user's explicit decision, the user has confirmed the complete register, zero items deferred, and the header reads `✅ GATE PASSED`. If zero ambiguities are found, still create the register file proving the review ran. You may recommend an option, but you may never decide for the user.
+Gate opens only under the shared gate contract: every row is either `✅ Resolved` or a fully named,
+explicitly approved `⏸ Deferred` entry; the user has confirmed the complete register; nothing is
+silently deferred; and the header reads `✅ GATE PASSED`. A deferred decision cannot be implemented
+by this plan unless it is later resolved. If zero ambiguities are found, still create the register
+file proving the review ran. You may recommend an option, but you may never decide for the user.
 
 > **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes — the user decides. **Recommendation hardening:** apply `_shared/recommendation-hardening.md` — for **high-stakes** Phase 1C gate decisions (complex/sensitive-tagged) spawn one independent challenger and reconcile *before* presenting; for all consequential decisions run the in-context layers and close with the `Confidence:` / `Hardening:` disclosure.
 
@@ -142,6 +168,11 @@ Gate opens ONLY when: every row Status = `✅ Resolved` with the user's explicit
    entry like any decision). If nothing is detectable, ask — **never invent a command**.
 5. `99-execution-plan.md` must structure every feature phase with the mandatory three-session ordering (Spec Tests → Implementation → Impl Tests & Hardening), carrying each phase's tasks as a **single checkbox list** — the plan's single source of truth for progress; a task line appears exactly once in the document. The full ordering rules are in [templates.md](templates.md).
 6. If you discover a NEW ambiguity while writing, STOP immediately, add it to the register, get the user's decision, then resume (surface-during-authoring rule — see [zero-ambiguity-gate.md](zero-ambiguity-gate.md)).
+
+**Authoring convergence:** after two post-gate ambiguity batches, pause document creation and
+reconfirm the planning target, context artifacts, and modification set. The user chooses whether
+to return to discovery or stop with the plan incomplete. Do not keep alternating between document
+generation and newly expanded discovery without that explicit scope decision.
 
 Adapt component documents to the project type (Web App, API, Library, CLI, UI Components, Mobile, Compiler, Microservices, Infrastructure, Database, Bug Fix, Refactoring — the typical component breakdowns are listed in [templates.md](templates.md)).
 

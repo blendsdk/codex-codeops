@@ -46,10 +46,20 @@ Suggestion only — the user may proceed without upgrading.
 
 ### Phase start
 
-Before a phase's first task (and before a T-NN mini-plan's first task), record the current
-commit as the phase-start ref: run `git rev-parse HEAD` and write `> **Phase ref**: <sha>` into
-that phase's header in `99-execution-plan.md` (for a mini-plan, its single header). The
-post-phase quality step diffs `<phase-ref>..HEAD` — without the ref there is nothing to review.
+Before a phase's first task (and before a T-NN mini-plan's first task), snapshot the complete
+non-ignored worktree—including staged, unstaged, and untracked files—into a temporary Git tree,
+without changing the real index:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_worktree_snapshot.py" snapshot --root .
+```
+
+Write the returned SHA as `> **Phase baseline tree**: <sha>` in the phase header (for a mini-plan,
+its single header). This snapshot works in every commit mode and prevents pre-phase dirty work from
+entering the review. Also record the phase's expected modification set from its task target paths
+and deliverables. A changed path outside that set is scope drift: attribute it to the phase and
+expand the recorded set, or identify it as unrelated work and exclude it from the review packet.
+Never silently review or commit unrelated user changes as phase work.
 When opt-in outcome metrics are enabled, record only a content-free execution-stage event through
 `codeops_outcomes.py`; metrics never gate execution.
 
@@ -116,7 +126,15 @@ whole-task diff. Activation rules, packets, supersession, and caps are defined i
 2. **Dispatch in parallel:** the correctness reviewer plus every risk-selected auditor (security,
    financial integrity, concurrency, performance, semantics, or migration), each with the
    dispatch header on line 1 of its prompt and its packet
-   (diff = `git diff <phase-ref>..HEAD`).
+   Create the review diff with:
+
+   ```bash
+   python3 "${PLUGIN_ROOT}/scripts/codeops_worktree_snapshot.py" diff \
+     --root . --baseline <phase-baseline-tree>
+   ```
+
+   This includes committed, staged, unstaged, and newly created files while excluding changes that
+   existed at phase start.
 3. **Merge findings** (RV/SA/PE) and present them in severity-grouped batches (reuse the
    preflight skill's batch pacing). 🔴 CRITICAL / 🟠 MAJOR findings PAUSE execution for the
    user's ruling in ALL commit modes; 🟡 MINOR findings are report-only.
@@ -341,14 +359,21 @@ Run `/exec-plan [feature-name]` again in a new session.
 3. Re-run verification until all checks pass.
 4. Only then promote the mark to `[x]`.
 
+**Convergence guard:** after three consecutive failures with the same failure signature (the same
+failing tests, compiler errors, or command failure), stop retrying. Classify the blocker as one of:
+implementation defect, stale/impossible plan, pre-existing repository failure, or environment/tool
+failure. Present evidence and the viable next action to the user. A materially different failure
+signature resets the counter; expected red-phase failures do not count.
+
 ### If implementation deviates from the plan
 
 A deviation is by definition territory the plan doesn't cover — route it by materiality:
 
 - **Material deviation** (different approach, different files, different behavior than the plan
   specifies): run the Zero-Ambiguity loop above — STOP, present the deviation with options,
-  wait for the user's decision, record it in `00-ambiguity-register.md` tagged `(runtime)`,
-  update the task description, then continue.
+  wait for the user's decision, record it in `00-ambiguity-register.md` tagged `(runtime)`, and
+  update the task description. If it changes artifacts outside the selected plan, obtain approval
+  for the exact expanded modification set before editing, then continue.
 - **Mechanical correction** (typo'd path, renamed symbol, an import the plan forgot): note it in
   the execution plan and continue — no user round-trip needed.
 

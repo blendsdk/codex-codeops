@@ -433,7 +433,8 @@ task-size criteria in [quality-checklist.md](quality-checklist.md))
 
 ## Phase 1: [Phase Name]
 
-> **Phase ref**: _(recorded by the exec-plan skill at phase start — `git rev-parse HEAD`)_
+> **Phase baseline tree**: _(recorded by the exec-plan skill from a temporary-index snapshot of
+> committed, staged, unstaged, and untracked phase-start state)_
 > **Lenses**: [add-on lenses — include this line only when the target repo carries a quality
 > profile; informational: activation stays profile-driven]
 

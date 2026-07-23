@@ -25,10 +25,18 @@ argument is the feature name; an optional flag selects the commit mode.
 When CodeOps traceability exists, run the readiness check before modifying implementation files:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
+python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . --feature <feature>
 ```
 
-Do not execute while it reports a blocker. During execution, keep task, implementation, and verification nodes synchronized with the Markdown plan's `[ ]` → `[~]` → `[x]` transitions. A runtime ambiguity invalidates readiness: record it, reopen the owning upstream artifact, resolve it with the user, update affected links, rerun readiness, and only then resume.
+Use the exact `feature` value from the selected feature's `traceability.json`; never guess from a
+directory name. Do not execute while the selected feature reports a blocker. During execution,
+keep task, implementation, and verification nodes synchronized with the Markdown plan's `[ ]` →
+`[~]` → `[x]` transitions.
+
+A runtime ambiguity invalidates the selected feature's readiness: record it and mark affected
+links stale. If resolution requires changing an upstream artifact outside the selected plan's
+documents, present the exact expanded modification set and obtain the user's approval before
+editing. Resolve the ambiguity, rerun feature-scoped readiness, and only then resume.
 
 This skill covers **execution only**. To create a plan, use the make-plan skill.
 

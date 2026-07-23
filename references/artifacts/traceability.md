@@ -33,6 +33,15 @@ Decisions and resolved ambiguities link to every downstream node they affect. Fi
 
 The validator rejects unknown structure and broken links. Readiness additionally requires zero open material ambiguities, zero unapproved deferrals, zero critical/major open findings, and complete forward coverage for the active gate.
 
+Use `codeops_state.py readiness --feature <feature>` for plan creation and execution so unrelated
+draft features do not block the selected workflow. Omit `--feature` only for an intentional
+portfolio-wide readiness gate. The selector matches the exact `feature` value in
+`traceability.json`; it never guesses from directory names.
+
+Node IDs are feature-local because RD and task sequences reset per feature. Links within one graph
+use the local node ID. A deliberate cross-feature link uses `<feature>/<node-id>`; an unqualified
+link never resolves against a sibling feature by coincidence.
+
 When a high- or critical-risk ambiguity reopens, every linked downstream
 requirement, specification, invariant, criterion, test, task, implementation,
 and verification must be marked `stale` (or returned to another non-approved

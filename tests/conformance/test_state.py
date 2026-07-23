@@ -15,9 +15,24 @@ FIXTURES = ROOT / "tests" / "fixtures"
 
 
 class StateConformanceTests(unittest.TestCase):
-    def run_state(self, fixture: str, command: str = "readiness") -> tuple[int, dict]:
+    def run_state(
+        self,
+        fixture: str,
+        command: str = "readiness",
+        feature: str | None = None,
+    ) -> tuple[int, dict]:
+        command_args = [
+            sys.executable,
+            str(SCRIPT),
+            command,
+            "--root",
+            str(FIXTURES / fixture),
+            "--json",
+        ]
+        if feature is not None:
+            command_args.extend(["--feature", feature])
         result = subprocess.run(
-            [sys.executable, str(SCRIPT), command, "--root", str(FIXTURES / fixture), "--json"],
+            command_args,
             text=True,
             capture_output=True,
             check=False,
@@ -186,6 +201,81 @@ class StateConformanceTests(unittest.TestCase):
         code, payload = self.run_state("state-invalid", command="status")
         self.assertEqual(code, 1, payload)
         self.assertIn("links to missing node SPEC-MISSING", "\n".join(payload["problems"]))
+
+    def test_feature_readiness_ignores_unrelated_draft_content(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            for feature_name, status in (
+                ("ready-feature", "approved"),
+                ("draft-feature", "draft"),
+            ):
+                feature = root / "codeops/features" / feature_name
+                feature.mkdir(parents=True)
+                (feature / "artifact.md").write_text("# Artifact\n", encoding="utf-8")
+                nodes = [
+                    {
+                        "id": "RD-001",
+                        "type": "requirement",
+                        "title": "Requirement",
+                        "status": status,
+                        "path": "artifact.md",
+                        "links": ["SPEC-001"],
+                    },
+                    {
+                        "id": "SPEC-001",
+                        "type": "specification",
+                        "title": "Specification",
+                        "status": status,
+                        "path": "artifact.md",
+                        "links": ["RD-001"],
+                    },
+                ]
+                (feature / "traceability.json").write_text(
+                    json.dumps({"schema": 1, "feature": feature_name, "nodes": nodes}),
+                    encoding="utf-8",
+                )
+
+            global_result = subprocess.run(
+                [sys.executable, str(SCRIPT), "readiness", "--root", str(root), "--json"],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            scoped_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "readiness",
+                    "--root",
+                    str(root),
+                    "--feature",
+                    "ready-feature",
+                    "--json",
+                ],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            global_payload = json.loads(global_result.stdout)
+            scoped_payload = json.loads(scoped_result.stdout)
+
+            self.assertEqual(global_result.returncode, 1, global_payload)
+            self.assertEqual(scoped_result.returncode, 0, scoped_payload)
+            self.assertEqual(scoped_payload["selected_feature"], "ready-feature")
+            self.assertEqual(scoped_payload["problems"], [])
+            self.assertNotIn("also exists", "\n".join(global_payload["problems"]))
+
+    def test_unknown_feature_selector_fails_without_fallback(self) -> None:
+        code, payload = self.run_state("state-valid", feature="missing")
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["selected_feature"], None)
+        self.assertIn("feature not found: missing", "\n".join(payload["problems"]))
+
+    def test_feature_selector_rejects_path_like_input(self) -> None:
+        code, payload = self.run_state("state-valid", feature="../ledger")
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["selected_feature"], None)
+        self.assertIn("feature selector is invalid", "\n".join(payload["problems"]))
 
 
 if __name__ == "__main__":
