@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -104,6 +105,38 @@ class TransitionSpecificationTests(unittest.TestCase):
     def payload(self, result: subprocess.CompletedProcess[str]) -> dict[str, Any]:
         self.assertTrue(result.stdout, result.stderr)
         return json.loads(result.stdout)
+
+    def run_upgrade(
+        self,
+        root: Path,
+        preview: Path,
+        *,
+        apply: bool = False,
+        resolutions: Path | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        command = [
+            sys.executable,
+            str(SCRIPT),
+            "traceability-upgrade",
+            "--root",
+            str(root),
+            "--feature",
+            "sample",
+            "--preview",
+            str(preview),
+            "--json",
+        ]
+        if apply:
+            command.append("--apply")
+        if resolutions is not None:
+            command.extend(["--resolutions", str(resolutions)])
+        return subprocess.run(command, text=True, capture_output=True, check=False)
+
+    def upgrade_root(self, raw: str) -> Path:
+        source = ROOT / "tests" / "fixtures" / "state-v1-upgrade" / "ambiguous"
+        root = Path(raw)
+        shutil.copytree(source, root, dirs_exist_ok=True)
+        return root
 
     def test_legal_projected_approval_commits_atomically(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -298,6 +331,103 @@ class TransitionSpecificationTests(unittest.TestCase):
         self.assertEqual(statuses["TEST-1"], "passing")
         self.assertEqual(statuses["IMPL-1"], "verified")
         self.assertEqual(statuses["VERIFY-1"], "passing")
+
+    def test_st_27_preview_requires_complete_explicit_resolutions(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.upgrade_root(raw)
+            preview = root / "preview.json"
+            before = (
+                root / "codeops" / "features" / "sample" / "traceability.json"
+            ).read_bytes()
+            preview_result = self.run_upgrade(root, preview)
+            preview_payload = self.payload(preview_result)
+            after_preview = (
+                root / "codeops" / "features" / "sample" / "traceability.json"
+            ).read_bytes()
+            incomplete = root / "incomplete.json"
+            incomplete.write_text(
+                json.dumps({
+                    "schema": 1,
+                    "previewHash": preview_payload["previewHash"],
+                    "decisions": {},
+                }),
+                encoding="utf-8",
+            )
+            apply_result = self.run_upgrade(
+                root, preview, apply=True, resolutions=incomplete
+            )
+        self.assertEqual(preview_result.returncode, 0, preview_result.stderr)
+        self.assertEqual(before, after_preview)
+        self.assertEqual(apply_result.returncode, 1)
+
+    def test_st_39_resolved_apply_is_valid_and_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.upgrade_root(raw)
+            preview = root / "preview.json"
+            preview_result = self.run_upgrade(root, preview)
+            preview_payload = self.payload(preview_result)
+            template = json.loads(
+                (
+                    ROOT
+                    / "tests"
+                    / "fixtures"
+                    / "state-v1-upgrade"
+                    / "resolutions-template.json"
+                ).read_text(encoding="utf-8")
+            )
+            template["previewHash"] = preview_payload["previewHash"]
+            resolutions = root / "resolutions.json"
+            resolutions.write_text(json.dumps(template), encoding="utf-8")
+            first = self.run_upgrade(
+                root, preview, apply=True, resolutions=resolutions
+            )
+            second = self.run_upgrade(
+                root, preview, apply=True, resolutions=resolutions
+            )
+            graph = json.loads(
+                (
+                    root
+                    / "codeops"
+                    / "features"
+                    / "sample"
+                    / "traceability.json"
+                ).read_text(encoding="utf-8")
+            )
+        self.assertEqual(first.returncode, 0, first.stderr)
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertEqual(self.payload(second)["result"], "no-change")
+        self.assertEqual(graph["schema"], 2)
+
+    def test_st_47_non_identical_backup_collision_is_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.upgrade_root(raw)
+            graph = (
+                root / "codeops" / "features" / "sample" / "traceability.json"
+            )
+            backup = graph.with_name("traceability.schema1.backup.json")
+            backup.write_text('{"different":true}\n', encoding="utf-8")
+            preview = root / "preview.json"
+            preview_result = self.run_upgrade(root, preview)
+            preview_payload = self.payload(preview_result)
+            template = json.loads(
+                (
+                    ROOT
+                    / "tests"
+                    / "fixtures"
+                    / "state-v1-upgrade"
+                    / "resolutions-template.json"
+                ).read_text(encoding="utf-8")
+            )
+            template["previewHash"] = preview_payload["previewHash"]
+            resolutions = root / "resolutions.json"
+            resolutions.write_text(json.dumps(template), encoding="utf-8")
+            before = graph.read_bytes()
+            result = self.run_upgrade(
+                root, preview, apply=True, resolutions=resolutions
+            )
+            after = graph.read_bytes()
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(after, before)
 
     def test_st_44_recovery_refuses_when_owner_absence_is_unproven(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

@@ -13,7 +13,7 @@ DECLARED_MODULES = (
     "tests.conformance.test_state_migration_impl",
 )
 
-IMPLEMENTED_ST_CASES = set(range(1, 25)) | {35, 36, 37, 38, 42, 43, 44, 45, 46, 48, 49}
+IMPLEMENTED_ST_CASES = set(range(1, 28)) | {35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 48, 49}
 
 
 def flatten(suite: unittest.TestSuite):

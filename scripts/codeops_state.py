@@ -23,7 +23,8 @@ def main() -> int:
     argv = sys.argv[1:]
     root = _root(argv)
     use_v2 = (
-        "--target" in argv
+        (argv and argv[0] in {"transition", "transition-recover", "traceability-upgrade"})
+        or "--target" in argv
         or "--gate" in argv
         or has_schema_two(root)
         or (root / "codeops" / "codeops.json").is_file()

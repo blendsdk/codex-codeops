@@ -22,6 +22,7 @@ from .gates import (
     valid_transitions,
 )
 from .models import Graph, Node, StructuralProblem
+from .migration import apply_upgrade, make_preview
 from .rendering import problem_json, problem_text
 from .schema import parse_graph_v2, validate_portfolio_v2
 from .transitions import recover, transition
@@ -269,16 +270,53 @@ def run(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "command",
-        choices=("validate", "readiness", "status", "transition", "transition-recover"),
+        choices=(
+            "validate",
+            "readiness",
+            "status",
+            "transition",
+            "transition-recover",
+            "traceability-upgrade",
+        ),
     )
     parser.add_argument("--root", default=".")
     parser.add_argument("--feature")
     parser.add_argument("--target")
     parser.add_argument("--gate")
     parser.add_argument("--request")
+    parser.add_argument("--preview")
+    parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--resolutions")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve()
+    if args.command == "traceability-upgrade":
+        if args.feature is None or args.preview is None:
+            parser.error("traceability-upgrade requires --feature and --preview")
+        preview_path = Path(args.preview)
+        if not preview_path.is_absolute():
+            preview_path = (Path.cwd() / preview_path).resolve()
+        if args.apply:
+            if args.resolutions is None:
+                parser.error("traceability-upgrade --apply requires --resolutions")
+            resolutions_path = Path(args.resolutions)
+            if not resolutions_path.is_absolute():
+                resolutions_path = (Path.cwd() / resolutions_path).resolve()
+            code, result = apply_upgrade(
+                root, args.feature, preview_path, resolutions_path
+            )
+        else:
+            code, result = make_preview(root, args.feature, preview_path)
+        if args.as_json:
+            print(json.dumps(result, indent=2, sort_keys=True))
+        else:
+            print(f"{result['result']}: {result.get('feature', args.feature)}")
+            for blocker in result.get("blockers", []):
+                if isinstance(blocker, dict):
+                    print(f"{blocker['code']}: {blocker['message']}")
+                else:
+                    print(blocker)
+        return code
     if args.command in {"transition", "transition-recover"}:
         if args.request is None:
             parser.error(f"{args.command} requires --request")

@@ -1047,6 +1047,204 @@ def _safe_graph_path(root: Path, value: Any) -> Path | None:
     return candidate
 
 
+def replace_graph_atomically(
+    root: Path,
+    path: Path,
+    after: bytes,
+    operation: str,
+    *,
+    expected_hash: str | None = None,
+    backup: Path | None = None,
+) -> tuple[int, dict[str, Any]]:
+    """Replace one graph through the same durable journal protocol as transitions."""
+    if SAFE_OPERATION.fullmatch(operation) is None:
+        return _failure(root, "invalid-operation", "operationId is not path-safe")
+    state, lock, journal, _, _ = _state_paths(root, operation)
+    state.mkdir(parents=True, exist_ok=True)
+    active = state / "active.lock"
+    if (state / f"{operation}.completed.json").exists():
+        return _failure(root, "operation-id-reused", "completed operationId cannot be reused")
+    owner = _process_identity(os.getpid())
+    if owner is None:
+        return _failure(root, "owner-proof-unavailable", "process identity is unavailable")
+    nonce = uuid.uuid4().hex
+    try:
+        lock_descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        return _failure(root, "transition-locked", "operation lock exists")
+    try:
+        active_descriptor = os.open(active, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        os.close(lock_descriptor)
+        lock.unlink(missing_ok=True)
+        return _failure(root, "transition-locked", "another writer owns the active lock")
+    record = {
+        "schema": 1,
+        "operationId": operation,
+        "nonce": nonce,
+        "owner": owner,
+    }
+    pending_descriptors = [lock_descriptor, active_descriptor]
+    try:
+        while pending_descriptors:
+            descriptor = pending_descriptors.pop(0)
+            with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                json.dump(record, handle, sort_keys=True)
+                handle.flush()
+                os.fsync(handle.fileno())
+        _sync_directory(state)
+        before = path.read_bytes()
+    except (OSError, TypeError, ValueError) as exc:
+        for descriptor in pending_descriptors:
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
+        lock.unlink(missing_ok=True)
+        active.unlink(missing_ok=True)
+        return _failure(
+            root,
+            "transaction-preparation",
+            f"cannot initialize transaction ownership: {exc}",
+            operation=operation,
+        )
+    if expected_hash is not None and _hash(before) != expected_hash:
+        lock.unlink(missing_ok=True)
+        active.unlink(missing_ok=True)
+        return _failure(
+            root,
+            "compare-and-swap",
+            "source changed after preview",
+            operation=operation,
+        )
+    before_image = state / f"{operation}.0.before"
+    after_image = state / f"{operation}.0.after"
+    preserve = False
+    backup_created = False
+    try:
+        if backup is not None:
+            try:
+                descriptor = os.open(
+                    backup, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
+                )
+            except FileExistsError:
+                if backup.read_bytes() != before:
+                    return _failure(
+                        root,
+                        "backup-collision",
+                        "non-identical backup exists",
+                        operation=operation,
+                    )
+            except OSError as exc:
+                return _failure(
+                    root,
+                    "backup-write",
+                    f"cannot create backup: {exc}",
+                    operation=operation,
+                )
+            else:
+                backup_created = True
+                try:
+                    with os.fdopen(descriptor, "wb") as handle:
+                        handle.write(before)
+                        handle.flush()
+                        os.fsync(handle.fileno())
+                    _sync_directory(backup.parent)
+                    verified_backup = backup.read_bytes()
+                except OSError as exc:
+                    backup.unlink(missing_ok=True)
+                    return _failure(
+                        root,
+                        "backup-write",
+                        f"backup preparation failed: {exc}",
+                        operation=operation,
+                    )
+                if verified_backup != before:
+                    backup.unlink(missing_ok=True)
+                    return _failure(
+                        root,
+                        "backup-write",
+                        "backup verification failed",
+                        operation=operation,
+                    )
+        try:
+            _atomic_write(before_image, before)
+            _atomic_write(after_image, after)
+        except OSError as exc:
+            if backup_created and backup is not None:
+                backup.unlink(missing_ok=True)
+            return _failure(
+                root,
+                "transaction-preparation",
+                f"cannot prepare recovery images: {exc}",
+                operation=operation,
+            )
+        journal_value = {
+            "schema": 1,
+            "operationId": operation,
+            "lockNonce": nonce,
+            "direction": None,
+            "owner": owner,
+            "graphs": [{
+                "path": str(path.relative_to(root)),
+                "beforeHash": _hash(before),
+                "afterHash": _hash(after),
+                "beforeImage": before_image.name,
+                "afterImage": after_image.name,
+                "committed": False,
+            }],
+        }
+        try:
+            _write_json(journal, journal_value)
+        except OSError as exc:
+            if backup_created and backup is not None:
+                backup.unlink(missing_ok=True)
+            return _failure(
+                root,
+                "transaction-preparation",
+                f"cannot publish transition journal: {exc}",
+                operation=operation,
+            )
+        try:
+            _atomic_write(path, after)
+            journal_value["graphs"][0]["committed"] = True
+            _write_json(journal, journal_value)
+            graphs, problems = _load_v2(root)
+            if problems or not graphs:
+                raise ValueError("post-write portfolio validation failed")
+        except Exception as exc:
+            if _rollback([path], {path: before}):
+                return _failure(
+                    root,
+                    "post-write-validation",
+                    f"write was restored after failure: {exc}",
+                )
+            preserve = True
+            return _failure(
+                root,
+                "post-write-validation",
+                f"rollback could not be proven: {exc}",
+                result="recovery-required",
+                exit_code=2,
+                operation=operation,
+            )
+        return 0, {
+            "result": "committed",
+            "operationId": operation,
+            "graphs": [{
+                "path": str(path.relative_to(root)),
+                "beforeHash": _hash(before),
+                "afterHash": _hash(after),
+            }],
+            "postWriteValidation": "passed",
+            "blockers": [],
+        }
+    finally:
+        if not preserve:
+            for cleanup in (journal, before_image, after_image, lock, active):
+                cleanup.unlink(missing_ok=True)
+
+
 def _exclusive_recovery_lock(
     path: Path,
     operation: str,

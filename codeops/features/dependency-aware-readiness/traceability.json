@@ -126,7 +126,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "implemented",
       "title": "Revisions and atomic transitions",
       "type": "task",
       "validations": []

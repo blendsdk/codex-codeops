@@ -419,7 +419,7 @@ class SchemaTwoImplementationTests(unittest.TestCase):
             [item.get("path") for item in payload["blockers"]],
         )
 
-    def test_mixed_schema_is_reported_and_schema1_target_requires_upgrade(self) -> None:
+    def test_st_26_mixed_schema_is_reported_and_schema1_target_requires_upgrade(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             (root / "artifact.md").write_text("# Artifact\n", encoding="utf-8")

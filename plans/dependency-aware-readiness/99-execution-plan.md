@@ -3,7 +3,7 @@
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
 > **Last Updated**: 2026-07-23 14:55
-> **Progress**: 28/51 tasks (55%)
+> **Progress**: 37/51 tasks (73%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -147,34 +147,46 @@ re-review findings were resolved under the user's delegated technical authority,
 
 ## Phase 4: Traceability Graph Migration
 
-> **Phase baseline tree**: recorded by exec-plan before the first phase mutation
+> **Phase baseline tree**: `6f962dbe4f9d94b9a8f1c3ef7137c23c52214399`
 
 ### Step 4.1: Specification Tests
 
 **Reference**: `03-03-migration-and-invalidation.md` §Upgrade Protocol ·
 ST-25–ST-27, ST-39, ST-47 · AR-9, AR-18, AR-21, AR-22, AR-28, AR-29
 
-- [ ] 4.1.1 [spec-author] Add preview/resolution/apply, source-classification, backup, recovery, and idempotence cases — `tests/conformance/test_state_migration_spec.py`
-- [ ] 4.1.2 Add ambiguous/resolved schema-1 graphs and versioned preview/resolution fixtures — `tests/fixtures/state-v1-upgrade/`
-- [ ] 4.1.3 Run migration specification cases red while all schema-1 and earlier schema-2 cases remain green — `tests/conformance/test_state_migration_spec.py`, `tests/conformance/test_state_v1_compat_spec.py`
+- [x] 4.1.1 [spec-author] Add preview/resolution/apply, source-classification, backup, recovery, and idempotence cases — `tests/conformance/test_state_migration_spec.py` ✅ (completed: 2026-07-23 15:48)
+- [x] 4.1.2 Add ambiguous/resolved schema-1 graphs and versioned preview/resolution fixtures — `tests/fixtures/state-v1-upgrade/` ✅ (completed: 2026-07-23 15:48)
+- [x] 4.1.3 Run migration specification cases red while all schema-1 and earlier schema-2 cases remain green — `tests/conformance/test_state_migration_spec.py`, `tests/conformance/test_state_v1_compat_spec.py` ✅ (completed: 2026-07-23 15:48)
 
 ### Step 4.2: Implementation
 
 **Reference**: `03-03-migration-and-invalidation.md` §Upgrade Protocol
 
-- [ ] 4.2.1 Implement deterministic preview generation and versioned resolution validation — `scripts/codeops_state_lib/migration.py`
-- [ ] 4.2.2 Implement atomic apply, backup lifecycle, interruption recovery, and idempotent rerun through shared transitions — `scripts/codeops_state_lib/migration.py`, `scripts/codeops_state_lib/transitions.py`
-- [ ] 4.2.3 Expose `traceability-upgrade` CLI/output/exit contracts, then run Phase-4 specification cases green — `scripts/codeops_state.py`, `scripts/codeops_state_lib/rendering.py`
-- [ ] 4.2.4 Integrate backup collision, post-replace rollback, and exit-2 recovery-required behavior with `transition-recover` — `scripts/codeops_state_lib/migration.py`, `scripts/codeops_state_lib/transitions.py`
+- [x] 4.2.1 Implement deterministic preview generation and versioned resolution validation — `scripts/codeops_state_lib/migration.py` ✅ (completed: 2026-07-23 15:52)
+- [x] 4.2.2 Implement atomic apply, backup lifecycle, interruption recovery, and idempotent rerun through shared transitions — `scripts/codeops_state_lib/migration.py`, `scripts/codeops_state_lib/transitions.py` ✅ (completed: 2026-07-23 15:52)
+- [x] 4.2.3 Expose `traceability-upgrade` CLI/output/exit contracts, then run Phase-4 specification cases green — `scripts/codeops_state.py`, `scripts/codeops_state_lib/rendering.py` ✅ (completed: 2026-07-23 15:52)
+- [x] 4.2.4 Integrate backup collision, post-replace rollback, and exit-2 recovery-required behavior with `transition-recover` — `scripts/codeops_state_lib/migration.py`, `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/rendering.py` ✅ (completed: 2026-07-23 15:52)
 
 ### Step 4.3: Implementation Tests and Hardening
 
 **Reference**: `03-03-migration-and-invalidation.md` §Error Handling
 
-- [ ] 4.3.1 Add malformed-resolution, changed-preview, partial-write, backup, repeated-apply, permission, and path-escape tests — `tests/conformance/test_state_migration_impl.py`
-- [ ] 4.3.2 Rerun every schema-1/schema-2 specification module, assert collection, and run the confirmed full verification gate — `scripts/validate-codex.sh`, `tests/conformance/test_state_v1_compat_spec.py`
+- [x] 4.3.1 Add malformed-resolution, changed-preview, partial-write, backup, repeated-apply, permission, and path-escape tests — `tests/conformance/test_state_migration_impl.py` ✅ (completed: 2026-07-23 15:56)
+- [x] 4.3.2 Rerun every schema-1/schema-2 specification module, assert collection, and run the confirmed full verification gate — `scripts/validate-codex.sh`, `tests/conformance/test_state_v1_compat_spec.py` ✅ (completed: 2026-07-23 15:56)
 
 **Verify**: run all five commands confirmed in AR-14.
+
+**Phase review remediation**: initial review found preview self-rehash trust, protected-path
+aliasing, live-discovery drift, incomplete link classification, backup races and out-of-lock
+writes, pre-lock source CAS, divergent-destination idempotence, fixed operation identities, open
+request shapes, and uncovered preparation failures. All recommendations were accepted under
+delegated technical authority. Apply now regenerates the canonical preview, uses live discovery,
+offers explicit omission, validates closed requests, locks before compare and backup, creates
+backups exclusively, binds operations to preview hashes, and compares exact projected bytes. The
+one-time re-review findings were resolved under delegated authority by adding portfolio-aware
+cross-feature conversion, closed preparation cleanup, retained verified rollback backups,
+portfolio-wide idempotence validation, and per-attempt recovery generations. The final 108-test
+state suite and all five repository gates pass.
 
 ## Phase 5: Workflow, Roadmap, Documentation, and Pilot Closeout
 

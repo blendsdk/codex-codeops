@@ -31,7 +31,7 @@ class SchemaOneCompatibilityTests(unittest.TestCase):
             args.append("--json")
         return subprocess.run(args, text=True, capture_output=True, check=False)
 
-    def test_ready_graph_json_contract(self) -> None:
+    def test_st_25_ready_graph_json_contract(self) -> None:
         result = self.run_state(VALID_FIXTURE, "readiness")
         payload = json.loads(result.stdout)
 

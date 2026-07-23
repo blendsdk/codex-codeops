@@ -7,10 +7,11 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import shutil
 from pathlib import Path
 from unittest import mock
 
-from scripts.codeops_state_lib import transitions
+from scripts.codeops_state_lib import migration, transitions
 from scripts.codeops_state_lib.models import StructuralProblem
 from scripts.codeops_state_lib.revisions import normalize_utf8
 
@@ -85,6 +86,27 @@ class TransitionImplementationTests(unittest.TestCase):
             str(request),
             "--json",
         ]
+
+    def make_upgrade(self, raw: str) -> tuple[Path, Path, Path]:
+        root = Path(raw)
+        fixture = ROOT / "tests" / "fixtures" / "state-v1-upgrade" / "ambiguous"
+        shutil.copytree(fixture, root, dirs_exist_ok=True)
+        preview = root / "preview.json"
+        code, payload = migration.make_preview(root, "sample", preview)
+        self.assertEqual(code, 0, payload)
+        template = json.loads(
+            (
+                ROOT
+                / "tests"
+                / "fixtures"
+                / "state-v1-upgrade"
+                / "resolutions-template.json"
+            ).read_text(encoding="utf-8")
+        )
+        template["previewHash"] = payload["previewHash"]
+        resolutions = root / "resolutions.json"
+        resolutions.write_text(json.dumps(template), encoding="utf-8")
+        return root, preview, resolutions
 
     def test_st_37_concurrent_compare_and_swap_has_one_winner(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -442,6 +464,196 @@ class TransitionImplementationTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertEqual(response["blockers"][0]["code"], "operation-id-reused")
         self.assertEqual(after, before)
+
+    def test_upgrade_rejects_malformed_and_changed_resolutions(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, preview, resolutions = self.make_upgrade(raw)
+            graph = root / "codeops" / "features" / "sample" / "traceability.json"
+            before = graph.read_bytes()
+            malformed = json.loads(resolutions.read_text(encoding="utf-8"))
+            malformed["decisions"]["unknown:item"] = {"relation": "related"}
+            resolutions.write_text(json.dumps(malformed), encoding="utf-8")
+            code, payload = migration.apply_upgrade(
+                root, "sample", preview, resolutions
+            )
+            after = graph.read_bytes()
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["blockers"][0]["code"], "incomplete-resolutions")
+        self.assertEqual(after, before)
+
+    def test_upgrade_refuses_preview_source_path_escape(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, preview, resolutions = self.make_upgrade(raw)
+            graph = root / "codeops" / "features" / "sample" / "traceability.json"
+            value = json.loads(preview.read_text(encoding="utf-8"))
+            value["source"]["path"] = "../outside.json"
+            value["previewHash"] = migration._preview_hash(value)
+            preview.write_text(json.dumps(value), encoding="utf-8")
+            resolution_value = json.loads(resolutions.read_text(encoding="utf-8"))
+            resolution_value["previewHash"] = value["previewHash"]
+            resolutions.write_text(json.dumps(resolution_value), encoding="utf-8")
+            before = graph.read_bytes()
+            code, payload = migration.apply_upgrade(
+                root, "sample", preview, resolutions
+            )
+            after = graph.read_bytes()
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["blockers"][0]["code"], "unsafe-upgrade-path")
+        self.assertEqual(after, before)
+
+    def test_upgrade_backup_permission_failure_is_byte_identical(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, preview, resolutions = self.make_upgrade(raw)
+            graph = root / "codeops" / "features" / "sample" / "traceability.json"
+            before = graph.read_bytes()
+            real_open = transitions.os.open
+
+            def fail_backup(path: str | Path, flags: int, mode: int = 0o777) -> int:
+                if Path(path).name == "traceability.schema1.backup.json":
+                    raise PermissionError("backup denied")
+                return real_open(path, flags, mode)
+
+            with mock.patch.object(
+                transitions.os, "open", side_effect=fail_backup
+            ):
+                code, payload = migration.apply_upgrade(
+                    root, "sample", preview, resolutions
+                )
+            after = graph.read_bytes()
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["blockers"][0]["code"], "backup-write")
+        self.assertEqual(after, before)
+
+    def test_upgrade_rejects_self_rehashed_preview_tampering(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, preview, resolutions = self.make_upgrade(raw)
+            graph = root / "codeops" / "features" / "sample" / "traceability.json"
+            value = json.loads(preview.read_text(encoding="utf-8"))
+            value["preservedNodes"][0]["status"] = "draft"
+            value["previewHash"] = migration._preview_hash(value)
+            preview.write_text(json.dumps(value), encoding="utf-8")
+            resolution_value = json.loads(resolutions.read_text(encoding="utf-8"))
+            resolution_value["previewHash"] = value["previewHash"]
+            resolutions.write_text(json.dumps(resolution_value), encoding="utf-8")
+            before = graph.read_bytes()
+            code, payload = migration.apply_upgrade(
+                root, "sample", preview, resolutions
+            )
+            after = graph.read_bytes()
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["blockers"][0]["code"], "changed-preview")
+        self.assertEqual(after, before)
+
+    def test_preview_cannot_alias_live_graph_or_semantic_source(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fixture = ROOT / "tests" / "fixtures" / "state-v1-upgrade" / "ambiguous"
+            shutil.copytree(fixture, root, dirs_exist_ok=True)
+            graph = root / "codeops" / "features" / "sample" / "traceability.json"
+            artifact = root / "codeops" / "features" / "sample" / "artifact.md"
+            graph_before = graph.read_bytes()
+            artifact_before = artifact.read_bytes()
+            graph_code, graph_payload = migration.make_preview(
+                root, "sample", graph
+            )
+            source_code, source_payload = migration.make_preview(
+                root, "sample", artifact
+            )
+            graph_after = graph.read_bytes()
+            artifact_after = artifact.read_bytes()
+        self.assertEqual(graph_code, 1, graph_payload)
+        self.assertEqual(source_code, 1, source_payload)
+        self.assertEqual(graph_before, graph_after)
+        self.assertEqual(artifact_before, artifact_after)
+
+    def test_idempotence_refuses_divergent_schema_two_destination(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, preview, resolutions = self.make_upgrade(raw)
+            code, payload = migration.apply_upgrade(
+                root, "sample", preview, resolutions
+            )
+            self.assertEqual(code, 0, payload)
+            graph = root / "codeops" / "features" / "sample" / "traceability.json"
+            value = json.loads(graph.read_text(encoding="utf-8"))
+            value["nodes"][0]["title"] = "Diverged"
+            graph.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            code, payload = migration.apply_upgrade(
+                root, "sample", preview, resolutions
+            )
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["blockers"][0]["code"], "divergent-destination")
+
+    def test_upgrade_preserves_explicit_cross_feature_relation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            fixture = ROOT / "tests" / "fixtures" / "state-v1-upgrade" / "ambiguous"
+            shutil.copytree(fixture, root, dirs_exist_ok=True)
+            sample_graph = root / "codeops" / "features" / "sample" / "traceability.json"
+            sample = json.loads(sample_graph.read_text(encoding="utf-8"))
+            sample["nodes"][0]["links"].append("identity/RD-001")
+            sample_graph.write_text(json.dumps(sample, indent=2), encoding="utf-8")
+            (root / "artifact.md").write_bytes(ARTIFACT)
+            identity_path = root / "codeops" / "features" / "identity" / "traceability.json"
+            identity_path.parent.mkdir(parents=True)
+            identity = graph("approved")
+            identity["feature"] = "identity"
+            identity_path.write_text(
+                json.dumps(identity, indent=2) + "\n", encoding="utf-8"
+            )
+            preview = root / "preview.json"
+            code, preview_payload = migration.make_preview(
+                root, "sample", preview
+            )
+            self.assertEqual(code, 0, preview_payload)
+            template = json.loads(
+                (
+                    ROOT
+                    / "tests"
+                    / "fixtures"
+                    / "state-v1-upgrade"
+                    / "resolutions-template.json"
+                ).read_text(encoding="utf-8")
+            )
+            template["previewHash"] = preview_payload["previewHash"]
+            template["decisions"]["edge:RD-001:identity/RD-001"] = {
+                "relation": "depends-on"
+            }
+            resolutions = root / "resolutions.json"
+            resolutions.write_text(json.dumps(template), encoding="utf-8")
+            code, payload = migration.apply_upgrade(
+                root, "sample", preview, resolutions
+            )
+            migrated = json.loads(sample_graph.read_text(encoding="utf-8"))
+        self.assertEqual(code, 0, payload)
+        edges = migrated["nodes"][0]["edges"]
+        self.assertIn(
+            {"relation": "depends-on", "target": "identity/RD-001"}, edges
+        )
+
+    def test_prior_rollback_generation_does_not_block_new_apply_attempt(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, preview, resolutions = self.make_upgrade(raw)
+            preview_value = json.loads(preview.read_text(encoding="utf-8"))
+            state = root / "codeops" / ".state-transactions"
+            state.mkdir()
+            old_operation = (
+                "upgrade-sample-"
+                + preview_value["previewHash"].split(":", 1)[-1][:16]
+            )
+            (state / f"{old_operation}.completed.json").write_text(
+                json.dumps({
+                    "schema": 1,
+                    "operationId": old_operation,
+                    "direction": "rollback",
+                    "graphs": [],
+                }),
+                encoding="utf-8",
+            )
+            code, payload = migration.apply_upgrade(
+                root, "sample", preview, resolutions
+            )
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload["result"], "committed")
 
 
 if __name__ == "__main__":

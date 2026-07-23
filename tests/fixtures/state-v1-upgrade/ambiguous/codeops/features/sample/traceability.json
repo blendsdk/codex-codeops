@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "feature": "sample",
+  "nodes": [
+    {
+      "id": "RD-001",
+      "type": "requirement",
+      "title": "Requirement",
+      "status": "approved",
+      "path": "artifact.md",
+      "links": [
+        "SPEC-001"
+      ],
+      "evidence": [
+        "artifact.md"
+      ],
+      "risk": "high"
+    },
+    {
+      "id": "SPEC-001",
+      "type": "specification",
+      "title": "Specification",
+      "status": "approved",
+      "path": "artifact.md",
+      "links": [
+        "RD-001"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "previewHash": "REPLACED-BY-TEST",
+  "decisions": {
+    "edge:RD-001:SPEC-001": {
+      "relation": "specified-by"
+    },
+    "edge:SPEC-001:RD-001": {
+      "relation": "related"
+    },
+    "source:RD-001": {
+      "selector": {
+        "kind": "heading",
+        "value": "Requirement"
+      }
+    },
+    "source:SPEC-001": {
+      "selector": {
+        "kind": "heading",
+        "value": "Specification"
+      }
+    }
+  }
+}
