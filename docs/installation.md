@@ -1,6 +1,6 @@
 # Installation and trust
 
-The tested beta host is Linux with Bash and Python 3. macOS compatibility is
+The tested host is Linux with Bash and Python 3. macOS compatibility is
 expected but not yet release-tested. Windows is not currently supported.
 
 ## Install from GitHub

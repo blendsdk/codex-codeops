@@ -2,6 +2,16 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 0.2.0 — 2026-07-23
+
+- Promote the Codex plugin from beta to the first stable 0.2 release.
+- Add dependency-aware, target-scoped readiness across requirements, audit, planning, execution,
+  roadmap, feature acceptance, and release workflows.
+- Add schema-2 semantic revisions, validation snapshots, atomic lifecycle transitions, explicit
+  recovery, and safe schema-1 graph upgrades.
+- Keep the broader 1.0 comparative and external complex-project pilot gate explicitly open.
+- Adopt Semantic Versioning for all subsequent releases.
+
 ## 0.2.0-beta.7 — 2026-07-23
 
 - Add schema-2 target-scoped readiness, atomic lifecycle transitions, and recoverable graph

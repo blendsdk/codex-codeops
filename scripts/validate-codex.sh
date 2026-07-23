@@ -74,7 +74,7 @@ from pathlib import Path
 manifest = json.loads(Path('.codex-plugin/plugin.json').read_text(encoding='utf-8'))
 scenario = json.loads(Path('tests/scenarios/evidence.json').read_text(encoding='utf-8'))
 review = json.loads(Path('tests/evidence/release-review-final.json').read_text(encoding='utf-8'))
-assert scenario['codex']['pluginVersion'].startswith('0.2.0-beta.')
+assert scenario['codex']['pluginVersion'].startswith('0.2.0')
 assert scenario['claude']['pluginVersion'] == '3.12.0'
 assert scenario['scope'] == 'requirements-stage ambiguity discovery and gate behavior'
 assert review['verdict'] == 'PASS'

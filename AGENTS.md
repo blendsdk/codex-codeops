@@ -15,6 +15,19 @@ This repository develops the installable CodeOps plugin for Codex. CodeOps is a 
 - Use `apply_patch` for hand-authored edits. Mechanical imports and formatting may use deterministic bulk tools.
 - Commit and push coherent, verified phases to `main`.
 
+## Versioning and releases
+
+- Use Semantic Versioning (`MAJOR.MINOR.PATCH`) for every release.
+- Increment `MAJOR` for incompatible public workflow, artifact, CLI, or plugin-contract changes;
+  increment `MINOR` for backward-compatible capabilities; increment `PATCH` for
+  backward-compatible fixes.
+- Use prerelease identifiers only when a release is intentionally non-stable. Do not use a beta
+  tag for routine development after `0.2.0`.
+- Keep `.codex-plugin/plugin.json`, `CHANGELOG.md`, release documentation, retained installation
+  evidence, and the annotated `v<version>` Git tag consistent.
+- Development-only Codex cachebusters may append `+codex.<token>` without changing the semantic
+  release version and must not be published as a release tag.
+
 ## Verification
 
 Run:

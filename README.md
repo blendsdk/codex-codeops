@@ -4,7 +4,7 @@ CodeOps is a specification-first engineering system for building complex softwar
 
 It is designed for work where an unstated assumption can become a correctness defect: programming languages and compilers, financial systems, protocols, distributed services, security-sensitive applications, developer tools, and substantial web applications.
 
-> **Development status:** `0.2.0-beta.7` is installable and under active pre-1.0 validation. Core workflows, deterministic state, project tracking, domain lenses, and Codex-native routing are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
+> **Release status:** `0.2.0` is the stable release of the current CodeOps workflow surface. Core workflows, deterministic state, project tracking, domain lenses, and Codex-native routing are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
 
 ## The workflow
 
@@ -60,7 +60,7 @@ codex plugin add codeops@codeops-marketplace
 
 These commands have been verified against the published repository. Start a new Codex thread after installation so skills and hooks are discovered.
 
-The tested beta host is Linux with Bash and Python 3. macOS is expected to be
+The tested host is Linux with Bash and Python 3. macOS is expected to be
 compatible but is not yet a release-tested claim; Windows is not currently supported.
 
 Codex requires non-managed hooks to be reviewed before they run. Open `/hooks`, inspect the CodeOps SessionStart and edit-warning definitions, and trust them if they match this repository.
