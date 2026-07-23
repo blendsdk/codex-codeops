@@ -1,7 +1,7 @@
 # Codex Port Execution Plan
 
 > **Status:** Beta implementation; 1.0 pilot pending
-> **Progress:** 54/57 tasks
+> **Progress:** 56/57 tasks
 > **Execution prohibition:** Do not begin implementation phases affected by open material items in `00-ambiguity-register.md`.
 
 ## Phase 0 — Validate product decisions
@@ -11,7 +11,7 @@
 - [x] 0.3 Resolve artifact compatibility and legacy-layout policy (AR-003, AR-004).
 - [x] 0.4 Resolve telemetry and strict-profile policy (AR-007, AR-008).
 - [x] 0.5 Resolve model/agent distribution policy through bounded prototypes (AR-009, AR-010).
-- [ ] 0.6 Confirm repository protections, licensing, release tags, and CI policy for the independent repository (AR-001 resolved).
+- [x] 0.6 Confirm repository protections, licensing, release tags, and CI policy for the independent repository (AR-001 resolved).
 - [x] 0.7 Run requirements preflight and close all critical/major findings.
 
 **Verify:** Requirements gate G1 passes and no architecture-affecting ambiguity remains open.
@@ -92,6 +92,6 @@
 - [x] 6.6 Write and validate the root `README.md` against RD-021, including tested install, quick-start, update, disable, and uninstall commands.
 - [x] 6.7 Complete tutorials, reference docs, migration guide, and troubleshooting.
 - [ ] 6.8 Pilot on a real complex project milestone and incorporate findings.
-- [ ] 6.9 Pass final readiness and independent release review.
+- [x] 6.9 Pass final beta readiness and independent release review.
 
 **Verify:** The 1.0 release gate in `07-testing-strategy.md` passes with retained evidence.

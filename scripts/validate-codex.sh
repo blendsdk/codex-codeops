@@ -66,6 +66,24 @@ validate_scenarios() {
   done
 }
 
+validate_release_evidence() {
+  python3 - <<'PY'
+import json
+from pathlib import Path
+
+manifest = json.loads(Path('.codex-plugin/plugin.json').read_text(encoding='utf-8'))
+scenario = json.loads(Path('tests/scenarios/evidence.json').read_text(encoding='utf-8'))
+review = json.loads(Path('tests/evidence/release-review-final.json').read_text(encoding='utf-8'))
+assert scenario['codex']['pluginVersion'].startswith('0.2.0-beta.')
+assert scenario['claude']['pluginVersion'] == '3.12.0'
+assert scenario['scope'] == 'requirements-stage ambiguity discovery and gate behavior'
+assert review['verdict'] == 'PASS'
+assert not any(item['severity'] in {'critical', 'major'} for item in review['findings'])
+install = Path('tests/evidence/install-cli.md').read_text(encoding='utf-8')
+assert manifest['version'] in install
+PY
+}
+
 run_check "plugin manifest" python3 scripts/validate_plugin.py .
 run_check "skill manifests" validate_skills
 run_check "marketplace metadata" validate_marketplace
@@ -74,6 +92,7 @@ run_check "local Markdown links" validate_links
 run_check "shell syntax" bash -n scripts/*.sh bin/codeops-worktree
 run_check "state conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
 run_check "retained adversarial parity evidence" validate_scenarios
+run_check "release evidence provenance" validate_release_evidence
 
 if (( failures > 0 )); then
   printf '\n%d validation group(s) failed.\n' "$failures" >&2
