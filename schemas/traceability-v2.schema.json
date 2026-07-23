@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/blendsdk/codex-codeops/schemas/traceability-v2.schema.json",
+  "title": "CodeOps traceability graph schema 2",
+  "type": "object",
+  "required": ["schema", "feature", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": 2},
+    "feature": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "updated": {"type": "string"},
+    "nodes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/node"}
+    }
+  },
+  "$defs": {
+    "canonicalIdentity": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Z][A-Z0-9]*-[A-Za-z0-9._-]+$"
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "selector": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind"],
+          "additionalProperties": false,
+          "properties": {"kind": {"const": "whole-file"}}
+        },
+        {
+          "type": "object",
+          "required": ["kind", "value"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {"const": "heading"},
+            "value": {"type": "string", "minLength": 1}
+          }
+        }
+      ]
+    },
+    "semanticSource": {
+      "type": "object",
+      "required": ["path", "selector", "normalization", "digest"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "selector": {"$ref": "#/$defs/selector"},
+        "normalization": {"const": "utf8-lf-trim-trailing-v1"},
+        "digest": {"const": "sha256"}
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["relation", "target"],
+      "additionalProperties": false,
+      "properties": {
+        "relation": {
+          "enum": [
+            "specified-by",
+            "accepted-by",
+            "tested-by",
+            "implemented-by",
+            "verified-by",
+            "affected-by",
+            "depends-on",
+            "consumes-contract",
+            "related",
+            "release-coupled"
+          ]
+        },
+        "target": {"$ref": "#/$defs/canonicalIdentity"},
+        "requiredMaturity": {"enum": ["provisional", "stable", "frozen"]}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"relation": {"const": "consumes-contract"}},
+            "required": ["relation"]
+          },
+          "then": {"required": ["requiredMaturity"]},
+          "else": {"not": {"required": ["requiredMaturity"]}}
+        }
+      ]
+    },
+    "validation": {
+      "type": "object",
+      "required": ["upstream", "relation", "revision", "gate", "validatedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "upstream": {"$ref": "#/$defs/canonicalIdentity"},
+        "relation": {
+          "enum": ["depends-on", "consumes-contract", "release-coupled"]
+        },
+        "revision": {"$ref": "#/$defs/revision"},
+        "gate": {
+          "enum": [
+            "requirements",
+            "specifications",
+            "plan",
+            "audit",
+            "execution",
+            "task-complete",
+            "feature-acceptance",
+            "release"
+          ]
+        },
+        "validatedAt": {"type": "string", "format": "date-time"}
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "title",
+        "status",
+        "semanticSources",
+        "revision",
+        "edges",
+        "validations"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9]*-[A-Za-z0-9._-]+$"
+        },
+        "type": {
+          "enum": [
+            "requirement",
+            "requirement-set",
+            "ambiguity",
+            "decision",
+            "invariant",
+            "specification",
+            "criterion",
+            "contract",
+            "planning-group",
+            "plan",
+            "feature",
+            "audit-artifact",
+            "release",
+            "test",
+            "task",
+            "implementation",
+            "verification",
+            "finding",
+            "deferral"
+          ]
+        },
+        "title": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "minLength": 1},
+        "semanticSources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/semanticSource"}
+        },
+        "revision": {"$ref": "#/$defs/revision"},
+        "edges": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/edge"}
+        },
+        "validations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/validation"}
+        },
+        "maturity": {"enum": ["provisional", "stable", "frozen"]},
+        "members": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/canonicalIdentity"}
+        },
+        "memberGates": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": ["task-complete", "feature-acceptance", "release"]
+          }
+        },
+        "auditStage": {
+          "enum": [
+            "requirements",
+            "specifications",
+            "plan",
+            "execution",
+            "task-complete",
+            "feature-acceptance",
+            "release"
+          ]
+        },
+        "required": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/canonicalIdentity"}
+        },
+        "optional": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/canonicalIdentity"}
+        },
+        "excluded": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/canonicalIdentity"}
+        },
+        "evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "risk": {"enum": ["low", "medium", "high", "critical"]}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"type": {"const": "contract"}},
+            "required": ["type"]
+          },
+          "then": {"required": ["maturity"]},
+          "else": {"not": {"required": ["maturity"]}}
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": ["requirement-set", "feature", "planning-group"]
+              }
+            },
+            "required": ["type"]
+          },
+          "then": {"required": ["members"]},
+          "else": {"not": {"required": ["members"]}}
+        },
+        {
+          "if": {
+            "properties": {"type": {"const": "feature"}},
+            "required": ["type"]
+          },
+          "then": {"required": ["memberGates"]},
+          "else": {"not": {"required": ["memberGates"]}}
+        },
+        {
+          "if": {
+            "properties": {"type": {"const": "audit-artifact"}},
+            "required": ["type"]
+          },
+          "then": {"required": ["auditStage"]},
+          "else": {"not": {"required": ["auditStage"]}}
+        },
+        {
+          "if": {
+            "properties": {"type": {"const": "release"}},
+            "required": ["type"]
+          },
+          "then": {"required": ["required", "optional", "excluded"]},
+          "else": {
+            "not": {
+              "anyOf": [
+                {"required": ["required"]},
+                {"required": ["optional"]},
+                {"required": ["excluded"]}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

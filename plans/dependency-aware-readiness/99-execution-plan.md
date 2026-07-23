@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-07-23 13:20
-> **Progress**: 1/51 tasks (2%)
+> **Last Updated**: 2026-07-23 13:39
+> **Progress**: 10/51 tasks (20%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -46,25 +46,25 @@ in every phase. (AR-15–AR-27)
 AR-2, AR-3, AR-5–AR-7, AR-18, AR-22, AR-23, AR-27
 
 - [x] 1.1.1 [spec-author] Characterize exact schema-1 validate/readiness/status semantics and output on legitimate isolated roots, recording repository fixture exclusion as the sole authorized delta — `tests/conformance/test_state_v1_compat_spec.py` ✅ (completed: 2026-07-23 13:20)
-- [ ] 1.1.2 [spec-author] Add schema-2 model, identity, relation, aggregate, maturity, group, and revision cases — `tests/conformance/test_state_v2_spec.py`
-- [ ] 1.1.3 Add ERP and compiler schema-2 fixture artifacts — `tests/fixtures/state-v2-erp/`, `tests/fixtures/state-v2-compiler/`
-- [ ] 1.1.4 Run both specification modules: record schema-1 green characterization and schema-2 red result before production changes — `tests/conformance/test_state_v1_compat_spec.py`, `tests/conformance/test_state_v2_spec.py`
+- [x] 1.1.2 [spec-author] Add schema-2 model, identity, relation, aggregate, maturity, group, and revision cases — `tests/conformance/test_state_v2_spec.py` ✅ (completed: 2026-07-23 13:27)
+- [x] 1.1.3 Add ERP and compiler schema-2 fixture artifacts — `tests/fixtures/state-v2-erp/`, `tests/fixtures/state-v2-compiler/` ✅ (completed: 2026-07-23 13:28)
+- [x] 1.1.4 Run both specification modules: record schema-1 green characterization and schema-2 red result before production changes — `tests/conformance/test_state_v1_compat_spec.py`, `tests/conformance/test_state_v2_spec.py` ✅ (completed: 2026-07-23 13:28; schema 1: 6/6 green; schema 2: 10/10 expected red because schema 2 and target/gate arguments are absent)
 
 ### Step 1.2: Implementation
 
 **Reference**: `03-01-graph-schema.md`
 
-- [ ] 1.2.1 Add the closed schema-2 contract while preserving the schema-1 contract — `schemas/traceability.schema.json`, `schemas/traceability-v2.schema.json`
-- [ ] 1.2.2 Create versioned graph/node/edge/source/snapshot models and status vocabularies — `scripts/codeops_state_lib/__init__.py`, `scripts/codeops_state_lib/models.py`
-- [ ] 1.2.3 Implement schema-specific parsing, relation matrices, aggregate membership, maturity, and group contraction — `scripts/codeops_state_lib/schema.py`
-- [ ] 1.2.4 Refactor the existing CLI into a thin dispatcher without changing schema-1 results, then run Phase-1 specification modules green — `scripts/codeops_state.py`
+- [x] 1.2.1 Add the closed schema-2 contract while preserving the schema-1 contract — `schemas/traceability.schema.json`, `schemas/traceability-v2.schema.json` ✅ (completed: 2026-07-23 13:29)
+- [x] 1.2.2 Create versioned graph/node/edge/source/snapshot models and status vocabularies — `scripts/codeops_state_lib/__init__.py`, `scripts/codeops_state_lib/models.py` ✅ (completed: 2026-07-23 13:31)
+- [x] 1.2.3 Implement schema-specific parsing, relation matrices, aggregate membership, maturity, and group contraction — `scripts/codeops_state_lib/schema.py` ✅ (completed: 2026-07-23 13:36)
+- [x] 1.2.4 Refactor the existing CLI into a thin dispatcher without changing schema-1 results, then run Phase-1 specification modules green — `scripts/codeops_state.py` ✅ (completed: 2026-07-23 13:37)
 
 ### Step 1.3: Implementation Tests and Hardening
 
 **Reference**: `03-01-graph-schema.md` §Error Handling
 
-- [ ] 1.3.1 Add importable implementation tests for hostile relationships, identities, aggregate membership, maturity, deterministic cycles, and source selectors — `tests/conformance/test_state_v2_impl.py`
-- [ ] 1.3.2 Add the collection guard for every test module declared so far, rerun schema-1 compatibility, and run the confirmed full verification gate — `scripts/validate-codex.sh`, `tests/conformance/test_state_test_collection.py`
+- [x] 1.3.1 Add importable implementation tests for hostile relationships, identities, aggregate membership, maturity, deterministic cycles, and source selectors — `tests/conformance/test_state_v2_impl.py` ✅ (completed: 2026-07-23 13:38)
+- [x] 1.3.2 Add the collection guard for every test module declared so far, rerun schema-1 compatibility, and run the confirmed full verification gate — `scripts/validate-codex.sh`, `tests/conformance/test_state_test_collection.py` ✅ (completed: 2026-07-23 13:39)
 
 **Verify**: run all five commands confirmed in AR-14.
 

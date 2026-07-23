@@ -1,0 +1,80 @@
+{
+  "schema": 2,
+  "feature": "compiler",
+  "nodes": [
+    {
+      "id": "RD-LEX",
+      "type": "requirement",
+      "title": "Lex source text",
+      "status": "approved",
+      "semanticSources": [
+        {
+          "path": "codeops/features/compiler/artifact.md",
+          "selector": {"kind": "whole-file"},
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:7ad883fe8d221c3c0cead01676161b28816b4dba79fa03ac67dd8d405f633053",
+      "edges": [
+        {"relation": "depends-on", "target": "compiler/RD-PARSE"}
+      ],
+      "validations": []
+    },
+    {
+      "id": "RD-PARSE",
+      "type": "requirement",
+      "title": "Parse token stream",
+      "status": "approved",
+      "semanticSources": [
+        {
+          "path": "codeops/features/compiler/artifact.md",
+          "selector": {"kind": "whole-file"},
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:7ad883fe8d221c3c0cead01676161b28816b4dba79fa03ac67dd8d405f633053",
+      "edges": [
+        {"relation": "depends-on", "target": "compiler/RD-LEX"}
+      ],
+      "validations": []
+    },
+    {
+      "id": "GROUP-FRONTEND",
+      "type": "planning-group",
+      "title": "Frontend planning group",
+      "status": "approved",
+      "members": ["compiler/RD-LEX", "compiler/RD-PARSE"],
+      "semanticSources": [
+        {
+          "path": "codeops/features/compiler/artifact.md",
+          "selector": {"kind": "whole-file"},
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:7ad883fe8d221c3c0cead01676161b28816b4dba79fa03ac67dd8d405f633053",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "CONTRACT-IR",
+      "type": "contract",
+      "title": "Intermediate representation contract",
+      "status": "approved",
+      "maturity": "provisional",
+      "semanticSources": [
+        {
+          "path": "codeops/features/compiler/artifact.md",
+          "selector": {"kind": "whole-file"},
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:7ad883fe8d221c3c0cead01676161b28816b4dba79fa03ac67dd8d405f633053",
+      "edges": [],
+      "validations": []
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "schema": 2,
+  "feature": "accounting",
+  "nodes": [
+    {
+      "id": "CONTRACT-IDENTITY",
+      "type": "contract",
+      "title": "Identity contract",
+      "status": "approved",
+      "maturity": "stable",
+      "semanticSources": [
+        {
+          "path": "codeops/features/accounting/artifact.md",
+          "selector": {"kind": "whole-file"},
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:9198509620898656868729770f0182b71274e6f9a4c9e743ad9f344eda3ab46c",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "RD-AP-001",
+      "type": "requirement",
+      "title": "Capture supplier invoice",
+      "status": "approved",
+      "semanticSources": [
+        {
+          "path": "codeops/features/accounting/artifact.md",
+          "selector": {"kind": "whole-file"},
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:9198509620898656868729770f0182b71274e6f9a4c9e743ad9f344eda3ab46c",
+      "edges": [
+        {
+          "relation": "consumes-contract",
+          "target": "accounting/CONTRACT-IDENTITY",
+          "requiredMaturity": "stable"
+        }
+      ],
+      "validations": []
+    },
+    {
+      "id": "RD-AP-002",
+      "type": "requirement",
+      "title": "Schedule payment run",
+      "status": "draft",
+      "semanticSources": [
+        {
+          "path": "codeops/features/accounting/artifact.md",
+          "selector": {"kind": "whole-file"},
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:9198509620898656868729770f0182b71274e6f9a4c9e743ad9f344eda3ab46c",
+      "edges": [
+        {"relation": "related", "target": "accounting/RD-AP-001"}
+      ],
+      "validations": []
+    },
+    {
+      "id": "SET-AP",
+      "type": "requirement-set",
+      "title": "Accounts payable requirements",
+      "status": "approved",
+      "members": ["accounting/RD-AP-001", "accounting/RD-AP-002"],
+      "semanticSources": [
+        {
+          "path": "codeops/features/accounting/artifact.md",
+          "selector": {"kind": "whole-file"},
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:9198509620898656868729770f0182b71274e6f9a4c9e743ad9f344eda3ab46c",
+      "edges": [],
+      "validations": []
+    }
+  ]
+}
