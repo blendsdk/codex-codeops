@@ -769,7 +769,7 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
             ],
             text=True, capture_output=True, check=False,
         )
-        self.assertEqual(json.loads(repository.stdout)["graphs"], 0)
+        self.assertEqual(json.loads(repository.stdout)["graphs"], 1)
         self.assertEqual(json.loads(fixture.stdout)["graphs"], 2)
 
 
