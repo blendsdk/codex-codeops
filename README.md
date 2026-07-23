@@ -4,7 +4,7 @@ CodeOps is a specification-first engineering system for building complex softwar
 
 It is designed for work where an unstated assumption can become a correctness defect: programming languages and compilers, financial systems, protocols, distributed services, security-sensitive applications, developer tools, and substantial web applications.
 
-> **Development status:** `0.2.0-beta.6` is installable and under active pre-1.0 validation. Core workflows, deterministic state, project tracking, domain lenses, and Codex-native routing are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
+> **Development status:** `0.2.0-beta.7` is installable and under active pre-1.0 validation. Core workflows, deterministic state, project tracking, domain lenses, and Codex-native routing are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
 
 ## The workflow
 

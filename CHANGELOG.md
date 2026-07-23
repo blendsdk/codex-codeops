@@ -2,6 +2,20 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 0.2.0-beta.7 — 2026-07-23
+
+- Scope readiness gates to the selected feature so unrelated draft work does
+  not block planning or execution.
+- Treat traceability node IDs as feature-local and require explicit
+  qualification for cross-feature links.
+- Add planning target, context, and modification boundaries plus bounded
+  post-gate ambiguity discovery.
+- Align make-plan with the shared named-deferral contract.
+- Review complete phase changes in every commit mode using worktree snapshots
+  that include staged, unstaged, committed, and newly created files.
+- Escalate repeated identical verification failures instead of retrying
+  indefinitely.
+
 ## 0.2.0-beta.6 — 2026-07-23
 
 - Keep single-document preflight audits scoped to their selected target while
