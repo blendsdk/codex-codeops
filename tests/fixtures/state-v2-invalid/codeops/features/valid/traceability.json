@@ -1,0 +1,14 @@
+{
+  "schema": 2,
+  "feature": "valid",
+  "nodes": [{
+    "id": "RD-001",
+    "type": "requirement",
+    "title": "Valid target",
+    "status": "approved",
+    "semanticSources": [{"path": "artifact.md", "selector": {"kind": "whole-file"}, "normalization": "utf8-lf-trim-trailing-v1", "digest": "sha256"}],
+    "revision": "sha256:0bcc31e6a23b12f4122ea07f8b4cb41660e7c660bb3359be39bad1454fe91875",
+    "edges": [],
+    "validations": []
+  }]
+}

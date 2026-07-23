@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-07-23 13:39
-> **Progress**: 10/51 tasks (20%)
+> **Last Updated**: 2026-07-23 14:07
+> **Progress**: 19/51 tasks (37%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -70,34 +70,37 @@ AR-2, AR-3, AR-5–AR-7, AR-18, AR-22, AR-23, AR-27
 
 ## Phase 2: Discovery, Target Closure, Gates, and Status
 
-> **Phase baseline tree**: recorded by exec-plan before the first phase mutation
+> **Phase baseline tree**: `28f29f740e88ec3d0bf9d1cef13af6470b5716cd`
 
 ### Step 2.1: Specification Tests
 
 **Reference**: `03-02-readiness-engine.md` · ST-3–ST-20, ST-35, ST-36, ST-38 ·
 AR-1, AR-4, AR-10, AR-15, AR-16, AR-17, AR-20, AR-24
 
-- [ ] 2.1.1 [spec-author] Add matrix-row cases for requirements, specifications, plan, audit, execution, task-complete, feature-acceptance, and release gates — `tests/conformance/test_state_v2_spec.py`
-- [ ] 2.1.2 [spec-author] Add target status, scoped diagnostics, dependency-path, discovery-root, and release-closure cases — `tests/conformance/test_state_v2_spec.py`
-- [ ] 2.1.3 Add cross-feature, release, invalid-unrelated, and repository-root discovery fixtures, then record the expected red result while schema-1 remains green — `tests/fixtures/state-v2-cross-feature/`, `tests/fixtures/state-v2-release/`, `tests/fixtures/state-v2-invalid/`
+- [x] 2.1.1 [spec-author] Add matrix-row cases for requirements, specifications, plan, audit, execution, task-complete, feature-acceptance, and release gates — `tests/conformance/test_state_v2_spec.py` ✅ (completed: 2026-07-23 13:59)
+- [x] 2.1.2 [spec-author] Add target status, scoped diagnostics, dependency-path, discovery-root, and release-closure cases — `tests/conformance/test_state_v2_spec.py` ✅ (completed: 2026-07-23 14:04)
+- [x] 2.1.3 Add cross-feature, release, invalid-unrelated, and repository-root discovery fixtures, then record the expected red result while schema-1 remains green — `tests/fixtures/state-v2-cross-feature/`, `tests/fixtures/state-v2-release/`, `tests/fixtures/state-v2-invalid/` ✅ (completed: 2026-07-23 14:04)
 
 ### Step 2.2: Implementation
 
 **Reference**: `03-02-readiness-engine.md` §Closure Algorithm, §Gate Profiles, §Scoped Structural Policy
 
-- [ ] 2.2.1 Implement configured/conventional live-root discovery, canonical identity resolution, and isolated fixture-root loading — `scripts/codeops_state_lib/discovery.py`
-- [ ] 2.2.2 Implement deterministic target/group/dependency/release closure and shortest blocker paths — `scripts/codeops_state_lib/closure.py`
-- [ ] 2.2.3 Implement the normative gate predicates and target lifecycle/status derivation — `scripts/codeops_state_lib/gates.py`
-- [ ] 2.2.4 Implement stable human/JSON rendering for readiness/status, then run Phase-2 and schema-1 specification modules green — `scripts/codeops_state_lib/rendering.py`, `scripts/codeops_state.py`
+- [x] 2.2.1 Implement configured/conventional live-root discovery, canonical identity resolution, and isolated fixture-root loading — `scripts/codeops_state_lib/discovery.py` ✅ (completed: 2026-07-23 14:04)
+- [x] 2.2.2 Implement deterministic target/group/dependency/release closure and shortest blocker paths — `scripts/codeops_state_lib/closure.py` ✅ (completed: 2026-07-23 14:04)
+- [x] 2.2.3 Implement the normative gate predicates and target lifecycle/status derivation — `scripts/codeops_state_lib/gates.py` ✅ (completed: 2026-07-23 14:04)
+- [x] 2.2.4 Implement stable human/JSON rendering for readiness/status, then run Phase-2 and schema-1 specification modules green — `scripts/codeops_state_lib/rendering.py`, `scripts/codeops_state.py` ✅ (completed: 2026-07-23 14:04)
 
 ### Step 2.3: Implementation Tests and Hardening
 
 **Reference**: `03-02-readiness-engine.md` §Error Handling
 
-- [ ] 2.3.1 Add traversal-order, shortest-path, hostile-cycle, mixed-schema, incompatible-gate, and root-discovery tests — `tests/conformance/test_state_v2_impl.py`
-- [ ] 2.3.2 Rerun schema-1 compatibility, assert test collection, and run the confirmed full verification gate — `tests/conformance/test_state_v1_compat_spec.py`, `scripts/validate-codex.sh`
+- [x] 2.3.1 Add traversal-order, shortest-path, hostile-cycle, mixed-schema, incompatible-gate, and root-discovery tests — `tests/conformance/test_state_v2_impl.py` ✅ (completed: 2026-07-23 14:07)
+- [x] 2.3.2 Rerun schema-1 compatibility, assert test collection, and run the confirmed full verification gate — `tests/conformance/test_state_v1_compat_spec.py`, `scripts/validate-codex.sh` ✅ (completed: 2026-07-23 14:07)
 
 **Verify**: run all five commands confirmed in AR-14.
+
+**Phase review**: independent reviewer and auditor PASS after accepted remediation; 93 state
+conformance tests and all five repository gates passed.
 
 ## Phase 3: Revisions and Atomic Transitions
 

@@ -11,7 +11,7 @@ DECLARED_MODULES = (
     "tests.conformance.test_state_v2_impl",
 )
 
-PHASE_ONE_ST_CASES = {1, 2, 5, 7, 8, 15, 16, 17, 18, 42}
+IMPLEMENTED_ST_CASES = set(range(1, 21)) | {35, 36, 38, 42}
 
 
 def flatten(suite: unittest.TestSuite):
@@ -30,13 +30,13 @@ class StateTestCollectionGuard(unittest.TestCase):
             tests = list(flatten(loader.loadTestsFromModule(module)))
             self.assertTrue(tests, f"{module_name} collected no tests")
 
-    def test_phase_one_st_cases_have_exactly_one_specification_test(self) -> None:
+    def test_implemented_st_cases_have_exactly_one_specification_test(self) -> None:
         module = importlib.import_module("tests.conformance.test_state_v2_spec")
         names = [
             test._testMethodName
             for test in flatten(unittest.defaultTestLoader.loadTestsFromModule(module))
         ]
-        for case in PHASE_ONE_ST_CASES:
+        for case in IMPLEMENTED_ST_CASES:
             matches = [name for name in names if name.startswith(f"test_st_{case}_")]
             self.assertEqual(matches, [matches[0]] if matches else [], f"ST-{case} ownership")
             self.assertEqual(len(matches), 1, f"ST-{case} must have exactly one implementation")

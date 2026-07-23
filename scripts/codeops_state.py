@@ -21,7 +21,14 @@ def _root(argv: list[str]) -> Path:
 
 def main() -> int:
     argv = sys.argv[1:]
-    use_v2 = "--target" in argv or "--gate" in argv or has_schema_two(_root(argv))
+    root = _root(argv)
+    use_v2 = (
+        "--target" in argv
+        or "--gate" in argv
+        or has_schema_two(root)
+        or (root / "codeops" / "codeops.json").is_file()
+        or (root / "schemas" / "traceability-v2.schema.json").is_file()
+    )
     return run_v2(argv) if use_v2 else legacy.main()
 
 

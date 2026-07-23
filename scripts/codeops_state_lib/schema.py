@@ -27,11 +27,11 @@ from .models import (
 )
 
 
-FEATURE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+FEATURE_RE = re.compile(r"^(?:[A-Za-z0-9]|_[A-Za-z0-9])[A-Za-z0-9._-]*$")
 NODE_ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-[A-Za-z0-9._-]+$")
 REVISION_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 CANONICAL_ID_RE = re.compile(
-    r"^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Z][A-Z0-9]*-[A-Za-z0-9._-]+$"
+    r"^(?:[A-Za-z0-9]|_[A-Za-z0-9])[A-Za-z0-9._-]*/[A-Z][A-Z0-9]*-[A-Za-z0-9._-]+$"
 )
 NORMALIZATION = "utf8-lf-trim-trailing-v1"
 
@@ -72,7 +72,7 @@ RELATION_MATRIX: dict[str, tuple[frozenset[str], frozenset[str]]] = {
     ),
     "affected-by": (
         frozenset(NODE_STATUSES) - frozenset({"ambiguity", "decision", "finding"}),
-        frozenset({"ambiguity", "decision", "finding"}),
+        frozenset({"ambiguity", "decision", "deferral", "finding"}),
     ),
     "depends-on": (GATEABLE_TYPES, GATEABLE_TYPES),
     "consumes-contract": (

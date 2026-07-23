@@ -1,0 +1,39 @@
+{
+  "schema": 2,
+  "feature": "_releases",
+  "nodes": [
+    {
+      "id": "RELEASE-1",
+      "type": "release",
+      "title": "Release 1",
+      "status": "approved",
+      "semanticSources": [{"path": "artifact.md", "selector": {"kind": "whole-file"}, "normalization": "utf8-lf-trim-trailing-v1", "digest": "sha256"}],
+      "revision": "sha256:0bcc31e6a23b12f4122ea07f8b4cb41660e7c660bb3359be39bad1454fe91875",
+      "edges": [],
+      "validations": [],
+      "required": ["_releases/TASK-REQ"],
+      "optional": ["_releases/TASK-OPT"],
+      "excluded": []
+    },
+    {
+      "id": "TASK-REQ",
+      "type": "task",
+      "title": "Required",
+      "status": "verified",
+      "semanticSources": [{"path": "artifact.md", "selector": {"kind": "whole-file"}, "normalization": "utf8-lf-trim-trailing-v1", "digest": "sha256"}],
+      "revision": "sha256:0bcc31e6a23b12f4122ea07f8b4cb41660e7c660bb3359be39bad1454fe91875",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-OPT",
+      "type": "task",
+      "title": "Optional",
+      "status": "pending",
+      "semanticSources": [{"path": "artifact.md", "selector": {"kind": "whole-file"}, "normalization": "utf8-lf-trim-trailing-v1", "digest": "sha256"}],
+      "revision": "sha256:0bcc31e6a23b12f4122ea07f8b4cb41660e7c660bb3359be39bad1454fe91875",
+      "edges": [],
+      "validations": []
+    }
+  ]
+}

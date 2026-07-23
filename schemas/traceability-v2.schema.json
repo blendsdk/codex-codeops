@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "properties": {
     "schema": {"const": 2},
-    "feature": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "feature": {"type": "string", "pattern": "^(?:[A-Za-z0-9]|_[A-Za-z0-9])[A-Za-z0-9._-]*$"},
     "updated": {"type": "string"},
     "nodes": {
       "type": "array",
@@ -17,7 +17,7 @@
   "$defs": {
     "canonicalIdentity": {
       "type": "string",
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Z][A-Z0-9]*-[A-Za-z0-9._-]+$"
+      "pattern": "^(?:[A-Za-z0-9]|_[A-Za-z0-9])[A-Za-z0-9._-]*/[A-Z][A-Z0-9]*-[A-Za-z0-9._-]+$"
     },
     "revision": {
       "type": "string",

@@ -1,25 +1,52 @@
-"""Schema-2 command orchestration used by the thin state CLI."""
+"""Version-aware command orchestration for CodeOps state."""
 
 from __future__ import annotations
 
 import argparse
 import json
-from collections import deque
+import re
+import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .models import CONTRACT_MATURITIES, Edge, Graph, Node, StructuralProblem
+from . import legacy
+from .closure import build_scope_closure
+from .discovery import discover_graphs, discover_state
+from .gates import (
+    TARGET_TYPES,
+    audit_gate,
+    compatibility_problem,
+    evaluate_target,
+    lifecycle,
+    valid_transitions,
+)
+from .models import Graph, Node, StructuralProblem
+from .rendering import problem_json, problem_text
 from .schema import parse_graph_v2, validate_portfolio_v2
 
 
+GLOBAL_CODES = {
+    "invalid-config",
+    "unsafe-config-root",
+    "duplicate-identity",
+    "ambiguous-target",
+    "target-feature-mismatch",
+}
+
+
+@dataclass
+class Loaded:
+    graphs: list[Graph]
+    problems: list[StructuralProblem]
+    schema1_features: dict[str, set[str]]
+    schema1_objects: dict[str, legacy.Graph]
+    schema1_graphs: int
+    schema1_nodes: int
+
+
 def discover_v2_graphs(root: Path) -> list[Path]:
-    conventional = root / "codeops" / "features"
-    if conventional.is_dir():
-        return sorted(conventional.glob("*/traceability.json"))
-    flat = root / "traceability.json"
-    if flat.is_file():
-        return [flat]
-    return sorted(root.glob("*/traceability.json"))
+    return discover_graphs(root)
 
 
 def has_schema_two(root: Path) -> bool:
@@ -33,39 +60,114 @@ def has_schema_two(root: Path) -> bool:
     return False
 
 
-def _render_problem(problem: StructuralProblem, root: Path) -> str:
-    try:
-        source = problem.source.relative_to(root)
-    except ValueError:
-        source = problem.source
-    return f"ERROR [{problem.code}]: {source}: {problem.message}"
-
-
-def _load(root: Path) -> tuple[list[Graph], list[StructuralProblem]]:
+def _load(root: Path) -> Loaded:
+    discovery = discover_state(root)
     graphs: list[Graph] = []
-    problems: list[StructuralProblem] = []
-    for path in discover_v2_graphs(root):
+    problems = list(discovery.problems)
+    schema1_features: dict[str, set[str]] = {}
+    schema1_graphs: list[legacy.Graph] = []
+    source_features: dict[Path, str] = {}
+    legacy_problems: list[legacy.Problem] = []
+    if (root / "codeops" / "codeops.json").is_file():
+        config_problems: list[legacy.Problem] = []
+        legacy.validate_config(root, config_problems)
+        problems.extend(
+            StructuralProblem("invalid-config", problem.message, problem.source)
+            for problem in config_problems
+        )
+    for path in discovery.paths:
         try:
             raw = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             problems.append(StructuralProblem("invalid-json", f"cannot parse JSON: {exc}", path))
             continue
-        if not isinstance(raw, dict) or raw.get("schema") != 2:
+        if not isinstance(raw, dict):
+            problems.append(StructuralProblem("invalid-root", "root must be an object", path))
+            continue
+        feature = raw.get("feature") if isinstance(raw.get("feature"), str) else path.parent.name
+        source_features[path] = feature
+        if raw.get("schema") == 1:
+            graph = legacy.load_graph(path, root, legacy_problems)
+            if graph is not None:
+                schema1_graphs.append(graph)
+                schema1_features[graph.feature] = set(graph.nodes)
+            continue
+        if raw.get("schema") != 2:
+            problems.append(
+                StructuralProblem(
+                    "schema-version",
+                    f"unsupported graph schema {raw.get('schema')!r}",
+                    path,
+                    details={"feature": feature},
+                )
+            )
             continue
         graph, graph_problems = parse_graph_v2(path, root)
-        problems.extend(graph_problems)
+        problems.extend(
+            StructuralProblem(
+                problem.code,
+                problem.message,
+                problem.source,
+                problem.identity,
+                {**dict(problem.details), "feature": feature},
+            )
+            for problem in graph_problems
+        )
         if graph is not None:
             graphs.append(graph)
-    if not graphs and not problems:
-        problems.append(StructuralProblem("no-graphs", "no schema-2 traceability graphs found", root))
-    problems.extend(validate_portfolio_v2(graphs))
-    return graphs, problems
+    if schema1_graphs:
+        legacy.validate_relationships(schema1_graphs, root, legacy_problems)
+    for problem in legacy_problems:
+        feature = source_features.get(problem.source)
+        problems.append(
+            StructuralProblem(
+                "schema1-invalid",
+                problem.message,
+                problem.source,
+                details={"feature": feature, "schema": 1},
+            )
+        )
+    for problem in validate_portfolio_v2(graphs):
+        problems.append(
+            StructuralProblem(
+                problem.code,
+                problem.message,
+                problem.source,
+                problem.identity,
+                {
+                    **dict(problem.details),
+                    "feature": source_features.get(problem.source),
+                },
+            )
+        )
+    for graph in graphs:
+        legacy_ids = schema1_features.get(graph.feature, set())
+        for node in graph.nodes:
+            if node.node_id in legacy_ids:
+                problems.append(
+                    StructuralProblem(
+                        "duplicate-identity",
+                        f"canonical identity {node.canonical_id} exists in both schema 1 and schema 2",
+                        graph.source,
+                        node.canonical_id,
+                        {"feature": graph.feature},
+                    )
+                )
+    if not graphs and not schema1_graphs and not problems:
+        problems.append(StructuralProblem("no-graphs", "no live traceability graphs found", root))
+    return Loaded(
+        graphs,
+        problems,
+        schema1_features,
+        {graph.feature: graph for graph in schema1_graphs},
+        len(schema1_graphs),
+        sum(len(graph.nodes) for graph in schema1_graphs),
+    )
 
 
-def _resolve_target(
+def _canonical_target(
     target: str | None,
     feature: str | None,
-    nodes: dict[str, Node],
     root: Path,
 ) -> tuple[str | None, list[StructuralProblem]]:
     if target is None:
@@ -79,8 +181,8 @@ def _resolve_target(
                     root,
                 )
             ]
-        target = f"{feature}/{target}"
-    elif feature is not None and target.split("/", 1)[0] != feature:
+        return f"{feature}/{target}", []
+    if feature is not None and target.split("/", 1)[0] != feature:
         return None, [
             StructuralProblem(
                 "target-feature-mismatch",
@@ -88,87 +190,77 @@ def _resolve_target(
                 root,
             )
         ]
-    if target not in nodes:
-        return None, [StructuralProblem("target-not-found", f"target not found: {target}", root)]
     return target, []
 
 
-def _closure(target: str, nodes: dict[str, Node]) -> tuple[list[str], dict[str, list[str]]]:
-    groups: dict[str, list[str]] = {}
-    group_by_member: dict[str, str] = {}
-    for identity, node in nodes.items():
-        if node.node_type == "planning-group":
-            groups[identity] = list(node.members)
-            for member in node.members:
-                group_by_member[member] = identity
-    selected: set[str] = set()
-    pending = deque([target])
-    while pending:
-        identity = pending.popleft()
-        if identity in selected:
-            continue
-        selected.add(identity)
-        group = group_by_member.get(identity)
-        if group is not None:
-            pending.extend(groups[group])
-        node = nodes[identity]
-        for edge in node.edges:
-            if edge.relation in {"depends-on", "consumes-contract"}:
-                pending.append(edge.target)
-    active_groups = {
-        group: members
-        for group, members in groups.items()
-        if any(member in selected for member in members)
-    }
-    return sorted(selected), active_groups
-
-
-def _readiness_problems(
-    gate: str,
-    closure: list[str],
-    nodes: dict[str, Node],
-    sources: dict[str, Path],
-) -> list[StructuralProblem]:
-    problems: list[StructuralProblem] = []
-    maturity_rank = {value: index for index, value in enumerate(CONTRACT_MATURITIES)}
-    for identity in closure:
-        node = nodes[identity]
-        if gate == "requirements" and node.node_type in {"requirement", "criterion"} and node.status != "approved":
-            problems.append(
-                StructuralProblem(
-                    "status-not-approved",
-                    f"{node.node_type} {identity} is not approved",
-                    sources[identity],
-                    identity,
-                )
-            )
-        for edge in node.edges:
-            if edge.relation != "consumes-contract" or edge.target not in nodes:
-                continue
-            contract = nodes[edge.target]
-            if maturity_rank.get(contract.maturity or "", -1) < maturity_rank.get(edge.required_maturity or "", 0):
-                problems.append(
-                    StructuralProblem(
-                        "contract-maturity",
-                        f"{identity} requires {edge.required_maturity} contract maturity but {edge.target} is {contract.maturity}",
-                        sources[identity],
-                        identity,
-                    )
-                )
-    return problems
-
-
-def _base_result(
-    graphs: list[Graph],
+def _scope_problems(
     problems: list[StructuralProblem],
+    target: str,
+    paths: dict[str, tuple[str, ...]],
     root: Path,
-) -> dict[str, Any]:
+) -> tuple[list[StructuralProblem], list[dict[str, Any]]]:
+    entered_features = {identity.split("/", 1)[0] for identity in paths}
+    blocking: list[StructuralProblem] = []
+    diagnostics: list[dict[str, Any]] = []
+    for problem in problems:
+        feature = problem.details.get("feature")
+        is_global = problem.code in GLOBAL_CODES or feature is None
+        if not is_global and feature not in entered_features:
+            diagnostics.append(problem_json(problem, root))
+            continue
+        details = dict(problem.details)
+        if "path" not in details:
+            if problem.identity in paths:
+                details["path"] = paths[problem.identity]
+            elif isinstance(feature, str):
+                candidates = [
+                    path for identity, path in paths.items()
+                    if identity.split("/", 1)[0] == feature
+                ]
+                if candidates:
+                    details["path"] = min(candidates, key=lambda item: (len(item), item))
+        if problem.code == "dangling-edge":
+            match = re.search(r"missing node (\S+)$", problem.message)
+            if match is not None and match.group(1) in paths:
+                details["path"] = paths[match.group(1)]
+        blocking.append(
+            StructuralProblem(
+                problem.code,
+                problem.message,
+                problem.source,
+                problem.identity,
+                details,
+            )
+        )
+    return blocking, diagnostics
+
+
+def _stale_snapshots(target: Node, nodes: dict[str, Node]) -> list[dict[str, str]]:
+    stale: list[dict[str, str]] = []
+    for snapshot in target.validations:
+        upstream = nodes.get(snapshot.upstream)
+        actual = upstream.revision if upstream is not None else "missing"
+        if actual != snapshot.revision:
+            stale.append(
+                {
+                    "upstream": snapshot.upstream,
+                    "relation": snapshot.relation,
+                    "gate": snapshot.gate,
+                    "expected": snapshot.revision,
+                    "actual": actual,
+                }
+            )
+    return stale
+
+
+def _base_result(loaded: Loaded, problems: list[StructuralProblem], root: Path) -> dict[str, Any]:
+    versions = ({2} if loaded.graphs else set()) | ({1} if loaded.schema1_graphs else set())
     return {
         "ready": not problems,
-        "schema_versions": sorted({graph.schema for graph in graphs}),
-        "graphs": len(graphs),
-        "nodes": sum(len(graph.nodes) for graph in graphs),
-        "problems": [_render_problem(problem, root) for problem in problems],
+        "schema_versions": sorted(versions),
+        "graphs": len(loaded.graphs) + loaded.schema1_graphs,
+        "nodes": sum(len(graph.nodes) for graph in loaded.graphs) + loaded.schema1_nodes,
+        "problems": [problem_text(problem, root) for problem in problems],
     }
 
 
@@ -182,32 +274,165 @@ def run(argv: list[str]) -> int:
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve()
-    graphs, problems = _load(root)
-    nodes = {node.canonical_id: node for graph in graphs for node in graph.nodes}
-    sources = {node.canonical_id: graph.source for graph in graphs for node in graph.nodes}
-    target, target_problems = _resolve_target(args.target, args.feature, nodes, root)
-    problems.extend(target_problems)
-    closure: list[str] = []
-    group_expansions: dict[str, list[str]] = {}
+    loaded = _load(root)
+    nodes = {node.canonical_id: node for graph in loaded.graphs for node in graph.nodes}
+    sources = {node.canonical_id: graph.source for graph in loaded.graphs for node in graph.nodes}
+    target, target_problems = _canonical_target(args.target, args.feature, root)
+    problems = list(loaded.problems) + target_problems
+    diagnostics: list[dict[str, Any]] = []
+    closure_members: list[str] = []
+    groups: dict[str, list[str]] = {}
+    blockers: list[dict[str, Any]] = []
+    status_gate_results: dict[str, dict[str, Any]] = {}
+
+    if target is None and args.feature in loaded.schema1_features and args.gate is None:
+        graph = loaded.schema1_objects[args.feature]
+        legacy_gate_problems = legacy.readiness(graph.nodes, graph.source)
+        converted = [
+            StructuralProblem("schema1-readiness", problem.message, problem.source)
+            for problem in legacy_gate_problems
+        ]
+        result = _base_result(loaded, converted, root)
+        result.update(
+            {
+                "selected_feature": args.feature,
+                "features": [{
+                    "feature": graph.feature,
+                    "lifecycle": legacy.feature_lifecycle(graph, not converted),
+                    "ready": not converted,
+                    "nodes": len(graph.nodes),
+                }],
+                "blockers": [problem_json(problem, root) for problem in converted],
+                "diagnostics": [],
+            }
+        )
+        if args.as_json:
+            print(json.dumps(result, indent=2, sort_keys=True))
+        else:
+            print("READY" if result["ready"] else "NOT READY")
+        return 0 if args.command == "status" or result["ready"] else 1
+    if target is not None:
+        target_feature, target_id = target.split("/", 1)
+        if target_id in loaded.schema1_features.get(target_feature, set()):
+            problems = [
+                StructuralProblem(
+                    "upgrade-required",
+                    f"typed target readiness requires schema 2; run traceability-upgrade preview for feature {target_feature}",
+                    root,
+                    target,
+                    {"feature": target_feature, "schema": 1},
+                )
+            ]
+        else:
+            paths: dict[str, tuple[str, ...]] = {target: (target,)}
+            if target in nodes:
+                target_node = nodes[target]
+                scope_gates: list[str] = []
+                if args.command == "readiness" and args.gate is not None:
+                    if compatibility_problem(args.gate, target_node, sources[target]) is None:
+                        scope_gates.append(
+                            audit_gate(target_node) if args.gate == "audit" else args.gate
+                        )
+                elif args.command == "status":
+                    for gate, accepted in TARGET_TYPES.items():
+                        if gate == "audit" or target_node.node_type in accepted:
+                            scope_gates.append(
+                                audit_gate(target_node) if gate == "audit" else gate
+                            )
+                for scope_gate in sorted(set(scope_gates)):
+                    scoped = build_scope_closure(target, scope_gate, nodes)
+                    for identity, path in scoped.paths.items():
+                        prior = paths.get(identity)
+                        if prior is None or (len(path), path) < (len(prior), prior):
+                            paths[identity] = path
+            problems, diagnostics = _scope_problems(problems, target, paths, root)
+            for identity, path in paths.items():
+                feature_name, node_id = identity.split("/", 1)
+                if node_id in loaded.schema1_features.get(feature_name, set()):
+                    problems.append(
+                        StructuralProblem(
+                            "upgrade-required",
+                            f"dependency {identity} uses schema 1 and must be upgraded before typed readiness",
+                            root,
+                            identity,
+                            {"feature": feature_name, "schema": 1, "path": path},
+                        )
+                    )
+            if target not in nodes and not any(
+                problem.details.get("feature") == target_feature for problem in problems
+            ):
+                problems.append(
+                    StructuralProblem("target-not-found", f"target not found: {target}", root)
+                )
     if args.command == "readiness":
         if target is not None and args.gate is None:
             problems.append(StructuralProblem("gate-required", "--gate is required with a schema-2 target", root))
         if args.gate is not None and target is None and not target_problems:
             problems.append(StructuralProblem("target-required", "--target is required with a schema-2 gate", root))
-    if target is not None and not problems:
-        closure, group_expansions = _closure(target, nodes)
-        if args.command == "readiness":
-            problems.extend(_readiness_problems(args.gate, closure, nodes, sources))
-    result = _base_result(graphs, problems, root)
+
+    gate_problems: list[StructuralProblem] = []
+    if target is not None and target in nodes and not problems:
+        target_node = nodes[target]
+        if args.command == "readiness" and args.gate is not None:
+            incompatible = compatibility_problem(args.gate, target_node, sources[target])
+            if incompatible is not None:
+                gate_problems.append(incompatible)
+            else:
+                effective = audit_gate(target_node) if args.gate == "audit" else args.gate
+                closure, gate_problems = evaluate_target(target, effective, nodes, sources)
+                closure_members = list(closure.members)
+                groups = {key: list(value) for key, value in closure.group_expansions.items()}
+        elif args.command == "status":
+            for gate, accepted in TARGET_TYPES.items():
+                if gate != "audit" and target_node.node_type not in accepted:
+                    continue
+                effective = audit_gate(target_node) if gate == "audit" else gate
+                closure, verdict_problems = evaluate_target(target, effective, nodes, sources)
+                status_gate_results[gate] = {
+                    "ready": not verdict_problems,
+                    "blockers": [problem_json(problem, root) for problem in verdict_problems],
+                }
+                closure_members = sorted(set(closure_members) | set(closure.members))
+                groups.update({key: list(value) for key, value in closure.group_expansions.items()})
+            gate_problems = [
+                problem
+                for result in status_gate_results.values()
+                for problem in ()
+            ]
+    problems.extend(gate_problems)
+    blockers = [problem_json(problem, root) for problem in problems]
+    result = _base_result(loaded, problems, root)
     result.update(
         {
             "gate": args.gate,
             "target": target,
-            "closure": closure,
-            "group_expansions": group_expansions,
+            "closure": closure_members,
+            "group_expansions": groups,
+            "blockers": blockers,
+            "diagnostics": diagnostics,
         }
     )
-    result["ready"] = not problems
+    if target is not None and target in nodes and args.command == "status":
+        target_node = nodes[target]
+        all_gate_blockers = [
+            blocker
+            for summary in status_gate_results.values()
+            for blocker in summary["blockers"]
+        ]
+        result.update(
+            {
+                "ready": bool(status_gate_results) and all(
+                    summary["ready"] for summary in status_gate_results.values()
+                ),
+                "status": target_node.status,
+                "lifecycle": lifecycle(target_node),
+                "revision": target_node.revision,
+                "stale_snapshots": _stale_snapshots(target_node, nodes),
+                "valid_transitions": valid_transitions(target_node),
+                "gates": status_gate_results,
+                "blockers": all_gate_blockers,
+            }
+        )
     if args.as_json:
         print(json.dumps(result, indent=2, sort_keys=True))
     else:
@@ -220,12 +445,9 @@ def run(argv: list[str]) -> int:
             print(problem)
         print("READY" if result["ready"] else "NOT READY")
     if args.command == "status":
-        structural_codes = {
-            "invalid-json",
-            "invalid-root",
-            "schema-version",
-            "duplicate-identity",
-            "dependency-cycle",
-        }
-        return 1 if any(problem.code in structural_codes for problem in problems) else 0
+        return 1 if problems else 0
     return 0 if result["ready"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(run(sys.argv[1:]))

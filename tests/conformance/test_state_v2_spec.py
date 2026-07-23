@@ -338,6 +338,7 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
                         check=False,
                     )
                 self.assertEqual(result.returncode, 0, result.stdout)
+
         changed = self.graph(
             "compiler",
             [node("RD-LEX", "requirement", revision=revision)],
@@ -409,6 +410,367 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
                         check=False,
                     )
                 self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_gate_profile_matrix_rejects_non_ready_target_state(self) -> None:
+        cases = (
+            ("requirements", node("RD-001", "requirement", status="draft")),
+            ("specifications", node("SPEC-001", "specification", status="draft")),
+            ("plan", node("PLAN-001", "plan", status="draft")),
+            (
+                "audit",
+                node(
+                    "AUDIT-001",
+                    "audit-artifact",
+                    status="draft",
+                    auditStage="requirements",
+                ),
+            ),
+            ("execution", node("PLAN-001", "plan", status="draft")),
+            ("task-complete", node("TASK-001", "task", status="implemented")),
+            (
+                "feature-acceptance",
+                node(
+                    "FEATURE-001",
+                    "feature",
+                    status="draft",
+                    members=["sample/TASK-001"],
+                    memberGates={"sample/TASK-001": "task-complete"},
+                ),
+            ),
+            (
+                "release",
+                node(
+                    "RELEASE-001",
+                    "release",
+                    status="draft",
+                    required=["sample/TASK-001"],
+                    optional=[],
+                    excluded=[],
+                ),
+            ),
+        )
+        for gate, target_node in cases:
+            with self.subTest(gate=gate):
+                nodes = [target_node]
+                if gate in {"feature-acceptance", "release"}:
+                    nodes.append(node("TASK-001", "task", status="verified"))
+                graph = self.graph("sample", nodes)
+                result = self.run_state(
+                    {"sample": graph},
+                    "readiness",
+                    "--gate",
+                    gate,
+                    "--target",
+                    f"sample/{target_node['id']}",
+                )
+                payload = self.payload(result)
+                self.assertEqual(result.returncode, 1, payload)
+                self.assertFalse(payload["ready"])
+                self.assertEqual(payload["gate"], gate)
+                self.assertEqual(payload["target"], f"sample/{target_node['id']}")
+                self.assertTrue(
+                    any("status" in problem for problem in payload["problems"]),
+                    payload,
+                )
+
+    def test_st_3_canonical_target_resolves_exactly(self) -> None:
+        graph = self.graph("accounting", [node("RD-001", "requirement")])
+        result = self.run_state(
+            {"accounting": graph},
+            "readiness",
+            "--gate",
+            "requirements",
+            "--target",
+            "accounting/RD-001",
+        )
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(self.payload(result)["target"], "accounting/RD-001")
+
+    def test_st_4_feature_scoped_target_resolves_exactly(self) -> None:
+        graph = self.graph("accounting", [node("RD-001", "requirement")])
+        result = self.run_state(
+            {"accounting": graph},
+            "readiness",
+            "--gate",
+            "requirements",
+            "--feature",
+            "accounting",
+            "--target",
+            "RD-001",
+        )
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(self.payload(result)["target"], "accounting/RD-001")
+
+    def test_st_6_incompatible_target_type_names_allowed_types(self) -> None:
+        graph = self.graph("accounting", [node("TASK-001", "task", status="pending")])
+        result = self.run_state(
+            {"accounting": graph},
+            "readiness",
+            "--gate",
+            "requirements",
+            "--target",
+            "accounting/TASK-001",
+        )
+        problems = "\n".join(self.payload(result)["problems"])
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("incompatible-target", problems)
+        self.assertIn("requirement-set", problems)
+
+    def test_st_10_dependency_blocker_reports_shortest_path(self) -> None:
+        graph = self.graph(
+            "accounting",
+            [
+                node(
+                    "RD-001",
+                    "requirement",
+                    edges=[{"relation": "depends-on", "target": "identity/RD-IAM-004"}],
+                )
+            ],
+        )
+        identity = self.graph(
+            "identity",
+            [node("RD-IAM-004", "requirement", status="draft")],
+        )
+        result = self.run_state(
+            {"accounting": graph, "identity": identity},
+            "readiness",
+            "--gate",
+            "requirements",
+            "--target",
+            "accounting/RD-001",
+        )
+        payload = self.payload(result)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("blockers", payload)
+        self.assertIn(
+            ["accounting/RD-001", "identity/RD-IAM-004"],
+            [problem["path"] for problem in payload["blockers"]],
+        )
+
+    def test_st_19_release_closure_uses_only_required_members(self) -> None:
+        graph = self.graph(
+            "_releases",
+            [
+                node(
+                    "RELEASE-1",
+                    "release",
+                    required=["_releases/TASK-REQ"],
+                    optional=["_releases/TASK-OPT"],
+                    excluded=["_releases/TASK-OUT"],
+                ),
+                node("TASK-REQ", "task", status="verified"),
+                node("TASK-OPT", "task", status="pending"),
+                node("TASK-OUT", "task", status="pending"),
+            ],
+        )
+        result = self.run_state(
+            {"_releases": graph},
+            "readiness",
+            "--gate",
+            "release",
+            "--target",
+            "_releases/RELEASE-1",
+        )
+        payload = self.payload(result)
+        self.assertEqual(result.returncode, 0, payload)
+        self.assertIn("_releases/TASK-REQ", payload["closure"])
+        self.assertNotIn("_releases/TASK-OPT", payload["closure"])
+        self.assertNotIn("_releases/TASK-OUT", payload["closure"])
+
+    def test_st_36_status_reports_lifecycle_transitions_and_gate_summaries(self) -> None:
+        graph = self.graph("accounting", [node("RD-001", "requirement", status="draft")])
+        result = self.run_state(
+            {"accounting": graph},
+            "status",
+            "--target",
+            "accounting/RD-001",
+        )
+        payload = self.payload(result)
+        self.assertEqual(result.returncode, 0, payload)
+        self.assertEqual(payload["target"], "accounting/RD-001")
+        self.assertIn("status", payload)
+        self.assertEqual(payload["status"], "draft")
+        self.assertEqual(payload["lifecycle"], "requirements")
+        self.assertFalse(payload["ready"])
+        self.assertIn("approved", payload["valid_transitions"])
+        self.assertIn("requirements", payload["gates"])
+        self.assertFalse(payload["gates"]["requirements"]["ready"])
+        self.assertTrue(payload["gates"]["requirements"]["blockers"])
+        self.assertIn("stale_snapshots", payload)
+
+    def test_st_9_unrelated_draft_sibling_is_excluded(self) -> None:
+        graph = self.graph(
+            "erp",
+            [
+                node("RD-001", "requirement"),
+                node("RD-002", "requirement", status="draft"),
+            ],
+        )
+        result = self.run_state(
+            {"erp": graph}, "readiness", "--gate", "requirements", "--target", "erp/RD-001"
+        )
+        payload = self.payload(result)
+        self.assertEqual(result.returncode, 0, payload)
+        self.assertNotIn("erp/RD-002", payload["closure"])
+
+    def test_st_11_downstream_consumer_does_not_block_provider(self) -> None:
+        graph = self.graph(
+            "erp",
+            [
+                node("CONTRACT-1", "contract", maturity="stable"),
+                node(
+                    "RD-CONSUMER",
+                    "requirement",
+                    status="draft",
+                    edges=[{
+                        "relation": "consumes-contract",
+                        "target": "erp/CONTRACT-1",
+                        "requiredMaturity": "stable",
+                    }],
+                ),
+            ],
+        )
+        result = self.run_state(
+            {"erp": graph}, "readiness", "--gate", "specifications", "--target", "erp/CONTRACT-1"
+        )
+        payload = self.payload(result)
+        self.assertEqual(result.returncode, 0, payload)
+        self.assertNotIn("erp/RD-CONSUMER", payload["closure"])
+
+    def test_st_12_gate_profiles_select_distinct_trace_closures(self) -> None:
+        graph = self.graph(
+            "erp",
+            [
+                node(
+                    "RD-001",
+                    "requirement",
+                    edges=[
+                        {"relation": "specified-by", "target": "erp/SPEC-001"},
+                        {"relation": "accepted-by", "target": "erp/AC-001"},
+                    ],
+                ),
+                node("SPEC-001", "specification"),
+                node("AC-001", "criterion"),
+            ],
+        )
+        closures = {}
+        for gate in ("requirements", "specifications"):
+            result = self.run_state(
+                {"erp": graph}, "readiness", "--gate", gate, "--target", "erp/RD-001"
+            )
+            self.assertEqual(result.returncode, 0, result.stdout)
+            closures[gate] = self.payload(result)["closure"]
+        self.assertNotIn("erp/SPEC-001", closures["requirements"])
+        self.assertIn("erp/SPEC-001", closures["specifications"])
+
+    def test_st_14_invalid_unrelated_graph_is_diagnostic_only(self) -> None:
+        root = ROOT / "tests" / "fixtures" / "state-v2-invalid"
+        result = subprocess.run(
+            [
+                sys.executable, str(SCRIPT), "readiness", "--root", str(root),
+                "--gate", "requirements", "--target", "valid/RD-001", "--json",
+            ],
+            text=True, capture_output=True, check=False,
+        )
+        payload = self.payload(result)
+        self.assertEqual(result.returncode, 0, payload)
+        self.assertEqual(payload["problems"], [])
+        self.assertEqual(payload["diagnostics"][0]["feature"], "unrelated")
+
+    def test_st_13_invalid_entered_dependency_blocks_with_path(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / "artifact.md").write_text("# Artifact\n", encoding="utf-8")
+            accounting = root / "codeops" / "features" / "accounting"
+            identity = root / "codeops" / "features" / "identity"
+            accounting.mkdir(parents=True)
+            identity.mkdir(parents=True)
+            accounting_graph = self.graph(
+                "accounting",
+                [node(
+                    "RD-001", "requirement",
+                    edges=[{"relation": "depends-on", "target": "identity/RD-001"}],
+                )],
+            )
+            invalid_graph = {"schema": 2, "feature": "identity", "nodes": "invalid"}
+            (accounting / "traceability.json").write_text(
+                json.dumps(accounting_graph), encoding="utf-8"
+            )
+            (identity / "traceability.json").write_text(
+                json.dumps(invalid_graph), encoding="utf-8"
+            )
+            result = subprocess.run(
+                [
+                    sys.executable, str(SCRIPT), "readiness", "--root", str(root),
+                    "--gate", "requirements", "--target", "accounting/RD-001", "--json",
+                ],
+                text=True, capture_output=True, check=False,
+            )
+        payload = self.payload(result)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn(
+            ["accounting/RD-001", "identity/RD-001"],
+            [blocker.get("path") for blocker in payload["blockers"]],
+        )
+
+    def test_st_20_release_coupled_member_enters_closure(self) -> None:
+        graph = self.graph(
+            "_releases",
+            [
+                node(
+                    "RELEASE-1", "release",
+                    required=["_releases/RD-A"], optional=[], excluded=[],
+                ),
+                node(
+                    "RD-A", "requirement",
+                    edges=[{"relation": "release-coupled", "target": "_releases/RD-B"}],
+                ),
+                node("RD-B", "requirement"),
+            ],
+        )
+        result = self.run_state(
+            {"_releases": graph}, "readiness", "--gate", "release",
+            "--target", "_releases/RELEASE-1",
+        )
+        payload = self.payload(result)
+        self.assertEqual(result.returncode, 0, payload)
+        self.assertIn("_releases/RD-B", payload["closure"])
+
+    def test_st_35_specifications_gate_is_independent(self) -> None:
+        graph = self.graph(
+            "erp",
+            [
+                node(
+                    "RD-001", "requirement",
+                    edges=[{"relation": "specified-by", "target": "erp/SPEC-001"}],
+                ),
+                node("SPEC-001", "specification", status="draft"),
+            ],
+        )
+        requirements = self.run_state(
+            {"erp": graph}, "readiness", "--gate", "requirements", "--target", "erp/RD-001"
+        )
+        specifications = self.run_state(
+            {"erp": graph}, "readiness", "--gate", "specifications", "--target", "erp/RD-001"
+        )
+        self.assertEqual(requirements.returncode, 0, requirements.stdout)
+        self.assertEqual(specifications.returncode, 1, specifications.stdout)
+
+    def test_st_38_repository_discovery_excludes_fixtures(self) -> None:
+        repository = subprocess.run(
+            [sys.executable, str(SCRIPT), "status", "--root", str(ROOT), "--json"],
+            text=True, capture_output=True, check=False,
+        )
+        fixture = subprocess.run(
+            [
+                sys.executable, str(SCRIPT), "validate",
+                "--root", str(ROOT / "tests" / "fixtures" / "state-v2-cross-feature"),
+                "--json",
+            ],
+            text=True, capture_output=True, check=False,
+        )
+        self.assertEqual(json.loads(repository.stdout)["graphs"], 0)
+        self.assertEqual(json.loads(fixture.stdout)["graphs"], 2)
 
 
 if __name__ == "__main__":
