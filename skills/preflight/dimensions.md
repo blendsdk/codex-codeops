@@ -16,6 +16,8 @@ Before scanning, you MUST:
    the tech stack, conventions, and constraints.
 4. **Read the Ambiguity Register** (if one exists) — `requirements/00-ambiguity-register.md` or
    `plans/<name>/00-ambiguity-register.md`. Understand what decisions were already made and why.
+5. **Freeze the scope** — record the exact audit target, context documents, and authorized
+   modification set. Reading a related document does not add it to the target.
 
 ## Step 2: Codebase Reconnaissance — 🚨 NON-NEGOTIABLE
 
@@ -45,6 +47,9 @@ dimension scan is blind. Build a thorough understanding of the actual codebase t
 
 > Reconnaissance is proportional, not exhaustive. For a plan that modifies 3 files, read those 3
 > files deeply plus their direct dependents — do not read the entire codebase for a small artifact.
+> For a single-RD or single-plan-document audit, related artifacts are context only. Use them to
+> prove or refute claims in the target; do not turn defects located solely in those documents into
+> findings against the selected artifact.
 
 ### Mapping document references to code
 

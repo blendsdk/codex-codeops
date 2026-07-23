@@ -117,9 +117,13 @@ session/task with a stale roadmap.
 
 - `RD Drafted` ⇔ the RD file exists. `Plan Created` ⇔ a linked plan folder exists.
   `Executing`/`Done` ⇔ the plan's `99-execution-plan.md` checklist state (`Done` = all `[x]`).
-- `RD Preflighted` ⇔ a saved preflight report (`00-preflight-report.md`) exists in the resolved
-  requirements dir with a passing tier; `Plan Preflighted` ⇔ the same file in the plan folder.
-  (The preflight skill saves these reports — they ARE the stage's disk artifact.)
+- `RD Preflighted` ⇔ passing evidence names that exact RD as its audit target: either
+  `00-preflight-report-RD-NN.md`, or the set-wide `00-preflight-report.md` whose recorded target
+  includes it. A narrow report never advances sibling RDs.
+- `Plan Preflighted` ⇔ the plan folder has a passing set-wide `00-preflight-report.md`. A
+  `00-preflight-report-<document-stem>.md` proves only that document passed and does not advance the
+  whole plan.
+  (The preflight skill saves these reports — they ARE the stage's disk artifacts.)
 - **Stages never regress on sync.** `update` may only advance or preserve a row's stage; if disk
   suggests a LOWER stage than recorded, keep the recorded stage and report the discrepancy
   (review_roadmap flags it). Regressing a row requires an explicit user instruction, recorded in

@@ -48,7 +48,8 @@ Every finding gets a numbered, structured entry.
   spawns per scan. Close findings with the `Confidence:` / `Hardening:` disclosure where that
   protocol requires it (Med/Low confidence, changed pick, or high stakes — presentation-only,
   not a required saved field).
-- **Findings are numbered sequentially** — `PF-001`, `PF-002`, ... Numbers never reuse across iterations.
+- **Findings are numbered sequentially by root cause** — `PF-001`, `PF-002`, ... A reopened root
+  cause retains its identifier across iterations; a new root cause gets the next unused number.
 - **Location must be specific** — "plans/my-feature/03-api-design.md, section 'Error Handling'", not
   "somewhere in the plan".
 - **Codebase Evidence is required** for findings in dimensions 2, 4, 5, 6, 11, and 13 — cite the
@@ -164,15 +165,26 @@ A BLOCKED outcome does NOT advance the roadmap. See the roadmap skill for the fu
 
 1. **Iteration 1** — full 13-dimension scan of the original artifact (with full reconnaissance).
 2. **Fixes applied** — user resolves findings (manually or via "apply fixes").
-3. **Iteration 2+** — re-scan focusing on: **verify fixes** (each resolved finding actually fixed),
-   **regression check** (fixes introduced no new issues), **fresh scan** (re-examine all 13 — fixes
-   shift context), **codebase re-check** (re-verify changed code references).
+3. **Iteration 2** — re-scan focusing on: **verify fixes** (each resolved finding actually fixed),
+   **regression check** (fixes introduced no new issues), **bounded fresh scan** (re-examine all 13
+   within the unchanged audit target), and **codebase re-check** (re-verify changed references).
+4. **Iteration 3, only when blocking defects remain** — inspect the unresolved 🔴/🟠 fixes and their
+   direct dependency surface. Do not restart broad discovery.
+5. **Iteration 4+** — never automatic. Recommend a fresh-session audit to counter accumulated
+   framing bias, or obtain an explicit user decision to continue the current session.
 
 ### Re-scan numbering
 
-Findings continue the sequential numbering from the previous iteration. If iteration 1 ended at
-PF-012, iteration 2 starts at PF-013. Numbers never reuse — this keeps clear which findings belong
-to which scan.
+Finding identifiers name root causes, not scan appearances:
+
+- a verified fix closes its existing `PF-NNN`;
+- a partial fix, residual contradiction, or regression with the same root cause reopens that
+  `PF-NNN` and adds an `Iteration N evidence` note;
+- a genuinely independent root cause receives the next unused number; and
+- merged or split symptoms retain a `Related findings` link so the audit trail stays navigable.
+
+Do not relabel a residual form of an old defect as a new finding merely to keep numbering
+continuous.
 
 ### Re-scan report header
 
@@ -187,11 +199,25 @@ to which scan.
 
 ### Convergence
 
-The loop continues until one of:
+Use severity and decision state, not the desire for a zero-finding scan:
 
-- **Clean pass** — zero findings (or only accepted minor/observation notes).
-- **User stops** — "Good enough, let's proceed" (note this in the report).
-- **Diminishing returns** — only observations remain; suggest concluding.
+| State after verification | Result |
+|---|---|
+| Any unresolved 🔴/🟠 | **Blocked**; a bounded corrective rescan is allowed |
+| No unresolved 🔴/🟠; one or more 🟡 pending | Collect decisions; do not rescan yet |
+| No unresolved 🔴/🟠; all remaining 🟡 explicitly accepted | **Passed With Notes**; stop |
+| Only 🔵 observations remain | **Passed With Notes**; stop unless the user requests fixes |
+| No findings remain | **Passed — Clean**; stop |
+| User stops with unresolved 🔴/🟠 | **Blocked**; record the stop without advancing the roadmap |
+
+Applying an accepted minor or observation does not by itself justify another full scan. Verify that
+edit directly; run another bounded scan only when the edit changes behavior, ownership, dependency
+ordering, security, compatibility, or another consequential contract.
+
+Before plan creation or execution consumes a passed artifact, compare its current git blob (or
+content hash when it is uncommitted) with the revision recorded by preflight. A mismatch makes the
+pass stale and requires a targeted re-check of the changed sections; it does not silently trigger a
+set-wide audit.
 
 ## Report persistence
 

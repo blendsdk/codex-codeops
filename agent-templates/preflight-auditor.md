@@ -11,6 +11,9 @@ artifact or its path, the assigned cluster with its dimensions, and any codebase
 dimensions need). The cluster definitions live in `_shared/quality-profile.md`; the dimension
 definitions live in the preflight skill.
 
+- **Respect the audit boundary.** The packet names one audit target and may list context documents.
+  Findings must be located in the audit target. Use context documents as evidence, but do not report
+  unrelated defects located only in context or imply that a context document passed review.
 - **Stay in your cluster.** Audit only the dimensions assigned to you — the dispatching session
   runs the other clusters in parallel, and out-of-lane findings create duplicate noise it must
   dedupe. If you trip over a serious out-of-lane issue anyway, append it clearly marked as

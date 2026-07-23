@@ -84,12 +84,38 @@ assert manifest['version'] in install
 PY
 }
 
+validate_preflight_contract() {
+  python3 - <<'PY'
+from pathlib import Path
+
+skill = Path('skills/preflight/SKILL.md').read_text(encoding='utf-8')
+report = Path('skills/preflight/report-format.md').read_text(encoding='utf-8')
+dimensions = Path('skills/preflight/dimensions.md').read_text(encoding='utf-8')
+auditor = Path('agent-templates/preflight-auditor.md').read_text(encoding='utf-8')
+
+assert '## Audit scope contract' in skill
+assert 'contextual, not scope expansion' in skill
+assert 'require a fresh-session audit or an explicit user decision' in skill
+assert 'Preserve finding identity across iterations' in skill
+assert 'requirements/00-preflight-report-RD-NN.md' in skill
+assert 'all remaining 🟡 explicitly accepted' in report
+assert 'Finding identifiers name root causes' in report
+assert 'Freeze the scope' in dimensions
+assert 'Respect the audit boundary' in auditor
+
+roadmap = Path('skills/roadmap/SKILL.md').read_text(encoding='utf-8')
+assert 'A narrow report never advances sibling RDs' in roadmap
+assert 'proves only that document passed' in roadmap
+PY
+}
+
 run_check "plugin manifest" python3 scripts/validate_plugin.py .
 run_check "skill manifests" validate_skills
 run_check "marketplace metadata" validate_marketplace
 run_check "Codex-native shipped terminology" validate_native_terms
 run_check "local Markdown links" validate_links
 run_check "shell syntax" bash -n scripts/*.sh bin/codeops-worktree
+run_check "preflight scope and convergence contract" validate_preflight_contract
 run_check "state conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
 run_check "retained adversarial parity evidence" validate_scenarios
 run_check "release evidence provenance" validate_release_evidence

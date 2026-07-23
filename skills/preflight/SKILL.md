@@ -47,6 +47,31 @@ Read [../../references/domains/selection.md](../../references/domains/selection.
 | `preflight <feature-name> 03-api-design` | A specific plan doc |
 | `preflight <path>` | Any ad-hoc file or directory |
 
+## Audit scope contract
+
+Preflight distinguishes the **audit target** from the material read to understand it:
+
+| Term | Meaning |
+|---|---|
+| **Audit target** | The exact file or directory selected by the user. Findings and the pass verdict apply only to this artifact. |
+| **Context document** | A related artifact read to verify dependencies, ownership, terminology, or consistency. Reading it does not add it to the audit target. |
+| **Modification set** | The files the user has explicitly authorized preflight to change after accepting findings. |
+
+At the start of the report and every dispatch packet, record the audit target and list any context
+documents separately. For a single-document audit:
+
+- scan all 13 dimensions against the selected document;
+- read directly related documents when needed to test its claims;
+- locate findings in the selected document, citing context documents as evidence;
+- do not report unrelated defects found only in context documents; offer a separate audit instead;
+- do not treat a context document as passed or advance its roadmap row; and
+- do not modify a context document unless the accepted resolution requires it **and** the user
+  confirms the exact expanded modification set.
+
+If resolving a finding would turn a single-document audit into a set-wide redesign, pause before
+applying fixes and offer either a target-local resolution or an explicit set-level audit. Never
+expand the audit target merely because the user said "apply fixes and re-scan."
+
 ## Core directive
 
 > **You are a senior technical reviewer performing a formal quality audit GROUNDED IN THE ACTUAL
@@ -139,12 +164,16 @@ Save the report as a permanent file alongside the artifact:
 
 | Artifact type | Report location |
 |---|---|
-| Requirements | `requirements/00-preflight-report.md` |
-| Implementation plan | `plans/<feature-name>/00-preflight-report.md` |
+| Full requirements set | `requirements/00-preflight-report.md` |
+| Single requirement | `requirements/00-preflight-report-RD-NN.md` |
+| Full implementation plan | `plans/<feature-name>/00-preflight-report.md` |
+| Single plan document | `plans/<feature-name>/00-preflight-report-<document-stem>.md` |
 | Ad-hoc | `<artifact-directory>/preflight-report.md` |
 
-The report is separate from the Ambiguity Register (decisions made during creation) — see
-[report-format.md](report-format.md) for the relationship and cross-referencing.
+The report header must record the exact audit target and its git blob or content hash. Per-document
+report names prevent a narrow pass from masquerading as a set-wide pass or overwriting another
+document's evidence. The report is separate from the Ambiguity Register (decisions made during
+creation) — see [report-format.md](report-format.md) for the relationship and cross-referencing.
 
 ## Parallelizing the scan (clustered fan-out)
 
@@ -167,10 +196,19 @@ artifacts and never enter the metrics store.
 
 ## Iterative re-scanning
 
-Run preflight as many times as needed. Iteration 2+ verifies prior fixes, checks for regressions,
-and re-scans all 13 dimensions. **Findings numbered continuously** — if iteration 1 ends at PF-012,
-iteration 2 starts at PF-013; numbers never reuse. Loop until a clean pass, the user stops, or only
-🔵 observations remain. Full re-scan header and numbering rules in [report-format.md](report-format.md).
+Iteration 2 verifies prior fixes, checks their direct consequences, and re-scans all 13 dimensions
+within the unchanged audit target. A third iteration is allowed only when iteration 2 leaves or
+introduces a 🔴/🟠 finding; scope it to those fixes and their direct dependency surface. Do not
+automatically begin iteration 4: require a fresh-session audit or an explicit user decision to
+continue.
+
+Preserve finding identity across iterations. A partial fix, refined wording, or regression with the
+same root cause reopens the original `PF-NNN` and appends iteration evidence. Allocate a new number
+only for a genuinely independent root cause.
+
+Stop with **Passed With Notes** when every 🔴/🟠 finding is resolved and every remaining 🟡 finding
+is explicitly accepted. 🔵 observations do not require another fix/rescan cycle. Full convergence,
+rescan, and numbering rules live in [report-format.md](report-format.md).
 
 ## Session resume (save-as-you-go)
 
@@ -210,7 +248,9 @@ checklist. Full safeguards in [report-format.md](report-format.md).
 - **Don't invent problems** — a clean pass is a valid, trustworthy outcome.
 - **Options must be real** — no strawman options to flatter a recommendation.
 - **Respect previous decisions** — don't re-litigate Ambiguity Register entries without new info.
-- **Cross-document awareness** — many issues only surface when reading docs together.
+- **Cross-document awareness is contextual, not scope expansion** — read related documents to test
+  the target, but keep findings, verdicts, modifications, and roadmap advancement within the audit
+  scope contract.
 - **Codebase evidence is not optional** — for dimensions 2, 4, 5, 6, 11, 13 (and any claim about
   the code) cite the specific file and code; if you can't verify, say so explicitly.
 - **Reconnaissance is proportional** — read what the artifact touches and its direct dependents;
