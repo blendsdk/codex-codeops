@@ -2,6 +2,12 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 0.2.0-beta.4 — 2026-07-23
+
+- Exclude `codeops/_archive` traceability graphs and execution plans from live
+  readiness, lifecycle, and task-progress reports.
+- Add regression coverage for repositories with large archived project histories.
+
 ## 0.2.0-beta.3 — 2026-07-23
 
 - Enforce per-node lifecycle status vocabularies and reopened-ambiguity invalidation.
