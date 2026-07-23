@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -63,6 +64,41 @@ def discover_graphs(root: Path) -> list[Path]:
         path for path in root.rglob("traceability.json")
         if not any(part in ignored for part in path.relative_to(root).parts)
     )
+
+
+def validate_config(root: Path, problems: list[Problem]) -> dict[str, Any] | None:
+    path = root / "codeops" / "codeops.json"
+    if not path.exists():
+        return None
+    data = load_json(path, problems)
+    if data is None:
+        return None
+    allowed = {"schema", "mode", "artifacts", "quality", "routing", "metrics"}
+    unknown = set(data) - allowed
+    if unknown:
+        problems.append(Problem("ERROR", path, f"unknown fields {sorted(unknown)}"))
+    if data.get("schema") != 1:
+        problems.append(Problem("ERROR", path, "schema must equal 1"))
+    if data.get("mode") not in {"strict", "adaptive"}:
+        problems.append(Problem("ERROR", path, "mode must be strict or adaptive"))
+    artifacts = data.get("artifacts")
+    if not isinstance(artifacts, dict):
+        problems.append(Problem("ERROR", path, "artifacts must be an object"))
+    else:
+        if artifacts.get("layout") not in {"nested", "flat"}:
+            problems.append(Problem("ERROR", path, "artifacts.layout must be nested or flat"))
+        artifact_root = artifacts.get("root")
+        if not isinstance(artifact_root, str) or not artifact_root:
+            problems.append(Problem("ERROR", path, "artifacts.root must be a non-empty string"))
+    quality = data.get("quality", {})
+    if not isinstance(quality, dict):
+        problems.append(Problem("ERROR", path, "quality must be an object"))
+    elif data.get("mode") == "strict" and quality.get("independentReview") is False:
+        problems.append(Problem("ERROR", path, "strict mode cannot disable independent review"))
+    metrics = data.get("metrics", {})
+    if not isinstance(metrics, dict) or not isinstance(metrics.get("enabled", False), bool):
+        problems.append(Problem("ERROR", path, "metrics.enabled must be boolean"))
+    return data
 
 
 def validate_node_shape(node: Any, source: Path, index: int, problems: list[Problem]) -> bool:
@@ -204,6 +240,36 @@ def readiness(nodes: dict[str, dict[str, Any]], source: Path) -> list[Problem]:
     return problems
 
 
+def feature_lifecycle(graph: Graph, nodes: dict[str, dict[str, Any]], ready: bool) -> str:
+    feature_nodes = list(graph.nodes.values())
+    types = {node["type"] for node in feature_nodes}
+    tasks = [node for node in feature_nodes if node["type"] == "task"]
+    findings = [node for node in feature_nodes if node["type"] == "finding" and node["status"] == "open"]
+    if "requirement" not in types:
+        return "discovery"
+    if "specification" not in types and "invariant" not in types:
+        return "requirements"
+    if not tasks:
+        return "planning"
+    if any(node["status"] in {"implemented", "verified", "blocked"} for node in tasks):
+        if all(node["status"] == "verified" for node in tasks):
+            return "reviewing" if findings else "complete"
+        return "executing"
+    return "ready" if ready else "planning"
+
+
+def git_drift(root: Path) -> list[str]:
+    result = subprocess.run(
+        ["git", "-C", str(root), "status", "--porcelain"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return []
+    return [line for line in result.stdout.splitlines() if line]
+
+
 def execution_progress(root: Path) -> tuple[int, int, int]:
     pending = implemented = verified = 0
     for path in root.rglob("99-execution-plan.md"):
@@ -232,6 +298,7 @@ def main() -> int:
     args = parse_args()
     root = Path(args.root).resolve()
     problems: list[Problem] = []
+    config = validate_config(root, problems)
     paths = discover_graphs(root)
     if not paths:
         problems.append(Problem("ERROR", root, "no traceability.json files found"))
@@ -241,10 +308,25 @@ def main() -> int:
         problems.extend(readiness(nodes, root))
     pending, implemented, verified = execution_progress(root)
     blocking = sum(problem.level in {"ERROR", "BLOCK"} for problem in problems)
+    graph_status = []
+    for graph in graphs:
+        graph_ids = set(graph.nodes)
+        graph_problems = [problem for problem in readiness(graph.nodes, graph.source)]
+        graph_ready = not any(problem.level in {"ERROR", "BLOCK"} for problem in graph_problems)
+        graph_status.append({
+            "feature": graph.feature,
+            "lifecycle": feature_lifecycle(graph, nodes, graph_ready),
+            "ready": graph_ready,
+            "nodes": len(graph_ids),
+        })
+    drift = git_drift(root)
     result = {
         "ready": blocking == 0,
+        "configured": config is not None,
         "graphs": len(graphs),
         "nodes": len(nodes),
+        "features": graph_status,
+        "git_drift": drift,
         "problems": [problem.render(root) for problem in problems],
         "tasks": {"pending": pending, "implemented": implemented, "verified": verified},
     }
@@ -253,6 +335,10 @@ def main() -> int:
     else:
         print(f"CodeOps graphs: {result['graphs']} | nodes: {result['nodes']}")
         print(f"Tasks: {pending} pending | {implemented} implemented | {verified} verified")
+        for feature in graph_status:
+            print(f"Feature {feature['feature']}: {feature['lifecycle']} | {'ready' if feature['ready'] else 'blocked'}")
+        if drift:
+            print(f"Git drift: {len(drift)} path(s)")
         for problem in problems:
             print(problem.render(root))
         print("READY" if result["ready"] else "NOT READY")
