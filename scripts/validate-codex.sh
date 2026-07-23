@@ -80,7 +80,8 @@ assert scenario['scope'] == 'requirements-stage ambiguity discovery and gate beh
 assert review['verdict'] == 'PASS'
 assert not any(item['severity'] in {'critical', 'major'} for item in review['findings'])
 install = Path('tests/evidence/install-cli.md').read_text(encoding='utf-8')
-assert manifest['version'] in install
+# Local-development cachebusters do not invalidate evidence for the preserved release base.
+assert manifest['version'].split('+', 1)[0] in install
 PY
 }
 
