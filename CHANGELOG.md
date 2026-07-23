@@ -2,6 +2,14 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 0.2.0-beta.5 — 2026-07-23
+
+- Make `status` a successful observation for structurally valid projects whose
+  requirements or plans are not yet execution-ready.
+- Treat migrated Claude roadmap, requirement, and plan documents as first-class
+  Codex schema-1 artifacts during roadmap presentation.
+- Add regression coverage for valid-but-blocked status and invalid status data.
+
 ## 0.2.0-beta.4 — 2026-07-23
 
 - Exclude `codeops/_archive` traceability graphs and execution plans from live
