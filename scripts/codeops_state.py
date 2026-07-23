@@ -403,6 +403,12 @@ def main() -> int:
         for problem in problems:
             print(problem.render(root))
         print("READY" if result["ready"] else "NOT READY")
+    # `status` is an observation command, not a gate. A well-formed project with
+    # draft requirements or open work is a successful status read even though it
+    # is not ready for execution. Keep non-zero exits for malformed state, while
+    # `validate` and `readiness` retain their gate semantics.
+    if args.command == "status":
+        return 0 if not any(problem.level == "ERROR" for problem in problems) else 1
     return 0 if result["ready"] else 1
 
 

@@ -20,17 +20,17 @@ description: >-
 
 ## Codex derived-status rule
 
-When a feature has `traceability.json`, treat the graph plus on-disk execution plans as the status evidence. Use:
+When a feature has `traceability.json`, treat the graph plus on-disk execution plans as the status evidence. Run this as a standalone command (never in an `&&` chain with roadmap reads):
 
 ```bash
 python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" status --root . --json
 ```
 
-Roadmaps summarize lifecycle, readiness, tasks, verification, findings, blockers, and deferrals; they never become an independent owner of those facts. If roadmap text conflicts with derived evidence, report drift and repair the derived view without silently changing authoritative artifacts.
+`status` exits zero when valid project state is read, even when its JSON says `"ready": false`; not-ready is normal status data for draft or in-progress features. A nonzero exit means structurally invalid or unreadable state. Roadmaps summarize lifecycle, readiness, tasks, verification, findings, blockers, and deferrals; they never become an independent owner of those facts. If roadmap text conflicts with derived evidence, report drift and repair the derived view without silently changing authoritative artifacts.
 
 ## Resolve paths first (layout-aware)
 
-Before any action, determine the layout via **[../../_shared/layout-convention.md](../../_shared/layout-convention.md)**:
+Before any action, determine the layout via **[../../_shared/layout-convention.md](../../_shared/layout-convention.md)**. When reading it with a tool, use the unambiguous installed path `${PLUGIN_ROOT}/_shared/layout-convention.md`; do not reconstruct the Markdown link path by hand.
 
 - **Flat layout** (no `codeops/.codeops.yml`): a single roadmap at `plans/00-roadmap.md`. Behaves
   **exactly as flat layout always has** — everything below that mentions "the roadmap" means this one file, and the
@@ -252,6 +252,11 @@ Render a human-facing snapshot of where a feature (or the whole repo) stands: ov
 per-item stage table, and the concrete next steps. **Read-only — this action never writes to disk.**
 It is the presentation counterpart to `review`: `review` audits the roadmap for drift and broken
 links, `show` simply *displays* it. Do not run the sync engine in write mode or edit any file here.
+
+**Migrated artifacts are first-class inputs.** A document carrying both `CodeOps Artifact Schema: 1`
+and `Migrated From Claude CodeOps Skills Version: ...` is a Codex CodeOps artifact with retained
+provenance, not an obsolete Claude-only artifact. Read its existing roadmap, requirements, and plan
+links normally. Never hide or ignore a row merely because its content predates the migration.
 
 **Resolve the target (layout-aware):**
 

@@ -138,9 +138,54 @@ class StateConformanceTests(unittest.TestCase):
                 text=True, capture_output=True, check=False,
             )
             payload = json.loads(result.stdout)
+            self.assertEqual(result.returncode, 0, payload)
             self.assertEqual(payload["graphs"], 1)
             self.assertEqual(payload["nodes"], 2)
             self.assertEqual(payload["tasks"], {"pending": 1, "implemented": 0, "verified": 0})
+
+    def test_status_succeeds_for_valid_but_not_ready_project(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            feature = root / "codeops/features/draft-feature"
+            feature.mkdir(parents=True)
+            (feature / "artifact.md").write_text("# Draft\n", encoding="utf-8")
+            nodes = [
+                {
+                    "id": "RD-DRAFT",
+                    "type": "requirement",
+                    "title": "Draft requirement",
+                    "status": "draft",
+                    "path": "artifact.md",
+                    "links": ["SPEC-DRAFT"],
+                },
+                {
+                    "id": "SPEC-DRAFT",
+                    "type": "specification",
+                    "title": "Draft specification",
+                    "status": "draft",
+                    "path": "artifact.md",
+                    "links": ["RD-DRAFT"],
+                },
+            ]
+            (feature / "traceability.json").write_text(
+                json.dumps({"schema": 1, "feature": "draft-feature", "nodes": nodes}),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "status", "--root", str(root), "--json"],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            payload = json.loads(result.stdout)
+            self.assertEqual(result.returncode, 0, payload)
+            self.assertFalse(payload["ready"])
+            self.assertIn("requirement RD-DRAFT is not approved", "\n".join(payload["problems"]))
+
+    def test_status_still_fails_for_structurally_invalid_project(self) -> None:
+        code, payload = self.run_state("state-invalid", command="status")
+        self.assertEqual(code, 1, payload)
+        self.assertIn("links to missing node SPEC-MISSING", "\n".join(payload["problems"]))
 
 
 if __name__ == "__main__":
