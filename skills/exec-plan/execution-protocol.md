@@ -142,12 +142,16 @@ whole-task diff. Activation rules, packets, supersession, and caps are defined i
    This includes committed, staged, unstaged, and newly created files while excluding changes that
    existed at phase start.
 3. **Merge findings** (RV/SA/PE) and present them in severity-grouped batches (reuse the
-   preflight skill's batch pacing). 🔴 CRITICAL / 🟠 MAJOR findings PAUSE execution for the
-   user's ruling in ALL commit modes; 🟡 MINOR findings are report-only.
+   preflight skill's batch pacing). In normal mode, 🔴 CRITICAL / 🟠 MAJOR findings PAUSE
+   execution for the user's ruling in ALL commit modes. With active auto-design, an eligible
+   technical fix may be selected and recorded, but risk may never be waived and a critical/major
+   finding may never be dismissed automatically; reserved decisions pause for the user. 🟡 MINOR
+   findings are report-only.
 4. **Record decisions durably** in the finding and traceability artifacts after each ruling batch.
 5. **Accepted fixes:** implement → verify → follow-up commit per the commit mode. If any 🔴/🟠
    fix was applied, dispatch ONE re-review scoped to the fix diff — never a third pass. A fix
-   the re-review still rejects is reported; the user decides.
+   the re-review still rejects is reported. Normal mode returns the ruling to the user; active
+   auto-design may select one eligible technical correction, but cannot waive the finding.
 6. **Attach review evidence** to the task/verification nodes, optionally record a content-free
    review outcome, then proceed to the next phase.
 
@@ -188,15 +192,20 @@ unchanged — and the temp log is read-only evidence, never executed.
 ### Zero-Ambiguity During Execution
 
 If you encounter any implementation detail, behavioral question, edge case, or design choice not
-covered by the plan documents or `00-ambiguity-register.md`:
+covered by the plan documents or `00-ambiguity-register.md`, first record it and mark affected
+downstream traceability stale.
 
 1. **STOP** — do not guess, infer, or apply "reasonable defaults".
-2. **Present** the ambiguity to the user with options and trade-offs.
-3. **Wait** for the user's explicit decision.
+2. **Classify authority.** With active auto-design, apply the shared auto-design policy: resolve
+   and record an eligible technical decision; present a reserved decision to the user. In normal
+   mode, present every material ambiguity to the user with options and trade-offs.
+3. **Obtain authority.** Wait for the user's explicit decision when normal mode or reserved
+   authority applies. An auto-design resolution must include the policy's complete provenance.
 4. **Record** it in `00-ambiguity-register.md` with the next sequential AR number, tagged
    `(runtime)` in the Category column. Update the register header to note items added during
    execution.
-5. **Only then** resume implementation using the user's decision.
+5. **Only then** rerun affected readiness gates and resume implementation using the authorized
+   decision.
 
 This applies to ALL ambiguities — architectural, behavioral, naming, formatting, UX, error
 handling. Never fill gaps by guessing.
@@ -239,8 +248,10 @@ promote to `[x]` on pass.
 
 **Blocker path.** On ambiguity, missing packet context, or a failing SPEC test, the executor
 stops and returns a blocker report. The parent then runs the zero-ambiguity loop above with the
-user (STOP → options → decision → AR `(runtime)` entry) and re-dispatches with the enriched
-packet. An executor never asks the user directly and never guesses.
+applicable authority: normal mode or a reserved decision uses STOP → options → user decision →
+AR `(runtime)` entry; active auto-design resolves and records an eligible technical decision under
+the shared policy. The parent re-dispatches with the enriched packet. An executor never asks the
+user directly, widens delegated authority, or guesses.
 
 **Missing-executor guard.** If a named role is unavailable, spawn a generic subagent with the
 complete packet or run the phase inline and report why. Dispatch is an optimization — the
@@ -376,8 +387,9 @@ signature resets the counter; expected red-phase failures do not count.
 A deviation is by definition territory the plan doesn't cover — route it by materiality:
 
 - **Material deviation** (different approach, different files, different behavior than the plan
-  specifies): run the Zero-Ambiguity loop above — STOP, present the deviation with options,
-  wait for the user's decision, record it in `00-ambiguity-register.md` tagged `(runtime)`, and
+  specifies): run the Zero-Ambiguity loop above — STOP, present the deviation with options in
+  normal mode, or apply active auto-design to an eligible technical choice and escalate a reserved
+  choice. Record the authorized resolution in `00-ambiguity-register.md` tagged `(runtime)` and
   update the task description. If it changes artifacts outside the selected plan, obtain approval
   for the exact expanded modification set before editing, then continue.
 - **Mechanical correction** (typo'd path, renamed symbol, an import the plan forgot): note it in

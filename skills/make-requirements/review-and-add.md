@@ -14,7 +14,12 @@ Triggered by "add_requirement", "add a feature/RD", "I also need …" when a
 1. Read `requirements/README.md` to understand the current set.
 2. Ask the user: *"What new capability or feature do you want to add?"*
 3. Run a **condensed discovery** for just this feature — comparable-systems analysis and edge-case scenarios (see `discovery-phases.md` §1.3 and §1.5).
-4. **🚨 Run the Zero-Ambiguity Gate for this new RD.** Compile an Ambiguity Register scoped to just this feature, resolve ALL items with the user, then proceed. **Append** new AR entries to the existing `requirements/00-ambiguity-register.md` (create it if it doesn't exist). All gate rules apply: no deferrals, no delegation, no guesswork. See `zero-ambiguity-gate.md`.
+4. **🚨 Run the Zero-Ambiguity Gate for this new RD.** Compile an Ambiguity Register scoped to
+   just this feature and resolve every item. In normal mode, resolve material items with the user.
+   With active auto-design, resolve eligible technical items under the shared policy and escalate
+   reserved items. **Append** new AR entries to the existing
+   `requirements/00-ambiguity-register.md` (create it if it doesn't exist). All gate rules apply:
+   no silent deferrals, unauthorized delegation, or guesswork. See `zero-ambiguity-gate.md`.
 5. Determine where in the dependency graph the new RD fits.
 6. Assign the next available RD number.
 7. Write the new RD following the universal template, with AR # traceability (see `templates.md` §3.3).

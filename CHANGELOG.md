@@ -2,6 +2,15 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 0.3.0 — 2026-07-23
+
+- Add invocation-scoped `--auto-design` to requirements, planning, preflight, and execution.
+- Select eligible technical decisions through a documented strongest-option rubric with durable
+  provenance, bounded escalation, invalidation, and independent challenge for high-impact choices.
+- Preserve user authority over product direction, risk acceptance, permissions, destructive or
+  external actions, and keep commit behavior independent from design delegation.
+- Add deterministic contract, boundary, hostile-argument, and collection coverage.
+
 ## 0.2.0 — 2026-07-23
 
 - Promote the Codex plugin from beta to the first stable 0.2 release.

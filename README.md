@@ -4,7 +4,7 @@ CodeOps is a specification-first engineering system for building complex softwar
 
 It is designed for work where an unstated assumption can become a correctness defect: programming languages and compilers, financial systems, protocols, distributed services, security-sensitive applications, developer tools, and substantial web applications.
 
-> **Release status:** `0.2.0` is the stable release of the current CodeOps workflow surface. Core workflows, deterministic state, project tracking, domain lenses, and Codex-native routing are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
+> **Release status:** `0.3.0` is the stable release of the current CodeOps workflow surface. Core workflows, deterministic state, project tracking, domain lenses, Codex-native routing, and opt-in delegated technical design are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
 
 ## The workflow
 
@@ -48,6 +48,15 @@ Schema-1 graphs remain compatible and can be atomically upgraded to schema 2.
 
 The retained [evaluation evidence](docs/evaluation.md) currently passes compiler, financial, and multi-tenant web ambiguity benchmarks against Claude CodeOps 3.12.0.
 For a first project, follow the [complex-project quick start](docs/tutorial.md).
+
+## Delegated technical design
+
+Add `--auto-design` to `make-requirements`, `make-plan`, `preflight`, or `exec-plan` when CodeOps
+should select the strongest supported technical option and record its evidence, alternatives,
+counterargument, confidence, and reopen triggers. The delegation is invocation-scoped and
+downward-only. It never delegates product scope, risk acceptance, spending, credentials,
+deployment, destructive actions, or other reserved authority, and it grants no commit or action
+permission. See [the authority model](docs/concepts.md#delegated-technical-design).
 
 ## Installation
 

@@ -15,6 +15,17 @@ description: >-
 
 > **CodeOps Artifact Schema**: 1
 
+## Auto-design option
+
+If `$ARGUMENTS` contains exactly one exact standalone `--auto-design` token before the first `--` sentinel, remove it before resolving targets, paths, or modes; zero occurrences means normal mode, more than one is invalid, and tokens at or after the sentinel are target content; announce `Auto-design active — eligible technical decisions are
+delegated and recorded`; then read and apply
+[../../_shared/auto-design.md](../../_shared/auto-design.md). Select the strongest eligible
+remediation under that policy, but apply it only when the user already authorized fixes; never
+auto-waive risk or dismiss a critical/major finding. Propagate only to explicitly invoked supported
+children; an unsupported child fails closed. This mode does not grant action permission or scope
+expansion. **Normal mode:** without the exact token, every material ruling still requires an
+explicit user decision; historical delegated records must not infer delegated authority.
+
 Run a rigorous quality audit of the artifact named in `$ARGUMENTS`, **grounded in the actual
 codebase**. Find every issue, ambiguity, contradiction, gap, and risk; verify every claim and
 assumption against the real code; present each finding with options + a recommendation; iterate
@@ -82,8 +93,10 @@ expand the audit target merely because the user said "apply fixes and re-scan."
 > **You are a senior technical reviewer performing a formal quality audit GROUNDED IN THE ACTUAL
 > CODEBASE. Find every defect, gap, ambiguity, contradiction, and risk in this artifact — and
 > verify every claim, reference, and assumption against the real code. Be thorough, systematic,
-> relentless. For every issue, analyze the options and present your recommended resolution. Do NOT
-> fix anything silently — every finding must be presented to the user for decision.**
+> relentless. For every issue, analyze the options and present your recommended resolution. Never
+> fix anything silently. In normal mode, every finding must be presented to the user for
+> decision. With active auto-design, eligible technical resolutions are selected and recorded
+> under the shared policy while reserved decisions are presented to the user.**
 
 You are NOT a rubber stamp. You are actively trying to **break** the artifact — and to **reality-
 check** it against the codebase it targets. Assume it has issues until proven otherwise.
@@ -110,9 +123,11 @@ net** — fresh eyes that catch what those gates missed and what evolved since.
    informed by Step 2. Depth adapts by artifact type. Full detail in [dimensions.md](dimensions.md).
 4. **Compile the Preflight Report** — every finding gets a numbered `PF-NNN` entry with severity.
    Templates and report header in [report-format.md](report-format.md).
-5. **Present findings & collect decisions** — grouped by severity, paced by the batch rules in
-   [report-format.md](report-format.md) (they are authoritative), recording the user's decision
-   on every finding.
+5. **Present findings & collect decisions** — grouped by severity and paced by the authoritative
+   batch rules in [report-format.md](report-format.md). In normal mode, record the user's decision
+   on every finding. With active auto-design, record the strongest eligible technical resolution
+   with complete delegated provenance; reserved decisions still require the user. This selects a
+   resolution only and does not authorize applying a fix.
 6. **Determine pass/fail** — Clean / Passed / Passed With Notes / Blocked (see [Pass tiers](#pass-tiers)).
 7. **Apply fixes (only if requested)** — preflight is a review protocol, not a modification one.
    Never apply fixes without explicit instruction.
@@ -246,7 +261,7 @@ checklist. Full safeguards in [report-format.md](report-format.md).
 
 ## Key agent behavior rules
 
-> **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes — the user decides. **Recommendation hardening:** apply `_shared/recommendation-hardening.md` — for **high-stakes** findings (CRITICAL/MAJOR severity) spawn one independent challenger and reconcile *before* recording the recommendation; for all consequential findings run the in-context layers and close with the `Confidence:` / `Hardening:` disclosure.
+> **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes. In normal mode, the user decides. With active auto-design and existing remediation authorization, select and record the strongest eligible technical fix; never auto-waive risk or dismiss a critical/major finding, and escalate reserved decisions. **Recommendation hardening:** apply `_shared/recommendation-hardening.md` — for **high-stakes** findings (CRITICAL/MAJOR severity) spawn one independent challenger and reconcile *before* recording the recommendation; for all consequential findings run the in-context layers and close with the `Confidence:` / `Hardening:` disclosure.
 
 - **Be adversarial, not hostile** — findings should feel helpful, not critical.
 - **Specificity over volume** — one precise finding beats ten vague ones; never pad.

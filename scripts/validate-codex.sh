@@ -69,6 +69,7 @@ validate_scenarios() {
 validate_release_evidence() {
   python3 - <<'PY'
 import json
+import re
 from pathlib import Path
 
 manifest = json.loads(Path('.codex-plugin/plugin.json').read_text(encoding='utf-8'))
@@ -80,8 +81,20 @@ assert scenario['scope'] == 'requirements-stage ambiguity discovery and gate beh
 assert review['verdict'] == 'PASS'
 assert not any(item['severity'] in {'critical', 'major'} for item in review['findings'])
 install = Path('tests/evidence/install-cli.md').read_text(encoding='utf-8')
-# Local-development cachebusters do not invalidate evidence for the preserved release base.
-assert manifest['version'].split('+', 1)[0] in install
+recorded = re.search(r'- Plugin: `[^`]+`, version `([^`]+)`', install).group(1)
+current = manifest['version'].split('+', 1)[0]
+assert recorded == current
+plan = Path('plans/auto-design/99-execution-plan.md').read_text(encoding='utf-8')
+if '- [ ] 3.1.4 ' in plan:
+    # A release commit must exist before its remote marketplace install can be observed. The
+    # pre-publication state is explicit, version-matched, and may exist only while the release
+    # task remains open; completing the task requires replacing it with tagged install evidence.
+    assert '- Evidence state: pre-publication package validation' in install
+    assert f'- Source state: working tree for planned `v{current}`' in install
+else:
+    assert f'- Repository source: release tag `v{current}`' in install
+    assert re.search(rf'enabled at\s+`{re.escape(current)}`', install)
+assert current in Path('CHANGELOG.md').read_text(encoding='utf-8')
 PY
 }
 
@@ -136,6 +149,88 @@ assert 'Phase baseline tree' in template
 PY
 }
 
+validate_auto_design_contract() {
+  python3 - <<'PY'
+from pathlib import Path
+
+policy = Path('_shared/auto-design.md').read_text(encoding='utf-8')
+supported = (
+    Path('skills/make-requirements/SKILL.md'),
+    Path('skills/make-plan/SKILL.md'),
+    Path('skills/preflight/SKILL.md'),
+    Path('skills/exec-plan/SKILL.md'),
+)
+
+for token in (
+    'Authority: AI — delegated by --auto-design',
+    '## Reserved authority',
+    'does not grant action permission',
+    'root invocation ID',
+    'never widen',
+    'bounded escalation',
+):
+    assert token in policy, token
+
+for path in supported:
+    text = path.read_text(encoding='utf-8')
+    assert '## Auto-design option' in text, path
+    assert 'exact standalone `--auto-design` token' in text, path
+    assert 'before the first `--` sentinel' in text, path
+    assert 'zero occurrences means normal mode' in text, path
+    assert 'more than one is invalid' in text, path
+    assert 'tokens at or after the sentinel are target content' in text, path
+    assert '../../_shared/auto-design.md' in text, path
+    assert 'unsupported child fails closed' in text, path
+    assert 'does not grant action permission' in text, path
+    assert 'Normal mode:' in text, path
+
+for path in Path('skills').glob('*/SKILL.md'):
+    if path not in supported:
+        assert '../../_shared/auto-design.md' not in path.read_text(encoding='utf-8'), path
+
+assert 'does not imply `--auto-commit`' in supported[-1].read_text(encoding='utf-8')
+assert 'never auto-waive risk or dismiss a critical/major finding' in (
+    supported[2].read_text(encoding='utf-8')
+)
+
+requirements_add = Path('skills/make-requirements/review-and-add.md').read_text(encoding='utf-8')
+requirements = supported[0].read_text(encoding='utf-8')
+plan = supported[1].read_text(encoding='utf-8')
+plan_checklist = Path('skills/make-plan/quality-checklist.md').read_text(encoding='utf-8')
+preflight_report = Path('skills/preflight/report-format.md').read_text(encoding='utf-8')
+execution = supported[-1].read_text(encoding='utf-8')
+execution_protocol = Path('skills/exec-plan/execution-protocol.md').read_text(encoding='utf-8')
+
+assert 'With active auto-design, resolve eligible technical items' in requirements_add
+assert 'complete auto-design delegated record' in requirements
+assert 'active auto-design resolves eligible technical decisions' in requirements
+assert 'complete delegated provenance for every eligible resolution' in plan
+assert 'under the auto-design policy' in plan_checklist
+assert 'canonical delegated marker' in preflight_report
+assert 'does not authorize applying the fix or waiving a finding' in preflight_report
+assert 'With active auto-design, resolve an eligible technical choice' in execution
+assert 'active auto-design resolves eligible technical decisions' in execution
+assert 'active auto-design to an eligible technical choice' in execution_protocol
+
+combined_authoritative = '\n'.join((preflight_report, execution, execution_protocol)).lower()
+for forbidden in (
+    '--auto-design authorizes',
+    '--auto-design grants',
+    'auto-design automatically applies',
+    'auto-design automatically commits',
+    'auto-design automatically pushes',
+    'auto-design automatically deploys',
+):
+    assert forbidden not in combined_authoritative, forbidden
+
+preflight = supported[2].read_text(encoding='utf-8')
+assert 'In normal mode, every finding' in preflight
+assert 'With active auto-design, eligible technical resolutions' in preflight
+assert 'In normal mode, 🔴 CRITICAL and 🟠 MAJOR findings' in execution
+assert 'With active auto-design, select and record' in execution
+PY
+}
+
 run_check "plugin manifest" python3 scripts/validate_plugin.py .
 run_check "skill manifests" validate_skills
 run_check "marketplace metadata" validate_marketplace
@@ -144,6 +239,7 @@ run_check "local Markdown links" validate_links
 run_check "shell syntax" bash -n scripts/*.sh bin/codeops-worktree
 run_check "preflight scope and convergence contract" validate_preflight_contract
 run_check "plan and execution scope contracts" validate_plan_execution_contracts
+run_check "auto-design authority contract" validate_auto_design_contract
 run_check "state conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
 run_check "retained adversarial parity evidence" validate_scenarios
 run_check "release evidence provenance" validate_release_evidence

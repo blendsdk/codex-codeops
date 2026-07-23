@@ -8,14 +8,25 @@ description: >-
   or --auto-commit (commit + push after each verified task). Reads the feature's execution plan,
   finds the next incomplete task, and runs the per-task loop (implement, update the execution
   plan immediately, verify, then commit per mode) following specification-first task ordering.
-  Under the repo's CodeOps quality policy, a risk-derived quality loop
-  reviews each executed phase (reviewer + auditor agents); critical/major findings pause for a
-  user ruling in every commit mode.
+  Under the repo's CodeOps quality policy, a risk-derived quality loop reviews each executed
+  phase (reviewer + auditor agents); critical/major findings require an authorized ruling in
+  every commit mode, using the user in normal mode or eligible delegated resolution in auto-design.
 ---
 
 # exec-plan — Execute an Implementation Plan
 
 > **CodeOps Artifact Schema**: 1
+
+## Auto-design option
+
+If `$ARGUMENTS` contains exactly one exact standalone `--auto-design` token before the first `--` sentinel, remove it before resolving targets, paths, or modes; zero occurrences means normal mode, more than one is invalid, and tokens at or after the sentinel are target content; announce `Auto-design active — eligible technical decisions are
+delegated and recorded`; then read and apply
+[../../_shared/auto-design.md](../../_shared/auto-design.md). Resolve eligible runtime technical
+ambiguities under that policy, update owning artifacts and stale downstream state, and re-run
+gates before resuming. Propagate only to explicitly invoked supported children; an unsupported child fails closed. This mode does not grant action permission, commit permission, or scope
+expansion and does not imply `--auto-commit`. **Normal mode:** without the exact token, every
+material runtime choice still requires an explicit user decision; historical delegated records
+must not infer delegated authority.
 
 Execute the implementation plan at `plans/$ARGUMENTS/99-execution-plan.md`. The first
 argument is the feature name; an optional flag selects the commit mode.
@@ -47,9 +58,12 @@ keep task, implementation, and verification nodes synchronized with the Markdown
 `[~]` → `[x]` transitions.
 
 A runtime ambiguity invalidates the selected feature's readiness: record it and mark affected
-links stale. If resolution requires changing an upstream artifact outside the selected plan's
-documents, present the exact expanded modification set and obtain the user's approval before
-editing. Resolve the ambiguity, rerun feature-scoped readiness, and only then resume.
+links stale. In normal mode, present options and obtain the user's explicit decision. With active
+auto-design, resolve and record an eligible technical ambiguity under the shared policy; reserved
+authority still pauses for the user. If resolution requires changing an upstream artifact outside
+the selected plan's documents, present the exact expanded modification set and obtain the user's
+approval before editing because auto-design does not expand scope. Resolve the ambiguity, rerun
+feature-scoped readiness, and only then resume.
 
 This skill covers **execution only**. To create a plan, use the make-plan skill.
 
@@ -144,10 +158,13 @@ For each task, in order:
 > compressed single-session form are in [execution-protocol.md](execution-protocol.md).
 
 > **🚨 Zero-ambiguity during execution.** If you hit any detail not covered by the plan docs or
-> `00-ambiguity-register.md`, STOP, present options to the user, wait for an explicit decision,
-> record it in `00-ambiguity-register.md` (tag `(runtime)`), then resume. Never guess.
+> `00-ambiguity-register.md`, STOP and record it. In normal mode, present options and wait for an
+> explicit user decision. With active auto-design, resolve an eligible technical choice under the
+> shared policy or escalate a reserved choice. Record the authorized resolution in
+> `00-ambiguity-register.md` (tag `(runtime)`), rerun affected readiness gates, then resume.
+> Never guess.
 
-> **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes — the user decides. Apply the recommendation-hardening protocol (`_shared/recommendation-hardening.md`) to consequential recommendations; escalate to an independent challenger only when the decision is genuinely high-stakes.
+> **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes. In normal mode, the user decides; active auto-design resolves eligible technical decisions and escalates reserved ones. Apply the recommendation-hardening protocol (`_shared/recommendation-hardening.md`) to consequential recommendations; escalate to an independent challenger only when the decision is genuinely high-stakes.
 
 ### Step 3 — Session wrap-up
 
@@ -174,8 +191,10 @@ task verifies, the correctness reviewer and any active auditors are dispatched *
 the phase diff, their findings are merged and presented in severity-grouped batches, and each
 ruling is recorded in durable finding and traceability artifacts.
 
-> **🚨 Finding gate (load-bearing).** 🔴 CRITICAL and 🟠 MAJOR findings PAUSE execution for the
-> user's ruling in ALL commit modes — auto-commit never bypasses the pause. 🟡 MINOR findings are
+> **🚨 Finding gate (load-bearing).** In normal mode, 🔴 CRITICAL and 🟠 MAJOR findings PAUSE
+> execution for the user's ruling in ALL commit modes. With active auto-design, select and record
+> an eligible technical fix, but never waive or dismiss a finding; reserved decisions still pause
+> for the user. Auto-commit never bypasses the applicable authority gate. 🟡 MINOR findings are
 > report-only. Accepted fixes are implemented, verified, follow-up-committed per the commit mode,
 > and (after 🔴/🟠 fixes) re-reviewed ONCE on the fix diff — never a third time.
 

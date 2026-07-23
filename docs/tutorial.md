@@ -28,6 +28,14 @@ CodeOps records requirements and the ambiguity register on disk so discovery
 can resume in a later thread. For an existing implementation, start with
 `retro-requirements` instead.
 
+If you want CodeOps to own eligible expert technical choices, use:
+
+```text
+Use make-requirements --auto-design for this system. Choose and record the
+strongest eligible technical options. Escalate every product, risk, permission,
+or other reserved-authority decision to me.
+```
+
 ## 3. Build and challenge the plan
 
 After requirements are approved:
@@ -39,6 +47,9 @@ implementation tasks, and resolve every plan ambiguity with me.
 
 Then run `preflight`. Critical and major findings reopen the affected gate; they
 are not converted silently into implementation assumptions.
+
+The same exact `--auto-design` flag may be used with `make-plan`, `preflight`, and `exec-plan`.
+It does not imply `--auto-commit`; select commit behavior separately.
 
 ## 4. Prove readiness and execute
 

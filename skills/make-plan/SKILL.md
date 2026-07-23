@@ -8,6 +8,15 @@ description: >-
 
 Create a detailed, multi-document implementation plan for a software feature or task. This skill covers plan **creation** only. To **execute** a finished plan, use the **exec-plan skill**.
 
+## Auto-design option
+
+If `$ARGUMENTS` contains exactly one exact standalone `--auto-design` token before the first `--` sentinel, remove it before resolving targets, paths, or modes; zero occurrences means normal mode, more than one is invalid, and tokens at or after the sentinel are target content; announce `Auto-design active — eligible technical decisions are
+delegated and recorded`; then read and apply
+[../../_shared/auto-design.md](../../_shared/auto-design.md). Resolve eligible architecture and
+technical design decisions under that policy and propagate its downward-only context to explicitly
+invoked supported children; an unsupported child fails closed. This mode does not grant action permission or scope expansion. **Normal mode:** without the exact token, every material choice
+still requires an explicit user decision; historical delegated records must not infer delegated authority.
+
 ## Codex readiness proof
 
 Maintain the feature's typed requirement → specification/invariant → acceptance criterion → specification test → task chain in `traceability.json`; follow [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). A plan is not ready merely because its documents exist. Before presenting it as executable, run:
@@ -119,7 +128,7 @@ When a `requirements/` directory exists with `RD-XX-*.md` files (produced by the
 
 ### 1.1 Ask clarifying questions
 
-> **ZERO-AMBIGUITY RULE — active from the first question.** Applies to every decision with semantic weight: design, architecture, behavior, scope, edge cases, error messages, naming, file structure. Behavior/scope/data/security decisions ALWAYS gate; cosmetic choices with zero semantic impact are exempt (per the shared gate's traceability exemptions), and low-stakes cosmetic items may be batched. If there is more than one semantically distinct option, the **user decides** — never you. Demand concrete, specific answers. Do not fill gaps with assumptions, infer intent, or apply "reasonable defaults" unless the user explicitly chose them. If an answer is vague, ask again with sharper options. If the user is unsure, lay out options with trade-offs and guide them — but the decision is theirs.
+> **ZERO-AMBIGUITY RULE — active from the first question.** Applies to every decision with semantic weight: design, architecture, behavior, scope, edge cases, error messages, naming, file structure. Behavior/scope/data/security decisions ALWAYS gate; cosmetic choices with zero semantic impact are exempt (per the shared gate's traceability exemptions), and low-stakes cosmetic items may be batched. In normal mode, if there is more than one semantically distinct option, the **user decides**. With active auto-design, resolve and record eligible technical decisions under the shared policy; reserved decisions still require the user. Demand concrete, specific answers. Do not fill gaps with assumptions, infer intent, or apply "reasonable defaults" outside that delegated policy. If an answer is vague, ask again with sharper options.
 
 Cover at minimum: **Feature scope** (what it does / does NOT do, boundaries), **Technical context** (affected code, existing patterns, constraints), **Dependencies** (prerequisites, external deps), and **Success criteria** (definition of done, required tests, required docs).
 
@@ -152,12 +161,16 @@ When opt-in outcome metrics are enabled, record only the enumerated planning res
 round/decision counts. Never store feature names, questions, decisions, or artifact content.
 
 Gate opens only under the shared gate contract: every row is either `✅ Resolved` or a fully named,
-explicitly approved `⏸ Deferred` entry; the user has confirmed the complete register; nothing is
-silently deferred; and the header reads `✅ GATE PASSED`. A deferred decision cannot be implemented
+explicitly approved `⏸ Deferred` entry; normal mode has user confirmation of the complete register,
+while auto-design mode has complete delegated provenance for every eligible resolution and user
+confirmation for reserved ones; nothing is silently deferred; and the header reads
+`✅ GATE PASSED`. A deferred decision cannot be implemented
 by this plan unless it is later resolved. If zero ambiguities are found, still create the register
-file proving the review ran. You may recommend an option, but you may never decide for the user.
+file proving the review ran. In normal mode, you may recommend an option but may never decide for
+the user. With active auto-design, eligible technical decisions use the shared policy and reserved
+decisions remain user-owned.
 
-> **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes — the user decides. **Recommendation hardening:** apply `_shared/recommendation-hardening.md` — for **high-stakes** Phase 1C gate decisions (complex/sensitive-tagged) spawn one independent challenger and reconcile *before* presenting; for all consequential decisions run the in-context layers and close with the `Confidence:` / `Hardening:` disclosure.
+> **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes. In normal mode, the user decides; active auto-design resolves eligible technical decisions and escalates reserved ones. **Recommendation hardening:** apply `_shared/recommendation-hardening.md` — for **high-stakes** Phase 1C gate decisions (complex/sensitive-tagged) spawn one independent challenger and reconcile *before* presenting; for all consequential decisions run the in-context layers and close with the `Confidence:` / `Hardening:` disclosure.
 
 ---
 
@@ -171,7 +184,10 @@ file proving the review ran. You may recommend an option, but you may never deci
    project's AGENTS.md or manifests — state what you detected and have the user confirm it (an AR
    entry like any decision). If nothing is detectable, ask — **never invent a command**.
 5. `99-execution-plan.md` must structure every feature phase with the mandatory three-session ordering (Spec Tests → Implementation → Impl Tests & Hardening), carrying each phase's tasks as a **single checkbox list** — the plan's single source of truth for progress; a task line appears exactly once in the document. The full ordering rules are in [templates.md](templates.md).
-6. If you discover a NEW ambiguity while writing, STOP immediately, add it to the register, get the user's decision, then resume (surface-during-authoring rule — see [zero-ambiguity-gate.md](zero-ambiguity-gate.md)).
+6. If you discover a NEW ambiguity while writing, STOP immediately and add it to the register.
+   In normal mode get the user's decision; with active auto-design resolve an eligible technical
+   item under the shared policy or escalate a reserved item. Only then resume
+   (surface-during-authoring rule — see [zero-ambiguity-gate.md](zero-ambiguity-gate.md)).
 
 **Authoring convergence:** after two post-gate ambiguity batches, pause document creation and
 reconfirm the planning target, context artifacts, and modification set. The user chooses whether

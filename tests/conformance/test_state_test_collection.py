@@ -13,6 +13,8 @@ DECLARED_MODULES = (
     "tests.conformance.test_state_migration_impl",
     "tests.conformance.test_targeted_workflows_spec",
     "tests.conformance.test_targeted_workflows_impl",
+    "tests.conformance.test_auto_design_spec",
+    "tests.conformance.test_auto_design_impl",
 )
 
 IMPLEMENTED_ST_CASES = set(range(1, 50))

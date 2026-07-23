@@ -18,10 +18,10 @@ links here for everything below. Change the gate in one place: here.
 ## Why this gate exists
 
 Artifacts built on ambiguity produce implementations built on guesswork. When the AI guesses, the
-user gets requirements they didn't specify, behaviors they didn't define, and architectures they
-didn't choose. Every item in every gated artifact must trace back to an **explicit, user-confirmed
-decision**. If you cannot point to a specific user answer for a design choice, behavioral spec,
-edge case, or scope boundary, you have failed this gate.
+user gets requirements they didn't specify, behaviors they didn't define, and architectures with
+no accountable authority. Every item in every gated artifact must trace back to an **authorized
+resolution**: an explicit user decision in normal mode, or a complete eligible delegated record
+under active auto-design. If you cannot point to that authority, you have failed this gate.
 
 > **Recommendation hardening (complex/sensitive decisions).** When you present options for an
 > ambiguity tagged complex or sensitive, apply `_shared/recommendation-hardening.md` — spawn one
@@ -79,7 +79,7 @@ memory) — it is the audit trail and must survive a crash mid-phase.
 **🚫 PROHIBITED while the gate is blocked:**
 
 - ❌ Create or modify any artifact the caller's preamble lists as blocked
-- ❌ Make any design decision on the user's behalf
+- ❌ Make any decision without user authority or an active, eligible auto-design delegation
 - ❌ Use phrases like "we'll assume…", "by default…", "a reasonable approach would be…"
 - ❌ Proceed with a partially resolved register
 
@@ -87,12 +87,14 @@ memory) — it is the audit trail and must survive a crash mid-phase.
 
 1. ✅ Every row has Status = `✅ Resolved` **or** `⏸ Deferred` (see the deferral rules below —
    a Deferred row is valid ONLY in the fully-named form).
-2. ✅ Every resolution contains the **user's explicit decision** (not your recommendation
-   accepted by silence). Bulk acceptance counts — see below.
-3. ✅ The user has reviewed and confirmed the complete register. For >15 items, present in
-   batches by category — the user confirms each batch, then gives a final confirmation.
-   Items imported pre-resolved (from a grill-me session or an earlier register) do **not**
-   need re-confirmation — only new or changed rows do.
+2. ✅ Every resolution contains either the **user's explicit decision** (not a recommendation
+   accepted by silence) or, under active auto-design, the complete delegated provenance required
+   by `auto-design.md`. Bulk acceptance counts — see below.
+3. ✅ In normal mode, the user has reviewed and confirmed the complete register. For >15 items,
+   present in batches by category — the user confirms each batch, then gives a final confirmation.
+   In auto-design mode, every eligible delegated row passes the authority boundary and every
+   reserved row is user-confirmed. Items imported pre-resolved (from a grill-me session or an
+   earlier register) do **not** need re-confirmation — only new or changed rows do.
 4. ✅ Zero items are **silently** deferred — "figure it out later" without a named Deferred
    row is NOT accepted.
 5. ✅ The header reads `✅ GATE PASSED — all [X] items resolved`.
@@ -102,6 +104,13 @@ recommendations"* (or "accept recommendations for items N–M"), record each cov
 `✅ Resolved — User accepted recommendation: [the recommended option, spelled out]`. Per-item
 re-confirmation is not required. What remains prohibited is deciding for the user when they have
 NOT said this.
+
+**Auto-design delegated resolution.** When a supporting workflow was explicitly invoked with
+`--auto-design`, read `auto-design.md`. An eligible technical decision may be recorded as
+`Authority: AI — delegated by --auto-design` with the complete provenance required there. That
+record counts as resolved without falsely attributing the choice to the user. Reserved authority,
+insufficient evidence, and unsupported workflows still require the user. Without the flag, every
+normal-mode rule in this document remains unchanged.
 
 **User dismissals:** if the user says *"that's not ambiguous, the answer is obviously X"* — that
 IS a valid resolution: `✅ Resolved — User: "[their stated answer]"`. You cannot dismiss items
@@ -135,7 +144,7 @@ the cost of getting it wrong, (2) present options with trade-offs, (3) recommend
 rationale, (4) guide them to an explicit choice — **or** to an explicit named deferral, (5)
 record THEIR choice.
 
-**If the user says "you decide" / "just pick one":** politely refuse — "I can recommend, but the
+**If the user says "you decide" / "just pick one":** in normal mode, politely refuse — "I can recommend, but the
 decision must be yours." Present options with your recommendation marked and wait for "I choose
 [option]" (or a bulk acceptance, which qualifies). Never record "AI decided".
 
@@ -157,7 +166,9 @@ Every decision in the gated artifact must back-reference the register entry that
 > **Decision per AR #7:** User chose Option B — time-based cache invalidation with 5-minute TTL.
 ```
 
-Unbroken chain: **user question → user answer → register entry → artifact.**
+Unbroken chain in normal mode: **user question → user answer → register entry → artifact.**
+With active auto-design: **identified ambiguity → delegated provenance → register entry →
+artifact**. Reserved decisions always use the normal-mode chain.
 
 The ONLY items exempt from `AR #` back-references: **(a)** universally obvious facts with exactly
 one possible interpretation (e.g., "TypeScript files use `.ts`"), and **(b)** formatting choices
@@ -169,8 +180,11 @@ Even after the gate passes, if you discover a NEW ambiguity while writing the ga
 
 1. **STOP writing immediately.**
 2. **Add** it to the register with the next sequential number.
-3. **Present** it to the user with options and trade-offs.
-4. **Wait** for the user's explicit decision (or named deferral).
+3. **Resolve authority.** In normal mode, present it to the user with options and trade-offs.
+   With active auto-design, resolve an eligible technical item under `auto-design.md` or present
+   a reserved item to the user.
+4. **Wait** for the user's explicit decision (or named deferral) whenever normal mode or reserved
+   authority applies; otherwise record the complete delegated provenance.
 5. **Record** the resolution, **then** resume writing.
 
 Never "make a reasonable choice and move on."

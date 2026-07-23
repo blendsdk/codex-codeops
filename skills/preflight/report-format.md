@@ -104,8 +104,11 @@ Use the severity icons from SKILL.md (red/orange/yellow/blue circles) in the act
 1. **Present grouped by severity** — CRITICAL first, then MAJOR, MINOR, OBSERVATION.
 2. **Present per the batch rules below** (they are authoritative for pacing) — each finding shown
    with problem, options, recommendation.
-3. **Collect and record the user's decision for every finding** before the report is final:
-   `**User Decision:** [their choice]`.
+3. **Collect and record authority for every finding** before the report is final. In normal mode
+   use `**User Decision:** [their choice]`. With active auto-design, an eligible technical
+   resolution uses the canonical delegated marker and complete provenance from
+   `_shared/auto-design.md`; reserved decisions still use `**User Decision:**`. A delegated
+   resolution does not authorize applying the fix or waiving a finding.
 
 ### Batch presentation rules
 

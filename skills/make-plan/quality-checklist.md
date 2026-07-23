@@ -54,11 +54,13 @@ Run this before finalizing the plan documents. The **Specification-First Testing
 
 ## ✅ Zero-Ambiguity (per Phase 1C) — 🚨 NON-NEGOTIABLE
 - [ ] Ambiguity Register (`00-ambiguity-register.md`) exists and is saved to disk
-- [ ] Every register entry has Status = `✅ Resolved` with an explicit user decision
+- [ ] Every register entry has Status = `✅ Resolved` with an explicit user decision or a complete
+      auto-design delegated record
 - [ ] Zero deferred items — every ambiguity has a concrete answer
 - [ ] All decisions in plan documents have AR # back-references (only exceptions: universally obvious facts + zero-semantic-impact formatting)
 - [ ] No plan document contains AI-assumed defaults, inferred behaviors, or guessed specifications
-- [ ] Surface-during-authoring rule was followed — new ambiguities discovered during writing were added to the register and resolved with the user
+- [ ] Surface-during-authoring rule was followed — new ambiguities were added to the register and
+      resolved by the user or, when active and eligible, under the auto-design policy
 
 ## ✅ Execution Plan Completeness — 🚨 NON-NEGOTIABLE
 - [ ] Every phase section carries its tasks as a checkbox list (`- [ ] N.N.N …` with target file)

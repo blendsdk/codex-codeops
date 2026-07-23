@@ -18,6 +18,15 @@ description: >-
 
 > **CodeOps Artifact Schema**: 1
 
+## Auto-design option
+
+If `$ARGUMENTS` contains exactly one exact standalone `--auto-design` token before the first `--` sentinel, remove it before resolving targets, paths, or modes; zero occurrences means normal mode, more than one is invalid, and tokens at or after the sentinel are target content; announce `Auto-design active — eligible technical decisions are
+delegated and recorded`; then read and apply
+[../../_shared/auto-design.md](../../_shared/auto-design.md). Resolve eligible technical
+requirements decisions under that policy and propagate its downward-only context to explicitly
+invoked supported children; an unsupported child fails closed. This mode does not grant action permission or scope expansion. **Normal mode:** without the exact token, every material choice
+still requires an explicit user decision; historical delegated records must not infer delegated authority.
+
 Transform a rough project idea into a structured, complete set of formal
 **requirement documents (RDs)**. This skill is upstream of, and independent
 from, the make-plan skill — neither requires the other.
@@ -54,7 +63,7 @@ You are NOT a passive interviewer. You are a **domain-aware consultant** that:
 The user's input is NEVER the final requirements. The value of this skill is in
 **making incomplete ideas complete**.
 
-> **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes — the user decides. **Recommendation hardening:** apply `_shared/recommendation-hardening.md` — for **high-stakes** Phase 2B gate decisions (complex/sensitive-tagged) spawn one independent challenger and reconcile *before* presenting; for all consequential decisions run the in-context layers and close with the `Confidence:` / `Hardening:` disclosure.
+> **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes. In normal mode, the user decides; active auto-design resolves eligible technical decisions and escalates reserved ones. **Recommendation hardening:** apply `_shared/recommendation-hardening.md` — for **high-stakes** Phase 2B gate decisions (complex/sensitive-tagged) spawn one independent challenger and reconcile *before* presenting; for all consequential decisions run the in-context layers and close with the `Confidence:` / `Hardening:` disclosure.
 
 ---
 
@@ -142,13 +151,16 @@ data models, naming, document organization. Behavior/scope/data/security
 decisions ALWAYS gate; cosmetic choices with zero semantic impact are exempt
 (per the shared gate's traceability exemptions), and low-stakes cosmetic items
 may be batched. If you must choose between two or more semantically distinct
-options, **the user decides**.
+options. **In normal mode, the user decides.** With active auto-design, resolve only eligible
+technical decisions under the shared policy; reserved decisions still require the user.
 
 Every question MUST yield a concrete, specific, unambiguous answer. Do NOT accept
 vague responses, fill gaps with your own assumptions, infer intent, or proceed
-with "reasonable defaults" the user didn't explicitly choose. If an answer is
-unclear, ask again with sharper options. If the user says "I'm not sure," lay out
-the options with trade-offs and guide them — but the **decision must be theirs**.
+with "reasonable defaults" the user didn't explicitly choose outside the active auto-design
+policy. If an answer is unclear, ask again with sharper options. If the user says "I'm not sure,"
+lay out the options with trade-offs and guide them. **In normal mode, the decision must be
+theirs.** With active auto-design, resolve and record eligible technical decisions under the
+shared policy; reserved decisions remain the user's.
 
 Throughout discovery, compile the **Ambiguity Register**. It is formally enforced
 at Phase 2B before any RD is written — see **`zero-ambiguity-gate.md`**. The
@@ -189,12 +201,13 @@ security items below). The full numbered table is in **`templates.md`**.
 ### 4.2B Zero-Ambiguity Final Verification 🚨
 
 - [ ] `00-ambiguity-register.md` exists and is saved to disk
-- [ ] Every entry has Status = "✅ Resolved" with an explicit user decision
+- [ ] Every entry has Status = "✅ Resolved" with an explicit user decision or a complete auto-design delegated record
 - [ ] Zero deferred items — every ambiguity has a concrete answer
 - [ ] All RD decisions carry AR # back-references (only exceptions: universally obvious facts + zero-semantic-impact formatting)
 - [ ] No RD contains AI-assumed defaults, inferred behaviors, or guessed specs
 - [ ] The surface-during-authoring rule was followed (new ambiguities found while writing went through the register)
-- [ ] The user reviewed and confirmed the complete register
+- [ ] In normal mode, the user reviewed and confirmed the complete register; in auto-design mode,
+      the register proves every delegated entry eligible and every reserved entry user-confirmed
 
 ### 4.3 Techdocs Update
 

@@ -25,6 +25,22 @@ Schema 2 binds semantic sources to normalized revisions and stores relationship 
 Changing upstream meaning therefore makes affected downstream claims stale. Legal lifecycle
 changes are atomic compare-and-swap transitions with recovery evidence.
 
+## Delegated technical design
+
+`--auto-design` lets CodeOps resolve eligible technical choices during `make-requirements`,
+`make-plan`, `preflight`, and `exec-plan`. It is useful when domain depth or project complexity
+makes repeated user selection counterproductive. CodeOps compares viable options for correctness,
+safety, objective fit, maintainability, verification, performance, compatibility, recovery,
+delivery risk, proportional complexity, and future evolution. Consequential decisions retain an
+auditable record and high-impact decisions require an independent challenger.
+
+The delegation is deliberately narrow. Product behavior and scope, acceptance criteria,
+security/access policy, legal or financial risk, destructive migration, credentials, spending,
+publication, deployment, external communication, and materially different product directions
+remain user-owned. Auto-design does not authorize implementation, scope expansion, commits,
+pushes, or deployment. Child workflows may inherit less authority, never more; unsupported
+children fail closed.
+
 ## Project tracking
 
 Tracking combines lifecycle—discovery through archive—with readiness, task progress, verification, findings, blockers, dependencies, and deferrals. A new thread can reconstruct the next safe action from repository and Git evidence.
