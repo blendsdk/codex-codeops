@@ -108,6 +108,40 @@ class StateConformanceTests(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
             self.assertIn("finished-ish", "\n".join(payload["problems"]))
 
+    def test_archived_graphs_and_tasks_do_not_pollute_live_state(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            active = root / "codeops/features/live"
+            archived = root / "codeops/_archive/old"
+            active.mkdir(parents=True)
+            archived.mkdir(parents=True)
+            artifact = "# Artifact\n"
+            (active / "artifact.md").write_text(artifact, encoding="utf-8")
+            (archived / "artifact.md").write_text(artifact, encoding="utf-8")
+            active_nodes = [
+                {"id": "RD-LIVE", "type": "requirement", "title": "Live", "status": "approved", "path": "artifact.md", "links": ["SPEC-LIVE"]},
+                {"id": "SPEC-LIVE", "type": "specification", "title": "Live spec", "status": "approved", "path": "artifact.md", "links": ["RD-LIVE"]},
+            ]
+            archived_nodes = [
+                {"id": "RD-OLD", "type": "requirement", "title": "Old", "status": "draft", "path": "artifact.md", "links": []},
+            ]
+            (active / "traceability.json").write_text(
+                json.dumps({"schema": 1, "feature": "live", "nodes": active_nodes}), encoding="utf-8",
+            )
+            (archived / "traceability.json").write_text(
+                json.dumps({"schema": 1, "feature": "old", "nodes": archived_nodes}), encoding="utf-8",
+            )
+            (active / "99-execution-plan.md").write_text("- [ ] live task\n", encoding="utf-8")
+            (archived / "99-execution-plan.md").write_text("- [x] 999 archived tasks\n", encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "status", "--root", str(root), "--json"],
+                text=True, capture_output=True, check=False,
+            )
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["graphs"], 1)
+            self.assertEqual(payload["nodes"], 2)
+            self.assertEqual(payload["tasks"], {"pending": 1, "implemented": 0, "verified": 0})
+
 
 if __name__ == "__main__":
     unittest.main()

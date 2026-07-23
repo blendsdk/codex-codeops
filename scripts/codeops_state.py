@@ -73,7 +73,7 @@ def load_json(path: Path, problems: list[Problem]) -> dict[str, Any] | None:
 
 
 def discover_graphs(root: Path) -> list[Path]:
-    ignored = {".git", "node_modules", ".codex", ".agents"}
+    ignored = {".git", "node_modules", ".codex", ".agents", "_archive"}
     return sorted(
         path for path in root.rglob("traceability.json")
         if not any(part in ignored for part in path.relative_to(root).parts)
@@ -333,7 +333,8 @@ def git_drift(root: Path) -> list[str]:
 def execution_progress(root: Path) -> tuple[int, int, int]:
     pending = implemented = verified = 0
     for path in root.rglob("99-execution-plan.md"):
-        if ".git" in path.parts:
+        relative_parts = path.relative_to(root).parts
+        if ".git" in relative_parts or "_archive" in relative_parts:
             continue
         for match in TASK_RE.finditer(path.read_text(encoding="utf-8")):
             mark = match.group("mark")
