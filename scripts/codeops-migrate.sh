@@ -307,19 +307,6 @@ cat > codeops/codeops.json <<'JSON' || fail_apply "write codeops/codeops.json"
   "metrics": {"enabled": false}
 }
 JSON
-cat > codeops/.codeops.yml <<YML || fail_apply "write codeops/.codeops.yml"
-# CodeOps layout marker. Presence of this file opts the repo into the nested layout.
-# Sole writer: the setup_codeops skill (via codeops-migrate.sh). Schema: _shared/layout-convention.md
-codeopsLayout: nested
-layoutVersion: "3.0.0"
-integrationBranch: ${integration_branch}
-conventions:
-  rdIdScope: per-feature
-  taskIdPrefix: "T"
-  maintenanceFeature: _maintenance
-  archiveDir: codeops/_archive
-YML
-
 # Seeded portfolio roadmap — one row for the migrated feature. The roadmap skill refines the
 # stage/progress on the next /update_roadmap; this is a valid starting point.
 today="$(date '+%Y-%m-%d')"
@@ -347,6 +334,21 @@ cat > codeops/00-roadmap.md <<PORTFOLIO || fail_apply "write codeops/00-roadmap.
 |---------|---------|-----------|--------------|
 | — | — | — | — |
 PORTFOLIO
+
+# The presence marker is the commit point. Write it only after every required
+# artifact exists, so a failed or interrupted run cannot report completion.
+cat > codeops/.codeops.yml <<YML || fail_apply "write codeops/.codeops.yml"
+# CodeOps layout marker. Presence of this file opts the repo into the nested layout.
+# Sole writer: the setup_codeops skill (via codeops-migrate.sh). Schema: _shared/layout-convention.md
+codeopsLayout: nested
+layoutVersion: "3.0.0"
+integrationBranch: ${integration_branch}
+conventions:
+  rdIdScope: per-feature
+  taskIdPrefix: "T"
+  maintenanceFeature: _maintenance
+  archiveDir: codeops/_archive
+YML
 
 printf '\ncodeops-migrate: applied. Review with "git status" / "git diff --staged" and commit.\n'
 printf '  %d warning(s) above may need a manual follow-up (e.g. source-relative links).\n' "${#warnings[@]}"

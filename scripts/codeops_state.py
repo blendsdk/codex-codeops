@@ -23,6 +23,20 @@ TERMINAL_AMBIGUITY = {"resolved", "deferred-approved"}
 APPROVED_CONTENT = {"approved", "superseded"}
 BLOCKING_FINDINGS = {"critical", "major"}
 TASK_RE = re.compile(r"^\s*- \[(?P<mark>[ x~])\]\s+(?P<body>.+)$", re.MULTILINE)
+STATUS_BY_TYPE = {
+    "ambiguity": {"open", "resolved", "deferred-approved", "superseded"},
+    "decision": {"approved", "superseded"},
+    "deferral": {"proposed", "approved", "expired", "resolved", "rejected"},
+    "requirement": {"draft", "approved", "stale", "superseded"},
+    "specification": {"draft", "approved", "stale", "superseded"},
+    "criterion": {"draft", "approved", "stale", "superseded"},
+    "invariant": {"draft", "approved", "stale", "superseded"},
+    "test": {"planned", "red-confirmed", "passing", "blocked", "stale", "superseded"},
+    "task": {"pending", "implemented", "verified", "blocked", "stale", "superseded"},
+    "implementation": {"present", "verified", "stale", "superseded", "reverted"},
+    "verification": {"planned", "passing", "failing", "blocked", "stale", "superseded"},
+    "finding": {"open", "accepted", "resolved", "superseded"},
+}
 
 
 @dataclass
@@ -129,6 +143,12 @@ def validate_node_shape(node: Any, source: Path, index: int, problems: list[Prob
             problems.append(Problem("ERROR", source, f"{node['id']}.{key} must be an array of strings"))
     if "risk" in node and node["risk"] not in RISK:
         problems.append(Problem("ERROR", source, f"{node['id']}.risk is invalid"))
+    allowed_statuses = STATUS_BY_TYPE.get(node["type"], set())
+    if node["status"] not in allowed_statuses:
+        problems.append(Problem(
+            "ERROR", source,
+            f"{node['id']}.status {node['status']!r} is invalid for {node['type']}; expected {sorted(allowed_statuses)}",
+        ))
     return True
 
 
@@ -237,10 +257,41 @@ def readiness(nodes: dict[str, dict[str, Any]], source: Path) -> list[Problem]:
             problems.append(Problem("BLOCK", source, f"blocking finding {node_id} is open"))
         elif node_type in {"requirement", "specification", "criterion", "invariant"} and status not in APPROVED_CONTENT:
             problems.append(Problem("BLOCK", source, f"{node_type} {node_id} is not approved"))
+    problems.extend(invalidation_problems(nodes, source))
     return problems
 
 
-def feature_lifecycle(graph: Graph, nodes: dict[str, dict[str, Any]], ready: bool) -> str:
+def invalidation_problems(nodes: dict[str, dict[str, Any]], source: Path) -> list[Problem]:
+    """Require approved downstream work to become stale when an ambiguity reopens."""
+    problems: list[Problem] = []
+    stale_statuses = {"stale", "draft", "planned", "blocked", "superseded"}
+    downstream_types = {
+        "requirement", "specification", "invariant", "criterion", "test",
+        "task", "implementation", "verification",
+    }
+    for ambiguity_id, ambiguity in nodes.items():
+        if ambiguity["type"] != "ambiguity":
+            continue
+        if ambiguity["status"] in TERMINAL_AMBIGUITY or ambiguity.get("risk", "high") not in {"high", "critical"}:
+            continue
+        pending = list(ambiguity.get("links", []))
+        visited: set[str] = set()
+        while pending:
+            node_id = pending.pop()
+            if node_id in visited or node_id not in nodes:
+                continue
+            visited.add(node_id)
+            node = nodes[node_id]
+            if node["type"] in downstream_types and node["status"] not in stale_statuses:
+                problems.append(Problem(
+                    "BLOCK", source,
+                    f"{node_id} must be marked stale because material ambiguity {ambiguity_id} is open",
+                ))
+            pending.extend(node.get("links", []))
+    return problems
+
+
+def feature_lifecycle(graph: Graph, ready: bool) -> str:
     feature_nodes = list(graph.nodes.values())
     types = {node["type"] for node in feature_nodes}
     tasks = [node for node in feature_nodes if node["type"] == "task"]
@@ -253,7 +304,16 @@ def feature_lifecycle(graph: Graph, nodes: dict[str, dict[str, Any]], ready: boo
         return "planning"
     if any(node["status"] in {"implemented", "verified", "blocked"} for node in tasks):
         if all(node["status"] == "verified" for node in tasks):
-            return "reviewing" if findings else "complete"
+            completion_types = {
+                "test": {"passing", "superseded"},
+                "implementation": {"present", "verified", "superseded"},
+                "verification": {"passing", "superseded"},
+            }
+            complete = all(
+                node["status"] in completion_types[node["type"]]
+                for node in feature_nodes if node["type"] in completion_types
+            )
+            return "complete" if complete and not findings else "reviewing"
         return "executing"
     return "ready" if ready else "planning"
 
@@ -315,7 +375,7 @@ def main() -> int:
         graph_ready = not any(problem.level in {"ERROR", "BLOCK"} for problem in graph_problems)
         graph_status.append({
             "feature": graph.feature,
-            "lifecycle": feature_lifecycle(graph, nodes, graph_ready),
+            "lifecycle": feature_lifecycle(graph, graph_ready),
             "ready": graph_ready,
             "nodes": len(graph_ids),
         })

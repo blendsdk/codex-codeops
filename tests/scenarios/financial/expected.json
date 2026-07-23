@@ -1,0 +1,18 @@
+{
+  "scenario": "financial",
+  "required_lenses": ["financial-system", "distributed-and-concurrent", "data-and-migration"],
+  "required_concepts": [
+    "ledger and balancing model",
+    "rate source and rate lock time",
+    "currency precision and rounding order",
+    "idempotency and timeout unknown outcome",
+    "atomicity across asynchronous debit and credit",
+    "pending cancellation and completed reversal",
+    "fee accounting and refunds",
+    "reconciliation mismatch and repair authority",
+    "audit event and authorization",
+    "displayed quote versus settled amount"
+  ],
+  "minimum_material_ambiguities": 10,
+  "verdict": "BLOCK"
+}

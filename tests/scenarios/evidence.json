@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-23T02:08:41+02:00",
+  "host": "Linux",
+  "harness": "scripts/run_live_scenario.py",
+  "oracle": "scripts/evaluate_scenarios.py",
+  "comparison": "scripts/compare_scenarios.py",
+  "codex": {
+    "cli": "0.145.0",
+    "plugin": "codeops@codeops-marketplace",
+    "pluginVersion": "0.2.0-beta.2",
+    "repositoryCommit": "0a91a4379e3ea1262f5de95e7629b5828bfcaeda",
+    "sessionPersistence": "ephemeral"
+  },
+  "claude": {
+    "cli": "2.1.218",
+    "plugin": "codeops@codeops-marketplace",
+    "pluginVersion": "3.12.0",
+    "repositoryCommit": "bda8b5756b5369e5f8e663aebae98757736332b8",
+    "sessionPersistence": "disabled"
+  },
+  "scope": "requirements-stage ambiguity discovery and gate behavior",
+  "limitations": [
+    "This is not evidence for execution quality or complete product parity.",
+    "Model output varies; release candidates must regenerate and review results."
+  ]
+}

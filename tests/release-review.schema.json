@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "required": ["verdict", "findings", "strengths"],
+  "additionalProperties": false,
+  "properties": {
+    "verdict": {"enum": ["PASS", "BLOCK"]},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "title", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "severity": {"enum": ["critical", "major", "minor", "note"]},
+          "title": {"type": "string"},
+          "evidence": {"type": "string"}
+        }
+      }
+    },
+    "strengths": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "scenario": "web",
+  "required_lenses": ["web-application", "distributed-and-concurrent", "data-and-migration"],
+  "required_concepts": [
+    "tenant and team authorization matrix",
+    "administrator scope and audit",
+    "external share token lifecycle and permissions",
+    "optimistic update conflict and rollback",
+    "cache invalidation and tenant isolation",
+    "job idempotency and duplicate notifications",
+    "webhook authentication retry ordering and replay",
+    "document processing failure and visibility",
+    "audit privacy retention and immutability",
+    "rolling version compatibility"
+  ],
+  "minimum_material_ambiguities": 10,
+  "verdict": "BLOCK"
+}

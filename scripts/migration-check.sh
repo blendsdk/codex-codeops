@@ -307,6 +307,16 @@ else
   fail "layout marker exists after a failed apply (bricks retry via the idempotency guard)"
 fi
 
+portfolio_end_line="$(grep -n '^PORTFOLIO$' "$ENGINE" | tail -1 | cut -d: -f1)"
+marker_line="$(grep -n '^cat > codeops/\.codeops\.yml' "$ENGINE" | tail -1 | cut -d: -f1)"
+success_line="$(grep -n "^printf.*codeops-migrate: applied" "$ENGINE" | tail -1 | cut -d: -f1)"
+if [[ -n "$portfolio_end_line" && -n "$marker_line" && -n "$success_line" \
+   && "$portfolio_end_line" -lt "$marker_line" && "$marker_line" -lt "$success_line" ]]; then
+  pass "layout marker is written after required artifacts and before success"
+else
+  fail "layout marker is not the final commit point after required artifacts"
+fi
+
 # -----------------------------------------------------------------------------
 # ST-H2 — loose FILE under plans/_archive/ must be warned in dry-run and relocated on apply,
 # never silently orphaned in a residual plans/ tree. Spec: 03-01-migration-engine.md (AR #18).

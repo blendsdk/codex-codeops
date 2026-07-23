@@ -94,12 +94,16 @@ Run matched scenarios through Claude CodeOps 3.12.0 and Codex CodeOps. Compare:
 
 Codex passes when it is no worse on safety/correctness dimensions and materially improves at least traceability, recovery, or redundant-user-effort dimensions.
 
+The retained three-scenario benchmark covers only the first of these dimensions:
+material ambiguity discovery before execution. Execution, recovery, escaped
+findings, verified completion, and user-effort comparisons require the 1.0
+complex-project pilot and must not be inferred from ambiguity counts.
+
 ## Release gates
 
 | Release | Required evidence |
 |---|---|
 | Developer preview | Valid plugin, core skills load, artifact validator works, one complete scenario passes. |
 | Alpha | Requirements→plan→execute loop works; roadmap and recovery work; all three domain scenarios pass internally. |
-| Beta | Comparative parity suite passes; installation and hooks verified on declared surfaces; migration tested on copies of real projects. |
-| 1.0 | All critical requirements pass, no unresolved critical port ambiguity, documentation complete, and at least one real complex project completes a meaningful milestone. |
-
+| Beta | Matched requirements-stage ambiguity benchmark passes; Linux CLI install/update/remove and shipped hook behavior are verified; synthetic migration fixtures pass. |
+| 1.0 | Full T7 comparative evidence passes; migration is exercised on a reviewed copy of a real project; all critical requirements pass; no unresolved critical port ambiguity remains; documentation is complete; and at least one real complex project completes a meaningful milestone. |

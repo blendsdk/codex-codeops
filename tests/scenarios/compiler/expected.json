@@ -1,0 +1,16 @@
+{
+  "scenario": "compiler",
+  "required_lenses": ["compiler-and-language", "data-and-migration"],
+  "required_concepts": [
+    "recursive alias legality and cycle classification",
+    "generic substitution and capture",
+    "cross-module visibility and identity",
+    "cache key includes type arguments and dependencies",
+    "incremental invalidation",
+    "diagnostic cycle path and source location",
+    "typed IR invariant",
+    "compatibility and serialized cache invalidation"
+  ],
+  "minimum_material_ambiguities": 8,
+  "verdict": "BLOCK"
+}

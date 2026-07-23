@@ -1,5 +1,8 @@
 # Installation and trust
 
+The tested beta host is Linux with Bash and Python 3. macOS compatibility is
+expected but not yet release-tested. Windows is not currently supported.
+
 ## Install from GitHub
 
 ```bash
@@ -26,6 +29,13 @@ codex plugin add codeops@codeops-marketplace
 ```
 
 Released versions use semantic versions. Development builds may include a Codex cachebuster suffix so the plugin cache receives updated files without pretending a new product release exists.
+
+## Disable or re-enable
+
+Open the Codex CLI plugin browser with `/plugins`, select the installed CodeOps
+entry, and press Space. Codex stores the enabled state in its user config. Start
+a new thread after changing it. Disabling keeps the installed bundle and project
+artifacts; removal deletes the installed bundle.
 
 ## Removal
 

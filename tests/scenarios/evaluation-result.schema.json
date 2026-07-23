@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["scenario", "selected_lenses", "material_ambiguities", "gate_verdict"],
+  "additionalProperties": false,
+  "properties": {
+    "scenario": {"type": "string"},
+    "selected_lenses": {"type": "array", "items": {"type": "string"}},
+    "material_ambiguities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "impact", "must_block"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "question": {"type": "string"},
+          "impact": {"type": "array", "items": {"type": "string"}},
+          "must_block": {"type": "boolean"}
+        }
+      }
+    },
+    "gate_verdict": {"enum": ["BLOCK", "PASS"]}
+  }
+}

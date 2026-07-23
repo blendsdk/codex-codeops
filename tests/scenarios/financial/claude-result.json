@@ -1,0 +1,141 @@
+{
+  "scenario": "financial",
+  "selected_lenses": [
+    "financial-system",
+    "distributed-and-concurrent",
+    "data-and-migration"
+  ],
+  "material_ambiguities": [
+    {
+      "id": "AR-01",
+      "question": "What is the ledger and balancing model: double-entry with balanced postings, or a balance column plus a transaction log? Which accounts exist (customer, FX position, fee revenue, in-flight clearing/suspense), and how does a transfer balance to zero when the two legs are in different currencies?",
+      "impact": [
+        "Defines the entire data schema and posting logic",
+        "Determines whether the 'balances must never be wrong' invariant is machine-checkable",
+        "Decides whether an in-flight clearing account is needed to hold funds between debit and credit"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-02",
+      "question": "Which exchange-rate source is used (provider, mid-market vs bid/ask, applied spread), and at what moment is the rate locked: quote time, submit time, or settlement time? What is the quote TTL, and what happens when the rate has moved or the provider is unavailable at execution?",
+      "impact": [
+        "Determines rate caching, quote persistence and expiry handling",
+        "Decides who bears FX movement between submission and settlement",
+        "Drives the fallback/degradation path when the rate provider is down"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-03",
+      "question": "What are the per-currency minor units (e.g. JPY 0, KWD 3), the internal working precision, the rounding mode, and the order of operations (fee applied before or after conversion)? Who absorbs the sub-minor-unit residual?",
+      "impact": [
+        "Selects the money representation type and every arithmetic code path",
+        "Changes the computed amount customers receive",
+        "Sets the tolerance used by daily reconciliation matching"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-04",
+      "question": "Is the configurable percentage fee taken on the source or the target amount? Is it charged to the sender, deducted from the receiver, or split? Are there min/max caps, which currency is it denominated in, and does a transfer use the fee config as of submit time or execution time?",
+      "impact": [
+        "Defines the fee calculation engine and its ledger postings",
+        "Requires effective-dated/versioned fee configuration if submit-time pinning is chosen",
+        "Feeds directly into refund and cancellation accounting"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-05",
+      "question": "How is idempotency established: client-supplied key or server-derived fingerprint? What is the key scope and retention window, what does a retry return while the outcome is genuinely unknown, and is a duplicate key with a different payload rejected or replayed?",
+      "impact": [
+        "Without it, client retries on timeout cause duplicate money movement",
+        "Defines the API request contract and the dedup store with its TTL",
+        "Determines the response semantics for in-doubt transactions"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-06",
+      "question": "When the debit has succeeded and the credit fails permanently, what is the required behavior: automatic compensating reversal, indefinite retry, or park in a suspense account for manual repair? What delivery and ordering guarantees does the queue provide, and what is the retry ceiling and poison-message policy?",
+      "impact": [
+        "Chooses between saga/compensation, outbox, and manual-repair architectures",
+        "Determines whether a suspense/clearing account and an operator repair tool are in scope",
+        "Sets the maximum window in which a customer's money is in neither account"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-07",
+      "question": "What is the exact transfer state machine, which states accept cancellation, and who wins when a cancellation races a completing transfer? Is cancellation a guarantee or a best-effort request that may be rejected? Which roles may cancel?",
+      "impact": [
+        "Determines the concurrency control and state-transition guards",
+        "Changes the API contract from 'cancelled' to 'cancellation requested'",
+        "Defines the user-facing promise and the messaging shown on a lost race"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-08",
+      "question": "Is a post-completion refund implemented as reversing ledger entries or as a new transfer in the opposite direction? Which FX rate applies \u2014 the original or the current one \u2014 and who bears the difference? Are partial refunds supported, is the fee refunded, and is there a time window?",
+      "impact": [
+        "Decides whether the ledger stays append-only and immutable",
+        "Creates materially different code, audit trail and P&L treatment per option",
+        "Determines FX loss ownership between the platform and the customer"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-09",
+      "question": "For daily reconciliation: what is the settlement file format, delivery mechanism and cutoff timezone; what keys and amount tolerance define a match; what mismatch classes exist (missing locally, missing externally, amount differs); which side is authoritative; and is repair automatic or manual and how is it posted?",
+      "impact": [
+        "The reconciliation engine cannot be specified or estimated at all without this",
+        "Determines who has authority to alter balances and under what control",
+        "Decides whether an unreconciled day blocks further transfers"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-10",
+      "question": "Is the converted amount displayed immediately after submission a binding quote or an indicative estimate? If the settled amount differs, what is displayed and what must be disclosed to the customer?",
+      "impact": [
+        "Binding requires quote persistence, rate-risk ownership and regulatory disclosure",
+        "Indicative drastically simplifies the rate pipeline",
+        "Changes the UI contract and the notification/settlement-confirmation flow"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-11",
+      "question": "What is the audit event schema, its immutability guarantee and retention period, and what actor identity is captured? What is the authorization model for initiate, cancel, refund and reconciliation-repair, and is dual control (maker-checker) required for repairs and refunds?",
+      "impact": [
+        "Audit and authz are foundational to the schema, not a later addition",
+        "Determines whether privileged repair operations need a second approver workflow",
+        "Sets storage, retention and export requirements for auditability"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-12",
+      "question": "Which jurisdictions and regulatory regime apply \u2014 KYC/AML obligations, sanctions screening, transaction limits and holds, reporting duties? The scenario does not state any.",
+      "impact": [
+        "May introduce an entire blocking pre-transfer screening pipeline",
+        "Adds holds, review queues and regulatory reporting as first-class features",
+        "Materially changes scope, timeline and data retention obligations"
+      ],
+      "must_block": true
+    },
+    {
+      "id": "AR-13",
+      "question": "Are funds held/reserved at submission or only debited at execution? May a balance go negative? How are concurrent transfers on the same account serialized (locking strategy, ordering), and at what moment is insufficient-funds evaluated?",
+      "impact": [
+        "Selects the concurrency-control mechanism (row locks, optimistic versioning, per-account serialization)",
+        "Determines whether an overdraft is possible under concurrent load",
+        "Directly governs whether the 'balances never wrong' invariant holds under contention"
+      ],
+      "must_block": true
+    }
+  ],
+  "gate_verdict": "BLOCK"
+}

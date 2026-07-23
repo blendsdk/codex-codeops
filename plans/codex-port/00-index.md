@@ -1,6 +1,6 @@
 # CodeOps for Codex — Port Program
 
-> **Status:** Discovery and architecture planning
+> **Status:** Installable CLI beta; 1.0 complex-project pilot pending
 > **Source baseline:** CodeOps for Claude Code 3.12.0
 > **Target:** A Codex-native CodeOps implementation that meets or exceeds the Claude edition for complex-system development
 
@@ -39,7 +39,9 @@ A material ambiguity is one for which two plausible answers could change observa
 
 ## Success definition
 
-The Codex edition is ready for real complex-project work only when:
+The Codex edition is ready to begin its real complex-project pilot because the
+CLI beta now satisfies the deterministic, packaging, workflow, documentation,
+and requirements-stage benchmark gates. The 1.0 claim additionally requires:
 
 - all critical Claude workflows have executable Codex equivalents;
 - recursive ambiguity closure is demonstrably preserved;
@@ -47,10 +49,9 @@ The Codex edition is ready for real complex-project work only when:
 - project and portfolio status can be reconstructed without conversation history;
 - Codex hooks, skills, agents, prompts, and plugin packaging are verified against the current product;
 - interruption and resumption do not corrupt workflow state;
-- the project passes compiler, financial-system, and web-application scenario evaluations; and
-- no claimed parity depends on an untested Claude compatibility behavior.
+- the project passes compiler, financial-system, and web-application end-to-end execution evaluations; and
+- full comparative claims are backed by matched evidence rather than the narrower retained ambiguity benchmark.
 
 ## Scope boundary
 
 This program creates the Codex implementation under this `codex/` directory. The sibling Claude repository is an evidence source and behavioral oracle; it is not modified by the port.
-

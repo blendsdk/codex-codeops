@@ -59,6 +59,13 @@ validate_links() {
     skills _shared standards references docs plans README.md AGENTS.md
 }
 
+validate_scenarios() {
+  local scenario
+  for scenario in compiler financial web; do
+    python3 scripts/compare_scenarios.py "tests/scenarios/$scenario" || return 1
+  done
+}
+
 run_check "plugin manifest" python3 scripts/validate_plugin.py .
 run_check "skill manifests" validate_skills
 run_check "marketplace metadata" validate_marketplace
@@ -66,6 +73,7 @@ run_check "Codex-native shipped terminology" validate_native_terms
 run_check "local Markdown links" validate_links
 run_check "shell syntax" bash -n scripts/*.sh bin/codeops-worktree
 run_check "state conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
+run_check "retained adversarial parity evidence" validate_scenarios
 
 if (( failures > 0 )); then
   printf '\n%d validation group(s) failed.\n' "$failures" >&2

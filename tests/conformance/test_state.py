@@ -60,6 +60,54 @@ class StateConformanceTests(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
             self.assertIn("strict mode cannot disable independent review", "\n".join(payload["problems"]))
 
+    def test_reopened_ambiguity_invalidates_approved_downstream_work(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            feature = root / "codeops/features/example"
+            feature.mkdir(parents=True)
+            (feature / "artifact.md").write_text("# Evidence\n", encoding="utf-8")
+            nodes = [
+                {"id": "AR-001", "type": "ambiguity", "title": "Reopened", "status": "open", "path": "artifact.md", "links": ["RD-001"], "risk": "critical"},
+                {"id": "RD-001", "type": "requirement", "title": "Affected", "status": "approved", "path": "artifact.md", "links": ["SPEC-001"]},
+                {"id": "SPEC-001", "type": "specification", "title": "Affected spec", "status": "approved", "path": "artifact.md", "links": ["RD-001", "TASK-001"]},
+                {"id": "TASK-001", "type": "task", "title": "Affected task", "status": "verified", "path": "artifact.md", "links": ["SPEC-001"]},
+            ]
+            (feature / "traceability.json").write_text(
+                json.dumps({"schema": 1, "feature": "example", "updated": "2026-07-23", "nodes": nodes}),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "readiness", "--root", str(root), "--json"],
+                text=True, capture_output=True, check=False,
+            )
+            payload = json.loads(result.stdout)
+            joined = "\n".join(payload["problems"])
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("RD-001 must be marked stale", joined)
+            self.assertIn("SPEC-001 must be marked stale", joined)
+            self.assertIn("TASK-001 must be marked stale", joined)
+
+    def test_unknown_status_cannot_produce_false_readiness(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            feature = root / "codeops/features/example"
+            feature.mkdir(parents=True)
+            (feature / "artifact.md").write_text("# Evidence\n", encoding="utf-8")
+            nodes = [
+                {"id": "RD-001", "type": "requirement", "title": "Bad state", "status": "finished-ish", "path": "artifact.md", "links": ["SPEC-001"]},
+                {"id": "SPEC-001", "type": "specification", "title": "Spec", "status": "approved", "path": "artifact.md", "links": ["RD-001"]},
+            ]
+            (feature / "traceability.json").write_text(
+                json.dumps({"schema": 1, "feature": "example", "nodes": nodes}), encoding="utf-8",
+            )
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "readiness", "--root", str(root), "--json"],
+                text=True, capture_output=True, check=False,
+            )
+            payload = json.loads(result.stdout)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("finished-ish", "\n".join(payload["problems"]))
+
 
 if __name__ == "__main__":
     unittest.main()
