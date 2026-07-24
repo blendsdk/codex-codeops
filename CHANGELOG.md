@@ -2,6 +2,15 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 0.3.1 — 2026-07-24
+
+- Make junior-readable source documentation a non-negotiable implementation standard.
+- Require language-appropriate documentation for public APIs and non-trivial internal entities
+  while avoiding comments that merely restate trivial private code.
+- Block execution-task completion when required documentation is missing, and make omissions an
+  explicit phase-review finding even when builds, tests, and linters pass.
+- Add conformance coverage that preserves the executor, reviewer, and completion-gate contracts.
+
 ## 0.3.0 — 2026-07-23
 
 - Add invocation-scoped `--auto-design` to requirements, planning, preflight, and execution.

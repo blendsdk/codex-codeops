@@ -70,6 +70,7 @@ validate_release_evidence() {
   python3 - <<'PY'
 import json
 import re
+import subprocess
 from pathlib import Path
 
 manifest = json.loads(Path('.codex-plugin/plugin.json').read_text(encoding='utf-8'))
@@ -84,13 +85,18 @@ install = Path('tests/evidence/install-cli.md').read_text(encoding='utf-8')
 recorded = re.search(r'- Plugin: `[^`]+`, version `([^`]+)`', install).group(1)
 current = manifest['version'].split('+', 1)[0]
 assert recorded == current
-plan = Path('plans/auto-design/99-execution-plan.md').read_text(encoding='utf-8')
-if '- [ ] 3.1.4 ' in plan:
+prepublication = '- Evidence state: pre-publication package validation' in install
+if prepublication:
     # A release commit must exist before its remote marketplace install can be observed. The
-    # pre-publication state is explicit, version-matched, and may exist only while the release
-    # task remains open; completing the task requires replacing it with tagged install evidence.
-    assert '- Evidence state: pre-publication package validation' in install
+    # pre-publication state is explicit and version-matched. A matching tag would make this
+    # temporary evidence stale, so validation rejects that state after publication.
     assert f'- Source state: working tree for planned `v{current}`' in install
+    tag_exists = subprocess.run(
+        ['git', 'rev-parse', '--verify', '--quiet', f'refs/tags/v{current}'],
+        check=False,
+        capture_output=True,
+    ).returncode == 0
+    assert not tag_exists
 else:
     assert f'- Repository source: release tag `v{current}`' in install
     assert re.search(rf'enabled at\s+`{re.escape(current)}`', install)

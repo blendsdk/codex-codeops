@@ -4,7 +4,7 @@ CodeOps is a specification-first engineering system for building complex softwar
 
 It is designed for work where an unstated assumption can become a correctness defect: programming languages and compilers, financial systems, protocols, distributed services, security-sensitive applications, developer tools, and substantial web applications.
 
-> **Release status:** `0.3.0` is the stable release of the current CodeOps workflow surface. Core workflows, deterministic state, project tracking, domain lenses, Codex-native routing, and opt-in delegated technical design are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
+> **Release status:** `0.3.1` is the stable release of the current CodeOps workflow surface. Core workflows, deterministic state, project tracking, domain lenses, Codex-native routing, opt-in delegated technical design, and a non-negotiable source-documentation gate are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
 
 ## The workflow
 
