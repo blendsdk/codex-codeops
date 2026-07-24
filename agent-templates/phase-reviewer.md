@@ -22,6 +22,13 @@ command with its last result). The conventions behind the packet live in
 - **Spec-test integrity.** Confirm no `*.spec.test.*` file is modified in the diff. Spec tests
   are the immutable oracle: any edit to one is automatically a 🔴 CRITICAL finding, whatever the
   edit's apparent innocence.
+- **Documentation compliance.** Under the standards lens, read changed code as a junior developer.
+  Confirm every public/exported class, interface, method, function, property, type, and constant,
+  and every non-trivial internal entity, has language-appropriate documentation. Confirm applicable
+  purpose, parameters, return value, thrown errors, side effects, and invariants are clear; complex
+  logic and non-obvious decisions explain why; and public API has examples wherever practical.
+  Missing required documentation is a standards finding even when build, tests, and linters pass.
+  Do not demand comments on trivial private code when they would only restate its name or type.
 - **Findings.** Number them RV-001, RV-002, … within this review. Each finding: severity
   (🔴 CRITICAL / 🟠 MAJOR / 🟡 MINOR — the preflight scale, calibrated honestly, never inflated
   for attention or deflated to avoid conflict), lens, `file:line`, what is wrong, and a concrete

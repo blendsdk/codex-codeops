@@ -71,6 +71,30 @@ class TargetedWorkflowSpecification(unittest.TestCase):
     def test_st_34_public_workflow_commands_are_documented(self) -> None:
         self.assert_contract("docs/tutorial.md", "--gate requirements", "--gate execution")
 
+    def test_execution_cannot_complete_with_missing_code_documentation(self) -> None:
+        # Implementation is not complete until its public and non-trivial entities are understandable.
+        self.assert_contract(
+            "skills/exec-plan/execution-protocol.md",
+            "Documentation-standard self-check (NON-NEGOTIABLE, before every `[x]`)",
+            "every public, exported, or external-facing class",
+            "every non-trivial internal entity is documented",
+            "Missing required documentation blocks `[x]`",
+        )
+        for path in (
+            "agent-templates/plan-task-executor.md",
+            "agent-templates/plan-task-executor-opus.md",
+        ):
+            self.assert_contract(
+                path,
+                "Documentation gate (non-negotiable)",
+                "Missing documentation blocks completion",
+            )
+        self.assert_contract(
+            "agent-templates/phase-reviewer.md",
+            "Documentation compliance",
+            "Missing required documentation is a standards finding",
+        )
+
     def test_st_40_collection_declares_all_cases(self) -> None:
         self.assertIn("set(range(1, 50))", read("tests/conformance/test_state_test_collection.py"))
 

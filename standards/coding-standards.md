@@ -10,7 +10,14 @@ Do not duplicate these standards in `~/.codex/AGENTS.md` — the plugin injects 
   code**; **consistency with the existing codebase is non-negotiable**; be explicit when in doubt.
 - Split files before ~700 lines (aim for 200–500); respect module boundaries (import public APIs only); imports at
   the top; keep the dependency surface minimal.
-- Comment **why** not what, in a calm explaining tone; document every non-trivial entity (public/external API always, with `@example`); no change-history in doc comments; **NON-NEGOTIABLE — never reference `codeops/`/`plans/`/`requirements/`, an execution plan, or a plan/RD/AR/task ID in any code or doc comment** (they are ephemeral — code must stand alone; restate the rationale in plain language instead). Full rules: `coding-standards-full.md`.
+- **NON-NEGOTIABLE documentation:** write for a junior developer; explain complex logic,
+  invariants, edge cases, and non-obvious decisions in a calm teaching tone. Document every
+  public/exported class, interface, method, function, property, type, and constant, plus every
+  non-trivial internal entity, using the language's doc-comment format; add `@example` to public
+  APIs where practical. Do not pad trivial private code with comments that merely restate it.
+  Never reference `codeops/`/`plans/`/`requirements/`, an execution plan, or a plan/RD/AR/task ID
+  in code or doc comments; restate durable rationale in plain language. Full rules:
+  `coding-standards-full.md`.
 - Statically-typed code: no unsafe casts (`as any`/`as unknown`); use type guards; enums/constants
   for discriminators.
 

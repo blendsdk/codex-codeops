@@ -131,6 +131,9 @@ make_plan = Path('skills/make-plan/SKILL.md').read_text(encoding='utf-8')
 exec_plan = Path('skills/exec-plan/SKILL.md').read_text(encoding='utf-8')
 protocol = Path('skills/exec-plan/execution-protocol.md').read_text(encoding='utf-8')
 template = Path('skills/make-plan/templates.md').read_text(encoding='utf-8')
+executor = Path('agent-templates/plan-task-executor.md').read_text(encoding='utf-8')
+demanding_executor = Path('agent-templates/plan-task-executor-opus.md').read_text(encoding='utf-8')
+reviewer = Path('agent-templates/phase-reviewer.md').read_text(encoding='utf-8')
 
 assert '## Planning scope contract' in make_plan
 assert 'exact expanded modification set' in make_plan
@@ -145,6 +148,13 @@ assert 'codeops_worktree_snapshot.py\" snapshot' in protocol
 assert 'codeops_worktree_snapshot.py\" diff' in protocol
 assert 'three consecutive failures with the same failure signature' in protocol
 assert 'expected modification set' in protocol
+assert 'Documentation-standard self-check (NON-NEGOTIABLE, before every `[x]`)' in protocol
+assert 'Missing required documentation blocks `[x]`' in protocol
+for agent in (executor, demanding_executor):
+    assert 'Documentation gate (non-negotiable)' in agent
+    assert 'Missing documentation blocks completion' in agent
+assert 'Documentation compliance' in reviewer
+assert 'Missing required documentation is a standards finding' in reviewer
 assert 'Phase baseline tree' in template
 PY
 }

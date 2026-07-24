@@ -17,8 +17,15 @@ command).
   excerpts for YOUR understanding only — never copy a plan/requirement/AR/RD/ST/PA/task identifier
   or a `codeops/`/`plans/`/`requirements/` path into a code comment or doc comment. Those files are
   ephemeral; the shipped code must stand on its own. Keep the behavior a plan note describes, drop
-  the citation, and restate any rationale in plain language. Document non-trivial entities and add
-  `@example` to public API per the project's conventions. Before you report a task done, grep your
+  the citation, and restate any rationale in plain language.
+- **Documentation gate (non-negotiable).** Before reporting a task done, read the changed code as a
+  junior developer. Document every public/exported class, interface, method, function, property,
+  type, and constant, plus every non-trivial internal entity, in the language's doc-comment format.
+  Cover applicable purpose, parameters, return value, thrown errors, side effects, and invariants.
+  Explain complex logic and non-obvious decisions in calm comments, and add `@example` to public API
+  wherever practical. Do not pad trivial private code with comments that merely restate it.
+  **Missing documentation blocks completion.** Use the project's documentation linter when
+  configured, but also perform this semantic read. Finally, grep your
   changed files for `\b(RD|AR|PA|PF|HR|GATE|AC|ST|ADR|DEF)-[0-9]` and `(codeops|plans|requirements)/`
   and fix any hit that landed in a comment.
 - Write/update tests, run the verify command with output captured to a temp log — report a

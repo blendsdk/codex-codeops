@@ -90,16 +90,33 @@ complete. For each task, in order:
    task still needs verification.
 3. Run verification (your project's verify command — from the project's AGENTS.md, or detected
    project conventions), with output captured per the **Verify-output capture rule** below.
-   - **PASS** → before promoting, run the **doc-standard self-check** below on the files this task
-     changed. A leaked plan reference is invisible to build+test, so a green verify is NOT
-     sufficient — the self-check is a hard part of the done-criterion. Only when it is clean,
+   - **PASS** → before promoting, run the **documentation-standard self-check** below on the files
+     this task changed. Missing documentation and leaked plan references are invisible to
+     build+test, so a green verify is NOT sufficient — the self-check is a hard part of the
+     done-criterion. Only when it is clean,
      promote the mark to `[x]` with a completion timestamp
      (`- [x] 1.1.1 … ✅ (completed: YYYY-MM-DD HH:MM)`).
    - **FAIL** → the mark STAYS `[~]`. Fix the implementation and re-verify; promote only on pass.
      A task is never `[x]` with a failing verify.
 
-   **Doc-standard self-check (NON-NEGOTIABLE, before every `[x]`).** Confirm the code and comments
-   you just wrote reference no ephemeral CodeOps artifact. Grep the files this task changed:
+   **Documentation-standard self-check (NON-NEGOTIABLE, before every `[x]`).** Read the changed
+   code as a junior developer and confirm:
+
+   - every public, exported, or external-facing class, interface, method, function, property, type,
+     and constant has a language-appropriate doc comment;
+   - every non-trivial internal entity is documented;
+   - applicable purpose, parameters, return value, thrown errors, side effects, and important
+     invariants are explained;
+   - complex logic, invariants, edge cases, and non-obvious decisions have calm comments that
+     explain why without narrating obvious syntax;
+   - public API has `@example` or the language equivalent wherever practical; and
+   - genuinely trivial private code is not padded with comments that only restate its name or type.
+
+   Use the project's documentation linter when one is configured. Lint cannot replace the semantic
+   read. Missing required documentation blocks `[x]`.
+
+   Then confirm the code and comments reference no ephemeral CodeOps artifact. Grep the files this
+   task changed:
 
    ```bash
    git diff --name-only | xargs grep -nEI \
