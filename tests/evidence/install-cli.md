@@ -1,20 +1,19 @@
-# Codex plugin release evidence
+# Codex CLI installation lifecycle evidence
 
 - Captured: 2026-07-24
 - Host: Linux
 - Codex CLI: `0.145.0`
+- Marketplace: `blendsdk/codex-codeops`, ref `main`
 - Plugin: `codeops@codeops-marketplace`, version `0.3.1`
-- Evidence state: pre-publication package validation
-- Source state: working tree for planned `v0.3.1`
+- Repository source: release tag `v0.3.1`
 
-Before the release commit, the exact working tree passed:
+The following lifecycle was executed successfully against commit `dc02f92` on the public GitHub
+repository in this order:
 
-1. `python3 scripts/validate_plugin.py .`
-2. `./scripts/validate-codex.sh`
-3. `./scripts/docs-check.sh`
-4. `./scripts/migration-check.sh`
-5. `./scripts/roadmap-sync-check.sh`
-6. `./scripts/compact-check.sh`
+1. `codex plugin marketplace upgrade codeops-marketplace --json` refreshed the public marketplace
+   without errors.
+2. `codex plugin add codeops@codeops-marketplace --json` installed version `0.3.1`.
+3. `codex plugin list --json` reported the plugin installed and enabled at `0.3.1`, sourced from
+   `https://github.com/blendsdk/codex-codeops.git` at ref `main`.
 
-This state is temporary. It must be replaced with observed installation evidence after the release
-commit is public and before annotated tag `v0.3.1` is published.
+Start a new Codex thread to load the installed 0.3.1 skill definitions.
