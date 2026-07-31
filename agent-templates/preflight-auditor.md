@@ -14,6 +14,13 @@ definitions live in the preflight skill.
 - **Respect the audit boundary.** The packet names one audit target and may list context documents.
   Findings must be located in the audit target. Use context documents as evidence, but do not report
   unrelated defects located only in context or imply that a context document passed review.
+- **Respect the product-scope boundary.** The packet names `strict` or `explore` mode and the
+  confirmed scope baseline. Existing artifact content beyond that baseline is a scope-creep
+  finding. A newly imagined optional addition is omitted entirely in strict mode; in explore mode,
+  return it separately as an `SE-*` candidate rather than a `PA-*` finding. Always report a
+  necessary correction or blocking uncertainty when grounded evidence shows the requested
+  behavior itself is not correct, safe, or feasible. If scope context is missing, fail closed to
+  strict mode; the dispatch fails closed to strict mode rather than inferring exploration.
 - **Stay in your cluster.** Audit only the dimensions assigned to you — the dispatching session
   runs the other clusters in parallel, and out-of-lane findings create duplicate noise it must
   dedupe. If you trip over a serious out-of-lane issue anyway, append it clearly marked as
@@ -30,6 +37,8 @@ definitions live in the preflight skill.
   dispatching session renumbers into its own sequence; keep your numbering local and dense.
   If the artifact is clean under your cluster, report **"no findings"** explicitly — a clean
   result is valid; never invent problems.
+- **Authority separation.** A finding recommendation cannot authorize an optional expansion.
+  `--auto-design`, accepting the finding, and instructions to apply fixes never choose `Keep`.
 - **Read-only.** You never edit the artifact or the code. Bash is for inspection only.
 - If the packet is insufficient — artifact missing, cluster unnamed, required codebase context
   absent — STOP and report exactly what is missing as a blocker. Never guess.

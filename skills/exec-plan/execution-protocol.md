@@ -66,6 +66,9 @@ entering the review. Also record the phase's expected modification set from its 
 and deliverables. A changed path outside that set is scope drift: attribute it to the phase and
 expand the recorded set, or identify it as unrelated work and exclude it from the review packet.
 Never silently review or commit unrelated user changes as phase work.
+Record the invocation's scope mode (`strict` by default or `explore`) beside the expected
+modification set. Every executor and reviewer packet receives that mode plus the confirmed product
+scope baseline; missing mode context fails closed to strict scope.
 When opt-in outcome metrics are enabled, record only a content-free execution-stage event through
 `codeops_outcomes.py`; metrics never gate execution.
 
@@ -164,6 +167,9 @@ whole-task diff. Activation rules, packets, supersession, and caps are defined i
    technical fix may be selected and recorded, but risk may never be waived and a critical/major
    finding may never be dismissed automatically; reserved decisions pause for the user. 🟡 MINOR
    findings are report-only.
+   Before merging, apply `_shared/scope-expansion-control.md`: a necessary correction or blocking
+   uncertainty remains a finding, while an optional remediation is omitted in strict scope or
+   moved to a separate `SE-*` proposal in exploration mode. A finding ruling never chooses `Keep`.
 4. **Record decisions durably** in the finding and traceability artifacts after each ruling batch.
 5. **Accepted fixes:** implement → verify → follow-up commit per the commit mode. If any 🔴/🟠
    fix was applied, dispatch ONE re-review scoped to the fix diff — never a third pass. A fix
@@ -212,6 +218,10 @@ If you encounter any implementation detail, behavioral question, edge case, or d
 covered by the plan documents or `00-ambiguity-register.md`, first record it and mark affected
 downstream traceability stale.
 
+First determine whether the discovery is an ambiguity inside authorized scope, a necessary
+correction, or an optional expansion. Optional expansions do not enter the ambiguity register:
+they are silent in strict scope or use the Scope Expansion Register during exploration.
+
 1. **STOP** — do not guess, infer, or apply "reasonable defaults".
 2. **Classify authority.** With active auto-design, apply the shared auto-design policy: resolve
    and record an eligible technical decision; present a reserved decision to the user. In normal
@@ -251,6 +261,8 @@ receives nothing else and must not need anything else:
 - the relevant excerpts of the governing `03-XX` spec documents (the excerpts, not filenames);
 - the applicable ST-cases from `07-testing-strategy.md`;
 - the AR decisions that bear on the phase (quoted rows, not the whole register);
+- the scope mode (`strict` or `explore`) and confirmed product scope baseline; missing or invalid
+  scope context fails closed to strict mode;
 - the target file paths and the project's verify command.
 
 Excerpting owned content into a packet is the intended retrieval mechanism, not restatement. The

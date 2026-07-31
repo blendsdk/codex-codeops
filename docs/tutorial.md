@@ -51,6 +51,19 @@ are not converted silently into implementation assumptions.
 The same exact `--auto-design` flag may be used with `make-plan`, `preflight`, and `exec-plan`.
 It does not imply `--auto-commit`; select commit behavior separately.
 
+These workflows stay in strict scope by default and do not suggest optional product additions. To
+review possible expansions without authorizing them, use:
+
+```text
+Use make-plan --explore-scope for RD-01. Keep the confirmed scope as the baseline, then present
+optional additions as SE proposals so I can Keep, Defer, or Discard each one.
+```
+
+The same `--explore-scope` flag works with `preflight` and `exec-plan`. Necessary corrections and
+blocking safety, correctness, or feasibility uncertainties are reported in either mode. Only an
+explicit `Keep` decision turns a proposal into executable work; `--auto-design` cannot make that
+decision.
+
 ## 4. Prove readiness and execute
 
 Run the deterministic check from the project root:

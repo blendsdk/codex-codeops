@@ -28,6 +28,14 @@ expansion and does not imply `--auto-commit`. **Normal mode:** without the exact
 material runtime choice still requires an explicit user decision; historical delegated records
 must not infer delegated authority.
 
+## Scope exploration option
+
+If `$ARGUMENTS` contains exactly one exact standalone `--explore-scope` token before the first `--` sentinel, remove it before resolving targets, paths, or modes; zero occurrences means strict scope, more than one is invalid, and tokens at or after the sentinel are target content; announce `Scope exploration active — optional additions will be proposed for your decision`; then read and apply
+[../../_shared/scope-expansion-control.md](../../_shared/scope-expansion-control.md). Strict scope is the default:
+do not report or implement optional additions raised during execution or review.
+Exploration may create `SE-*` proposals, but only the user may choose `Keep` and authorize a plan
+update.
+
 Execute the implementation plan at `plans/$ARGUMENTS/99-execution-plan.md`. The first
 argument is the feature name; an optional flag selects the commit mode.
 
@@ -64,6 +72,11 @@ authority still pauses for the user. If resolution requires changing an upstream
 the selected plan's documents, present the exact expanded modification set and obtain the user's
 approval before editing because auto-design does not expand scope. Resolve the ambiguity, rerun
 feature-scoped readiness, and only then resume.
+
+Before treating a runtime discovery or reviewer remediation as executable, classify it under the
+shared scope-expansion protocol. A necessary correction retains the ordinary ambiguity/finding
+gate. An optional change is silent in strict scope or a non-executable `SE-*` proposal in
+exploration mode; accepting the related finding is not scope authorization.
 
 This skill covers **execution only**. To create a plan, use the make-plan skill.
 
@@ -197,6 +210,9 @@ ruling is recorded in durable finding and traceability artifacts.
 > for the user. Auto-commit never bypasses the applicable authority gate. 🟡 MINOR findings are
 > report-only. Accepted fixes are implemented, verified, follow-up-committed per the commit mode,
 > and (after 🔴/🟠 fixes) re-reviewed ONCE on the fix diff — never a third time.
+> Reviewers receive the active scope mode. Optional remediations are omitted in strict scope and
+> become separate `SE-*` proposals during exploration; they are never accepted merely by a finding
+> ruling or auto-design resolution.
 
 Step-by-step mechanics — the phase-start ref, spec-author dispatch, the post-phase quality step,
 and emission points — live in [execution-protocol.md](execution-protocol.md).

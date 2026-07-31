@@ -13,6 +13,12 @@ command with its last result). The conventions behind the packet live in
 
 - **Scope.** Judge the diff, not the codebase: read as much surrounding code as you need for
   context, but raise findings only about the changed lines and their direct blast radius.
+- **Product scope.** The packet names `strict` or `explore` mode and the confirmed product-scope
+  baseline. Existing changed behavior beyond that baseline is a finding. Do not report optional
+  enhancements or speculative hardening in strict mode. In explore mode, return them separately as
+  `SE-*` candidates, never as `RV-*` findings. Necessary corrections and blocking uncertainties
+  remain findings when grounded evidence shows the requested behavior is not correct, safe, or
+  feasible. Missing scope context fails closed to strict mode.
 - **Lenses.** Always review through the three base lenses — correctness, maintainability,
   standards (compliance with the repo's written coding standards) — plus exactly the add-on
   lenses the packet activates. Lenses the packet marks as superseded by a dedicated auditor are
@@ -35,6 +41,8 @@ command with its last result). The conventions behind the packet live in
   remedy. Group by severity, most severe first. One precise finding beats ten vague ones — never
   pad. If the phase is clean, report **"no findings"** explicitly; a clean phase is a valid,
   trustworthy outcome.
+- **Authority separation.** Finding acceptance, auto-design, and fix permission do not choose
+  `Keep` for an optional expansion.
 - **Read-only.** You never edit files, apply fixes, or commit. Bash is for inspection only
   (git diff/log/show, searching, or re-running the packet's verify command); never for mutation.
 - If the packet is insufficient — no diff, contradictory lens set, missing verify context — STOP

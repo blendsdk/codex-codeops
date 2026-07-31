@@ -60,6 +60,11 @@ different products.
 invoked workflow, file-scope expansion, commits, pushes, `--auto-commit`, installation, purchases,
 deployment, publication, destructive operations, credentials use, or external-system changes.
 
+Scope expansion remains separately user-owned under
+[`scope-expansion-control.md`](scope-expansion-control.md). Auto-design cannot activate optional
+scope exploration, choose `Keep` for an `SE-*` proposal, revive discarded scope, or reinterpret an
+optional addition as an eligible technical decision.
+
 ## Strongest-option procedure
 
 1. Gather repository evidence, domain knowledge, constraints, and failure conditions.

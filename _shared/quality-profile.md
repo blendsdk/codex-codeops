@@ -98,9 +98,10 @@ or response content.
 
 | Agent | Packet contents (the agent receives nothing else and must need nothing else) |
 |-------|------------------------------------------------------------------------------|
-| phase-reviewer, security-auditor, perf-auditor | Phase diff (`git diff <phase-start-ref>..HEAD`), the phase's task + Deliverable lines, active lenses, profile excerpt, verify command + last result |
+| phase-reviewer, security-auditor, perf-auditor | Phase diff (`git diff <phase-start-ref>..HEAD`), the phase's task + Deliverable lines, active lenses, scope mode (`strict` or `explore`), confirmed scope baseline, profile excerpt, verify command + last result |
+| plan-task-executor, plan-task-executor-opus | Phase task + Deliverable + Verify lines, governing spec/ST/AR excerpts, target paths, scope mode (`strict` or `explore`), confirmed scope baseline, verify command |
 | spec-test-author | Spec excerpts + test cases, planned interface signatures from the plan documents, test framework/conventions, the FORBIDDEN implementation-file list, verify command (expected RED) |
-| preflight-auditor | The artifact under audit + ONE assigned dimension cluster |
+| preflight-auditor | The artifact under audit + ONE assigned dimension cluster + scope mode (`strict` or `explore`) + confirmed scope baseline |
 | design-challenger | Problem + candidate options, **without** the parent's preferred choice (per `_shared/recommendation-hardening.md`) |
 | codebase-scout | The factual questions, search hints, and the facts-only contract |
 

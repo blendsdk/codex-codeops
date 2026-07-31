@@ -26,6 +26,13 @@ children; an unsupported child fails closed. This mode does not grant action per
 expansion. **Normal mode:** without the exact token, every material ruling still requires an
 explicit user decision; historical delegated records must not infer delegated authority.
 
+## Scope exploration option
+
+If `$ARGUMENTS` contains exactly one exact standalone `--explore-scope` token before the first `--` sentinel, remove it before resolving targets, paths, or modes; zero occurrences means strict scope, more than one is invalid, and tokens at or after the sentinel are target content; announce `Scope exploration active — optional additions will be proposed for your decision`; then read and apply
+[../../_shared/scope-expansion-control.md](../../_shared/scope-expansion-control.md). Strict scope is the default:
+do not report optional additions as findings or suggestions. Exploration records them
+as separate `SE-*` proposals; finding resolution never chooses `Keep`.
+
 Run a rigorous quality audit of the artifact named in `$ARGUMENTS`, **grounded in the actual
 codebase**. Find every issue, ambiguity, contradiction, gap, and risk; verify every claim and
 assumption against the real code; present each finding with options + a recommendation; iterate
@@ -88,6 +95,11 @@ If resolving a finding would turn a single-document audit into a set-wide redesi
 applying fixes and offer either a target-local resolution or an explicit set-level audit. Never
 expand the audit target merely because the user said "apply fixes and re-scan."
 
+Freeze the authorized product-scope baseline as well as the audit target. Existing out-of-scope
+content in the target is still a scope-creep defect. A newly imagined optional remediation is
+silent in strict scope or a separate `SE-*` proposal in exploration mode; it never affects the
+finding count or verdict until the user keeps it.
+
 ## Core directive
 
 > **You are a senior technical reviewer performing a formal quality audit GROUNDED IN THE ACTUAL
@@ -121,6 +133,8 @@ net** — fresh eyes that catch what those gates missed and what evolved since.
    [dimensions.md](dimensions.md).
 3. **13-dimension scan** — review the artifact across all 13 dimensions (below), every check
    informed by Step 2. Depth adapts by artifact type. Full detail in [dimensions.md](dimensions.md).
+   Classify newly suggested work under the shared scope-expansion protocol before it can become a
+   finding or remediation.
 4. **Compile the Preflight Report** — every finding gets a numbered `PF-NNN` entry with severity.
    Templates and report header in [report-format.md](report-format.md).
 5. **Present findings & collect decisions** — grouped by severity and paced by the authoritative
@@ -128,6 +142,7 @@ net** — fresh eyes that catch what those gates missed and what evolved since.
    on every finding. With active auto-design, record the strongest eligible technical resolution
    with complete delegated provenance; reserved decisions still require the user. This selects a
    resolution only and does not authorize applying a fix.
+   A finding ruling also does not authorize a linked `SE-*` proposal.
 6. **Determine pass/fail** — Clean / Passed / Passed With Notes / Blocked (see [Pass tiers](#pass-tiers)).
 7. **Apply fixes (only if requested)** — preflight is a review protocol, not a modification one.
    Never apply fixes without explicit instruction.
@@ -177,6 +192,9 @@ Calibrate honestly — never inflate to get attention, never deflate to avoid co
 
 A clean first-scan pass is cause for celebration, not suspicion. **Never invent findings** to
 justify the review — if the artifact is solid, say so.
+Optional additions omitted in strict scope, or deferred/discarded exploration proposals, do not
+prevent a clean or passing verdict. A necessary correction or blocking uncertainty may still block
+because the requested behavior itself is not yet proven correct, safe, and feasible.
 
 ## Report persistence
 

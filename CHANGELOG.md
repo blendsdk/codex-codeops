@@ -2,6 +2,15 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## Unreleased
+
+- Keep planning, preflight, and execution inside strict product scope by default, suppressing
+  optional feature suggestions without hiding necessary correctness, safety, or feasibility work.
+- Add invocation-scoped `--explore-scope` with durable, user-owned `Keep`, `Defer`, and `Discard`
+  decisions for optional additions.
+- Keep scope authority separate from auto-design, finding resolution, fix permission, and commit
+  modes, with collision-free registers and resume-safe invalidation rules.
+
 ## 0.3.1 — 2026-07-24
 
 - Make junior-readable source documentation a non-negotiable implementation standard.

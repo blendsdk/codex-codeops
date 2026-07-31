@@ -20,6 +20,10 @@ Before scanning, you MUST:
    modification set. Reading a related document does not add it to the target.
 6. **Resolve graph identity** — when traceability exists, use the exact node/group target with
    the `audit` gate. Closure is context; findings do not silently expand the modification set.
+7. **Freeze product scope** — load
+   [../../_shared/scope-expansion-control.md](../../_shared/scope-expansion-control.md), record
+   strict or exploration mode, and separate defects in the authorized target from optional new
+   functionality suggested by the reviewer.
 
 ## Step 2: Codebase Reconnaissance — 🚨 NON-NEGOTIABLE
 
@@ -98,18 +102,23 @@ Beginning 13-dimension scan...
 
 Scan all 13 every time, with adversarial intent. Every check must be informed by Step 2.
 
+The dimensions test whether the requested artifact is sound; they are not permission to invent a
+larger product. Apply the necessary-correction burden of proof to every newly suggested behavior.
+In strict scope, omit optional additions completely. With active exploration, move them to the
+Scope Expansion Register without counting them as findings.
+
 | # | Dimension | What to hunt for |
 |---|---|---|
 | 1 | **Ambiguities** | Vague language, undefined terms, weasel words ("appropriate", "as needed", "etc."), statements with multiple interpretations, undefined behaviors |
 | 2 | **Implicit Assumptions** | Things taken for granted without stating, assumed capabilities/knowledge/environment. **Codebase check:** verify every assumption about the code — assumed APIs, data models, patterns, capabilities that may not exist or behave differently |
 | 3 | **Logical Contradictions** | Statements that conflict — across documents, sections, or within a paragraph. Inconsistent decisions, conflicting constraints |
-| 4 | **Completeness Gaps** | Missing requirements, unaddressed journeys, absent error handling, undefined edge cases, features mentioned but never specified, missing acceptance criteria. **Codebase check:** existing code/tests/functionality affected by the changes but not mentioned — missing impact analysis |
+| 4 | **Completeness Gaps** | Missing requirements, journeys, error handling, edge cases, or acceptance criteria needed by the authorized behavior; do not treat adjacent optional functionality as missing. **Codebase check:** existing code/tests/functionality affected by the requested changes but not mentioned — missing impact analysis |
 | 5 | **Dependency Issues** | Circular/missing dependencies, dependencies on undefined components, tasks referencing not-yet-created entities, broken chains. **Codebase check:** verify referenced dependencies against the actual manifest and import graph — exist? right versions? undeclared deps relied on? |
 | 6 | **Feasibility Concerns** | Tasks possibly impossible/unrealistic, underestimated complexity, approaches incompatible with the stated stack, tasks too large to do atomically. **Codebase check:** verify approaches against the actual architecture — will it work with how the code is structured? Do estimates match the real code? Unaccounted-for architectural constraints? |
 | 7 | **Testability** | Requirements/tasks with no clear way to verify success, vague criteria ("should work well"), missing test specs, untestable acceptance criteria |
-| 8 | **Security Blind Spots** | Missing authn/authz, unvalidated inputs, exposed sensitive data, unaddressed threat vectors, missing rate limiting, insecure defaults |
-| 9 | **Edge Cases** | Unaddressed boundary conditions, unhandled failure modes, ignored concurrency, undefined empty/null/zero states, missing overflow/underflow |
-| 10 | **Scope Creep Indicators** | Items exceeding stated scope, unbounded tasks ("support all formats"), features implying entire sub-systems, gold-plating, premature optimization |
+| 8 | **Security Blind Spots** | Security defects that make the authorized behavior unsafe; distinguish a necessary correction from optional defense-in-depth functionality using grounded causal evidence |
+| 9 | **Edge Cases** | Boundary conditions and failure modes of the authorized behavior; do not invent adjacent journeys merely to fill the checklist |
+| 10 | **Scope Creep Indicators** | Existing artifact content that exceeds the confirmed baseline, unbounded tasks ("support all formats"), gold-plating, or premature optimization; newly imagined optional additions are silent or `SE-*` proposals, not findings |
 | 11 | **Ordering & Sequencing** | Tasks in wrong order, phases that should swap, work planned before its dependencies exist, missing foundation work. **Codebase check:** verify order against the actual dependency graph — real module boundaries, import chains, build dependencies |
 | 12 | **Consistency** | Naming inconsistencies across documents, conflicting conventions, terminology drift (same thing, different names), formatting that obscures meaning |
 | 13 | **Codebase Alignment** | **The master reality check.** Entirely codebase-grounded — see below |

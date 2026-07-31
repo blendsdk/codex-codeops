@@ -109,6 +109,10 @@ Use the severity icons from SKILL.md (red/orange/yellow/blue circles) in the act
    resolution uses the canonical delegated marker and complete provenance from
    `_shared/auto-design.md`; reserved decisions still use `**User Decision:**`. A delegated
    resolution does not authorize applying the fix or waiving a finding.
+4. **Keep scope authority separate.** Finding resolution and expansion authorization are separate.
+   If an explored remediation exceeds the confirmed product scope, link the finding to its `SE-*`
+   proposal and collect a distinct `Keep`, `Defer`, or `Discard` ruling. In strict scope, optional
+   remediations are not reported.
 
 ### Batch presentation rules
 
@@ -141,13 +145,17 @@ findings to justify the review.
 
 The user may ask the agent to apply fixes:
 
-- **"Apply all fixes"** — modify the artifact documents per the resolved findings (normal file writes).
+- **"Apply all fixes"** — modify the artifact documents per the resolved in-scope findings and
+  any linked proposals already ruled `Keep`; this does not authorize undecided, deferred, or
+  discarded `SE-*` entries.
 - **"Apply fixes for PF-003 and PF-007"** — apply specific fixes only.
 - **"I'll fix them myself"** — do nothing; the report is a checklist.
 - **"Apply fixes and re-scan"** — apply, then immediately run another iteration.
 
 > The agent MUST NOT apply fixes without explicit instruction. Preflight is a **review** protocol,
 > not a **modification** protocol. Finding issues and fixing issues are separate steps.
+> A fix instruction is also not scope-expansion authority; apply
+> `_shared/scope-expansion-control.md` before editing.
 
 ## Step 8: Roadmap sync
 

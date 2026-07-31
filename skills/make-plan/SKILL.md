@@ -17,6 +17,13 @@ technical design decisions under that policy and propagate its downward-only con
 invoked supported children; an unsupported child fails closed. This mode does not grant action permission or scope expansion. **Normal mode:** without the exact token, every material choice
 still requires an explicit user decision; historical delegated records must not infer delegated authority.
 
+## Scope exploration option
+
+If `$ARGUMENTS` contains exactly one exact standalone `--explore-scope` token before the first `--` sentinel, remove it before resolving targets, paths, or modes; zero occurrences means strict scope, more than one is invalid, and tokens at or after the sentinel are target content; announce `Scope exploration active — optional additions will be proposed for your decision`; then read and apply
+[../../_shared/scope-expansion-control.md](../../_shared/scope-expansion-control.md). Strict scope is the default:
+do not report or plan optional additions. Exploration may propose `SE-*` items but
+never accepts them; only the user may choose `Keep`.
+
 ## Codex readiness proof
 
 Maintain the feature's typed requirement → specification/invariant → acceptance criterion → specification test → task chain in `traceability.json`; follow [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). A plan is not ready merely because its documents exist. Before presenting it as executable, run:
@@ -48,6 +55,12 @@ the owning requirement or specification and mark affected downstream traceabilit
 not edit it until the user confirms the exact expanded modification set. If the correction would
 redesign sibling RDs or the requirement set, pause and offer a separate requirements revision
 instead of silently absorbing it into plan creation.
+
+Apply the shared scope-expansion classification before adding any newly suggested functionality.
+Every planned item must trace either to the confirmed scope baseline or to a user-kept `SE-*`
+entry. A necessary correction is reported with its causal evidence but does not itself authorize an
+expanded modification set. An optional idea is silent in strict scope and becomes a proposal only
+with active scope exploration.
 
 > **CodeOps Artifact Schema**: 1
 
@@ -139,12 +152,18 @@ Read relevant source files; identify affected components; find similar/reference
 ### 1.3 Confirm scope
 
 Present a scope confirmation (feature, IN scope, OUT of scope, key decisions needed) and ask the user to confirm or adjust. While doing this, start compiling the **Ambiguity Register** — finalized and enforced in Phase 1C.
+This confirmation is the authorized scope baseline. Do not place optional suggestions in IN scope,
+OUT of scope, or the Ambiguity Register in strict mode. With active scope exploration, collect them
+separately in the Scope Expansion Register and wait for `Keep`, `Defer`, or `Discard` rulings.
 
 ---
 
 ## Phase 1B — Pre-Implementation Re-evaluation
 
 Before writing documents (and again before each execution phase), re-check: Completeness (all requirements + edge cases), Context/Reasoning (can you justify each phase?), Task Granularity (2–4h tasks, independently testable), Dependencies (documented, no cycles), Testing (every task has validation), Architecture (anything >700 lines? plan a split), Scope Boundaries, No Dead Code, and Security (every user-input path identified; injection/auth/authz/rate-limiting/data protection addressed). Re-evaluate when requirements change or new constraints surface.
+Completeness, security, and edge-case review close the requested behavior; they do not authorize
+adjacent features. Apply the necessary-correction burden of proof before treating newly discovered
+work as required.
 
 ---
 
@@ -179,6 +198,8 @@ decisions remain user-owned.
 1. Create the plan folder (`plans/<feature-name>/` flat, or `codeops/features/<f>/plans/<plan>/` nested — resolve via the convention doc).
 2. Write each document using the templates in **[templates.md](templates.md)** — including its **Reference, don't restate** rule (one owning doc per fact; everything else cites ST-# / 03-doc § / AR-# with at most a one-line gloss). Stamp `00-index.md` and `99-execution-plan.md` with `> **CodeOps Artifact Schema**: 1`.
 3. Every design decision, scope decision, and error-handling strategy must carry an `AR #` back-reference to the register (only exceptions: universally obvious facts and zero-semantic-impact formatting).
+3b. Every addition accepted through scope exploration must also carry its owning `SE-*`
+    back-reference. `Defer`, `Discard`, and `Superseded` entries never produce plan tasks.
 4. `07-testing-strategy.md` must contain concrete **Specification Test Cases (ST-*)** with input→expected-output pairs, each traced to a requirement / spec doc / AR entry. Expectations come from the SPEC, never from imagined implementation behavior.
 4b. **Confirm the verify command once.** The command that fills every Verify line comes from the
    project's AGENTS.md or manifests — state what you detected and have the user confirm it (an AR

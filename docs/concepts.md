@@ -41,6 +41,23 @@ remain user-owned. Auto-design does not authorize implementation, scope expansio
 pushes, or deployment. Child workflows may inherit less authority, never more; unsupported
 children fail closed.
 
+## Scope expansion control
+
+Strict scope is the default for planning, preflight, and execution. Reviewers close defects,
+security obligations, failure modes, and edge cases required by the confirmed behavior, but do not
+report optional adjacent functionality. A correction is necessary only when grounded evidence
+shows the requested behavior cannot otherwise be correct, safe, or feasible; unresolved material
+risk blocks for investigation instead of being hidden or promoted automatically.
+
+`--explore-scope` enables optional proposal discovery for one invocation. Proposals receive stable
+`SE-*` identifiers and explicit `Keep`, `Defer`, or `Discard` decisions. `Keep` is the only state
+that authorizes requirements, specifications, tests, or executable tasks. Deferred and discarded
+entries remain durable, non-executable context across resumed sessions. Reversing `Keep` invalidates
+only causally derived downstream state and requires an explicitly authorized safe remediation.
+
+Scope exploration and `--auto-design` are orthogonal. Auto-design may choose technical details
+inside scope that the user already kept, but it cannot choose `Keep` or activate exploration.
+
 ## Project tracking
 
 Tracking combines lifecycle—discovery through archive—with readiness, task progress, verification, findings, blockers, dependencies, and deferrals. A new thread can reconstruct the next safe action from repository and Git evidence.

@@ -50,12 +50,33 @@ fi
 | Portfolio roadmap | *(n/a)* | `codeops/00-roadmap.md` |
 | Staged AGENTS.md notes | *(n/a)* | `codeops/features/<f>/AGENTS.notes.md` |
 | Ambiguity register | `requirements/00-ambiguity-register.md` or `plans/<plan>/00-ambiguity-register.md` | the same file, under the feature |
+| Scope-expansion register | See the target-qualified rules below | the same target-qualified filename, under the feature |
 | Task mini-plan | `plans/<task-slug>/99-execution-plan.md` | `codeops/features/<f>/plans/<task-slug>/99-execution-plan.md` |
 | Archive | `plans/_archive/<set>/` | `codeops/_archive/<f>/` |
 
 In nested layout, a feature's inner directories are created **lazily** — only when that
 feature's first RD, plan, or task is written. The marker and the (possibly empty) portfolio
 roadmap are the only things `setup-codeops` creates up front.
+
+### Scope-expansion register paths
+
+Scope-expansion register paths are collision-free because their authority is scoped to one audit or
+planning target:
+
+| Governed target | Register filename |
+|---|---|
+| Full requirements set, full plan, or plan execution | `00-scope-expansion-register.md` in the governed artifact directory |
+| Single requirement or single plan document | `00-scope-expansion-register-<document-name>.md` in the document directory |
+| Ad-hoc file | `scope-expansion-register-<artifact-name>.md` in the artifact directory |
+| Ad-hoc directory | `scope-expansion-register.md` inside the governed directory |
+
+The shared scope-expansion protocol owns register contents and lifecycle. This layout convention
+owns paths and target identity. `<document-name>` and `<artifact-name>` are the complete existing
+filename, including its extension; for example, `foo.md` and `foo.txt` resolve to different
+registers. Use only the final filename component and reject path separators, `..`, absolute paths,
+or a name that is not the governed target's exact filename. An ad-hoc directory's register lives
+inside that exact directory. Two governed targets must never resolve to the same register unless
+they intentionally share the full-set or full-plan scope baseline.
 
 ---
 

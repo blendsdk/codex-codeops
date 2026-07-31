@@ -7,6 +7,9 @@ Run this before finalizing the plan documents. The **Specification-First Testing
 - [ ] All affected components identified
 - [ ] All scope decisions documented
 - [ ] All dependencies mapped
+- [ ] Every planned item traces to the confirmed scope baseline or a user-kept `SE-*` entry
+- [ ] Strict scope contains no optional suggestions; exploration proposals remain non-executable
+      until the user chooses `Keep`
 
 ## ✅ Granularity
 - [ ] Each task is one reviewable change: 1-3 files, ~50-150 lines, immediately testable
@@ -61,6 +64,7 @@ Run this before finalizing the plan documents. The **Specification-First Testing
 - [ ] No plan document contains AI-assumed defaults, inferred behaviors, or guessed specifications
 - [ ] Surface-during-authoring rule was followed — new ambiguities were added to the register and
       resolved by the user or, when active and eligible, under the auto-design policy
+- [ ] Scope expansion was never disguised as ambiguity resolution or delegated to auto-design
 
 ## ✅ Execution Plan Completeness — 🚨 NON-NEGOTIABLE
 - [ ] Every phase section carries its tasks as a checkbox list (`- [ ] N.N.N …` with target file)

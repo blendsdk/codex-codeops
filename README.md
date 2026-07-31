@@ -58,6 +58,18 @@ downward-only. It never delegates product scope, risk acceptance, spending, cred
 deployment, destructive actions, or other reserved authority, and it grants no commit or action
 permission. See [the authority model](docs/concepts.md#delegated-technical-design).
 
+## Scope expansion control
+
+CodeOps uses strict scope by default in `make-plan`, `preflight`, and `exec-plan`: it stays inside
+the confirmed product boundary and does not suggest optional features, subsystems, or speculative
+hardening. Evidence that the requested behavior itself cannot be correct, safe, or feasible is
+still reported as a necessary correction or blocking uncertainty.
+
+Add `--explore-scope` when you want optional additions proposed. CodeOps records each one as a
+stable `SE-*` entry and waits for your `Keep`, `Defer`, or `Discard` ruling. Only `Keep` can add
+executable work. `--auto-design`, finding acceptance, and permission to apply fixes never approve
+scope expansion.
+
 ## Installation
 
 Add the GitHub repository as a Codex marketplace, then install CodeOps:

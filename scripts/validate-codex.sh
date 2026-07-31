@@ -43,6 +43,51 @@ assert isinstance(entry.get('category'), str) and entry['category']
 PY
 }
 
+validate_scope_expansion_contract() {
+  python3 - <<'PY'
+from pathlib import Path
+
+policy = Path('_shared/scope-expansion-control.md').read_text(encoding='utf-8')
+layout = Path('_shared/layout-convention.md').read_text(encoding='utf-8')
+supported = (
+    Path('skills/make-plan/SKILL.md'),
+    Path('skills/preflight/SKILL.md'),
+    Path('skills/exec-plan/SKILL.md'),
+)
+
+for token in (
+    'Strict scope is the default',
+    'exactly one standalone',
+    'Necessary correction',
+    'blocking uncertainty',
+    'Only `Keep`',
+    'Finding resolution and expansion authorization are separate',
+    '`--auto-design` cannot choose `Keep`',
+):
+    assert token in policy, token
+
+for path in supported:
+    text = path.read_text(encoding='utf-8')
+    assert '## Scope exploration option' in text, path
+    assert 'exact standalone `--explore-scope` token' in text, path
+    assert 'zero occurrences means strict scope' in text, path
+    assert '../../_shared/scope-expansion-control.md' in text, path
+    assert 'Strict scope is the default' in text, path
+
+for path in Path('skills').glob('*/SKILL.md'):
+    if path not in supported:
+        assert '../../_shared/scope-expansion-control.md' not in path.read_text(encoding='utf-8'), path
+
+assert '00-scope-expansion-register-<document-name>.md' in layout
+assert 'scope-expansion-register-<artifact-name>.md' in layout
+assert '| Ad-hoc directory | `scope-expansion-register.md` inside the governed directory |' in layout
+assert '| Event ID | SE ID | Timestamp | From state | Decision | Authority and evidence |' in policy
+assert '| SE ID | Derived artifact or graph target | Relation or kind | Current state |' in policy
+assert 'choose `Keep`' in Path('_shared/auto-design.md').read_text(encoding='utf-8')
+assert 'scope mode (`strict` or `explore`)' in Path('_shared/quality-profile.md').read_text(encoding='utf-8')
+PY
+}
+
 validate_native_terms() {
   local matches
   matches="$(rg -n --glob '!plans/**' --glob '!docs/**' --glob '!scripts/fixtures/**' \
@@ -256,6 +301,7 @@ run_check "shell syntax" bash -n scripts/*.sh bin/codeops-worktree
 run_check "preflight scope and convergence contract" validate_preflight_contract
 run_check "plan and execution scope contracts" validate_plan_execution_contracts
 run_check "auto-design authority contract" validate_auto_design_contract
+run_check "scope-expansion authority contract" validate_scope_expansion_contract
 run_check "state conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
 run_check "retained adversarial parity evidence" validate_scenarios
 run_check "release evidence provenance" validate_release_evidence
