@@ -2,7 +2,7 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
-## Unreleased
+## 0.4.0 — 2026-07-31
 
 - Keep planning, preflight, and execution inside strict product scope by default, suppressing
   optional feature suggestions without hiding necessary correctness, safety, or feasibility work.
