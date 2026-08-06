@@ -1361,6 +1361,8 @@ def _prevalidate_recovery_set(
     journal: Path,
     completed: Path,
     request: dict[str, Any],
+    *,
+    require_files: bool = True,
 ) -> tuple[dict[str, Any] | None, str | None, str | None]:
     """Validate the complete recovery namespace before any takeover mutation."""
 
@@ -1438,6 +1440,14 @@ def _prevalidate_recovery_set(
         )
     except (OSError, ValueError) as exc:
         return None, "unsafe-recovery-path", str(exc)
+    if require_files and any(not path.is_file() for path in graph_paths):
+        return None, "unsafe-recovery-path", "journal graph path is missing or not a regular file"
+    if require_files and any(not path.is_file() for path in image_paths):
+        return None, "recovery-image-missing", "recovery image is missing or not a regular file"
+    if not require_files and any(
+        path.exists() and not path.is_file() for path in (*graph_paths, *image_paths)
+    ):
+        return None, "unsafe-recovery-path", "recovery path is not a regular file"
     return journal_value, None, None
 
 
@@ -1461,11 +1471,15 @@ def _cleanup_completed_recovery(
             journal,
             completed,
             request,
+            require_files=False,
         )
         if code is not None:
             return code, message
     else:
         journal_value = None
+        recovery_images = sorted(state.glob(f"{operation}.*.before")) + sorted(
+            state.glob(f"{operation}.*.after")
+        )
         try:
             _validate_mutation_boundary(
                 root,
@@ -1475,9 +1489,12 @@ def _cleanup_completed_recovery(
                 completed,
                 state / "active.lock",
                 state / f"{operation}.recovery.lock",
+                *recovery_images,
             )
         except (OSError, ValueError) as exc:
             return "unsafe-recovery-path", str(exc)
+        if any(not path.is_file() for path in recovery_images):
+            return "unsafe-recovery-path", "recovery image is not a regular file"
     owned_cleanup: list[Path] = []
     lock_value, _ = _read_json(lock)
     if (
@@ -1496,11 +1513,14 @@ def _cleanup_completed_recovery(
         ):
             owned_cleanup.append(candidate)
     if journal_value is not None:
-        owned_cleanup.append(journal)
         for item in journal_value["graphs"]:
             owned_cleanup.extend(
                 (state / item["beforeImage"], state / item["afterImage"])
             )
+    else:
+        owned_cleanup.extend(recovery_images)
+    if journal.exists():
+        owned_cleanup.append(journal)
     for path in owned_cleanup:
         _unlink(root, path)
     return None, None
@@ -1899,9 +1919,9 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
     }
     release_claim()
     for path in (
-        journal,
-        lock,
         *image_paths,
+        lock,
+        journal,
     ):
         try:
             _unlink(root, path, missing_ok=False)

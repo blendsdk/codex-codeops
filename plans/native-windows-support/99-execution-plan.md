@@ -227,17 +227,21 @@ gate and the single permitted re-review clears these corrections.
 | Finding | Severity | Decision | State |
 |---|---|---|---|
 | RV2-001: persisted and returned graph paths used host separators | MAJOR | Canonicalize every durable and public graph path to `/` | Fixed; direct verification passed |
-| RV2-002: migration/conformance subprocesses depended on ambient plugin authority | MAJOR | Install isolated native test authority and make the direct launcher establish its repository import root | Fixed; clean-shell verification passed |
+| RV2-002 / RV2-002R: migration/conformance subprocesses depended on absent or stale ambient plugin authority | MAJOR | Unconditionally install isolated native test authority, restore the original environment at exit, and make the direct launcher establish its repository import root | Fixed after re-review; hostile-ambient verification passed |
 | RV2-003: the five-command gate claim used an older Ubuntu tree | MAJOR | Add a manual trigger to the unchanged Ubuntu workflow and require a current-tree run | Implemented; CI evidence pending |
 | RV2-004: durable path grammar applied Windows-invalid-name rejection only on Windows | MAJOR | Enforce the portable durable-name grammar on every host while retaining Windows-only legacy backslash reads | Fixed; cross-host specification verification passed |
-| P2-SEC-001 / RC-003: recovery mutated journal/locks before validating the complete path set | MAJOR | Validate journal identity, all graph/image paths, containment, reparse state, and NTFS alias collisions before takeover mutation | Fixed; fault-injection verification passed |
+| P2-SEC-001 / RC-003: recovery mutated journal/locks before validating the complete path set | MAJOR | Validate journal identity, regular-file existence, all graph/image paths, containment, reparse state, and NTFS alias collisions before takeover mutation | Fixed after re-review; missing-file and fault-injection verification passed |
 | P2-SEC-002: direct state-module execution bypassed mutation preflight | MAJOR | Disable the internal module entry point; retain the public preflighted launcher as the sole CLI | Fixed; byte-identical refusal verification passed |
 | RC-001: `BaseException` after replacement deleted recovery evidence | CRITICAL | Preserve the published journal, locks, and images unless success or rollback is proven | Fixed for single- and multi-graph paths; interruption verification passed |
-| RC-002: completed recovery replay retained transaction debris | MAJOR | Make completed replay perform idempotent owned-artifact cleanup before returning | Fixed; replay verification passed |
+| RC-002: completed recovery replay retained transaction debris | MAJOR | Make completed replay perform idempotent owned-artifact cleanup, including journal-missing crash windows, with images removed before the journal | Fixed after re-review; crash-window replay verification passed |
 
 Native correction verification passed 44/44 focused migration/state tests in a shell without
 `PLUGIN_ROOT`, `PLUGIN_DATA`, or `PYTHONPATH`, and 250/250 repository conformance tests with the
 certified interpreter in UTF-8 mode. No verification command used WSL, Git Bash, or Bash.
+The capped re-review cleared RV2-001, RV2-004, P2-SEC-002, RC-001, and RC-003; it reopened
+RV2-002R, P2-SEC-001, and RC-002 for the exact edge cases recorded above. Those final corrections
+passed 46/46 focused tests with deliberately invalid ambient plugin variables. Per the review cap,
+no third review was run.
 
 ## Phase 3: Portable Utility Control Layer
 

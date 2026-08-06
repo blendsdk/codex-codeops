@@ -237,6 +237,53 @@ class TransitionImplementationTests(unittest.TestCase):
         self.assertEqual(restored, before)
         self.assertEqual(debris, [])
 
+    def test_completed_recovery_without_journal_cleans_remaining_images(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, graph_path = self.make_root(raw)
+            data = graph_path.read_bytes()
+            digest = "sha256:" + hashlib.sha256(data).hexdigest()
+            state = root / "codeops" / ".state-transactions"
+            state.mkdir()
+            for name in ("cleanup.0.before", "cleanup.0.after"):
+                (state / name).write_bytes(data)
+            record = {
+                "path": "codeops/features/sample/traceability.json",
+                "beforeHash": digest,
+                "afterHash": digest,
+            }
+            (state / "cleanup.completed.json").write_text(
+                json.dumps({
+                    "schema": 1,
+                    "operationId": "cleanup",
+                    "direction": "rollback",
+                    "graphs": [record],
+                }),
+                encoding="utf-8",
+            )
+            request = root / "cleanup-recovery.json"
+            request.write_text(
+                json.dumps({
+                    "schema": 1,
+                    "operationId": "cleanup",
+                    "direction": "rollback",
+                    "expectedLock": "n-cleanup",
+                    "expectedOwner": ABSENT_OWNER,
+                    "graphs": [record],
+                }),
+                encoding="utf-8",
+            )
+
+            code, payload = transitions.recover(root, request)
+            debris = [
+                path.name
+                for path in state.iterdir()
+                if path.name != "cleanup.completed.json"
+            ]
+
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload["result"], "already-recovered")
+        self.assertEqual(debris, [])
+
     def test_base_exception_after_graph_replace_retains_recovery_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root, graph_path = self.make_root(raw)
@@ -487,6 +534,82 @@ class TransitionImplementationTests(unittest.TestCase):
         self.assertEqual(journal_after, journal_before)
         self.assertEqual(lock_after, lock_before)
         self.assertFalse(recovery_locks_exist)
+
+    def test_recovery_missing_files_are_rejected_before_takeover_mutation(self) -> None:
+        for missing in ("graph", "before", "after"):
+            with self.subTest(missing=missing), tempfile.TemporaryDirectory() as raw:
+                root, graph_path = self.make_root(raw)
+                before = graph_path.read_bytes()
+                after = (json.dumps(graph("approved"), indent=2) + "\n").encode()
+                state = root / "codeops" / ".state-transactions"
+                state.mkdir()
+                before_image = state / "missing.0.before"
+                after_image = state / "missing.0.after"
+                before_image.write_bytes(before)
+                after_image.write_bytes(after)
+                lock = state / "missing.lock"
+                lock.write_text(
+                    json.dumps({
+                        "operationId": "missing",
+                        "owner": ABSENT_OWNER,
+                        "nonce": "n-missing",
+                    }),
+                    encoding="utf-8",
+                )
+                record = {
+                    "path": "codeops/features/sample/traceability.json",
+                    "beforeHash": "sha256:" + hashlib.sha256(before).hexdigest(),
+                    "afterHash": "sha256:" + hashlib.sha256(after).hexdigest(),
+                }
+                journal = state / "missing.journal.json"
+                journal.write_text(
+                    json.dumps({
+                        "schema": 1,
+                        "operationId": "missing",
+                        "lockNonce": "n-missing",
+                        "owner": ABSENT_OWNER,
+                        "direction": None,
+                        "graphs": [{
+                            **record,
+                            "beforeImage": before_image.name,
+                            "afterImage": after_image.name,
+                            "committed": False,
+                        }],
+                    }),
+                    encoding="utf-8",
+                )
+                request = root / "missing-recovery.json"
+                request.write_text(
+                    json.dumps({
+                        "schema": 1,
+                        "operationId": "missing",
+                        "direction": "roll-forward",
+                        "expectedLock": "n-missing",
+                        "expectedOwner": ABSENT_OWNER,
+                        "graphs": [record],
+                    }),
+                    encoding="utf-8",
+                )
+                missing_path = {
+                    "graph": graph_path,
+                    "before": before_image,
+                    "after": after_image,
+                }[missing]
+                missing_path.unlink()
+                journal_before = journal.read_bytes()
+                lock_before = lock.read_bytes()
+
+                code, payload = transitions.recover(root, request)
+
+                self.assertEqual(code, 1, payload)
+                self.assertIn(
+                    payload["blockers"][0]["code"],
+                    {"unsafe-recovery-path", "recovery-image-missing"},
+                )
+                self.assertEqual(journal.read_bytes(), journal_before)
+                self.assertEqual(lock.read_bytes(), lock_before)
+                self.assertFalse((state / "active.lock").exists())
+                self.assertFalse((state / "missing.recovery.lock").exists())
 
     @unittest.skipUnless(os.name == "nt", "NTFS alias recovery check is Windows-only")
     def test_recovery_rejects_complete_set_with_case_aliases_before_mutation(self) -> None:
