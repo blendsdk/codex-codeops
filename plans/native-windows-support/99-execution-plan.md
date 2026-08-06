@@ -205,30 +205,29 @@ not executed through an emulation layer on Windows under the no-WSL constraint.
 
 - [x] 2.3.1 Add Windows API failure/cleanup, foreign backend, NTFS alias/reparse grammar, exact retry classification/schedule, command-boundary gate, and every write-boundary fault-injection case — `tests/conformance/test_windows_state_impl.py` ✅ (completed: 2026-08-06 22:00)
 - [x] 2.3.2 Add native integration helpers for real concurrent owners, stale processes, PID reuse where controllable, interruption, and recovery; skip only with explicit non-Windows reason — `tests/conformance/test_windows_state_native.py` ✅ (completed: 2026-08-06 22:02)
-- [~] 2.3.3 Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence — `tests/evidence/windows-state-issue-2.json` (implemented: 2026-08-06 22:10; verification reopened by quality review)
+- [x] 2.3.3 Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence — `tests/evidence/windows-state-issue-2.json` ✅ (completed: 2026-08-06 22:44)
 
 **Verify**: run all five commands confirmed in AR-14.
 
-Native Phase-2 verification passed 152/152 state tests and 245/245 repository conformance tests,
+Native Phase-2 verification passed 252/252 repository conformance tests,
 plus plugin, all 16 skill manifests, local Markdown links, retained scenario parity, compilation,
 documentation-release text, and Codex-native terminology checks. No Windows command used WSL,
-Git Bash, or Bash. The unchanged shell-only migration/roadmap/compact logical gates retain the
-successful Ubuntu baseline from run `31116047265`; their current-tree native equivalents remain
-owned by Phase 3 before the next full gate. Issue-#2 implementation evidence is retained in
-`tests/evidence/windows-state-issue-2.json`.
+Git Bash, or Bash. Current-tree Ubuntu run `31127808294` passed the exact five repository commands
+at implementation commit `1f6ca26`; the native portable equivalents remain owned by Phase 3.
+Issue-#2 implementation evidence is retained in `tests/evidence/windows-state-issue-2.json`.
 
 ### Phase 2 Quality Review
 
 The independent phase reviewer, security auditor, and recovery auditor reviewed the strict Phase-2
 tree. Auto-design selected a technical correction for every critical/major finding; no risk was
-waived. Task 2.3.3 remains implemented until current-tree Ubuntu CI proves the exact five-command
-gate and the single permitted re-review clears these corrections.
+waived. Current-tree Ubuntu CI proved the exact five-command gate after the single permitted
+re-review and its required corrections.
 
 | Finding | Severity | Decision | State |
 |---|---|---|---|
 | RV2-001: persisted and returned graph paths used host separators | MAJOR | Canonicalize every durable and public graph path to `/` | Fixed; direct verification passed |
 | RV2-002 / RV2-002R: migration/conformance subprocesses depended on absent or stale ambient plugin authority | MAJOR | Unconditionally install isolated native test authority, restore the original environment at exit, and make the direct launcher establish its repository import root | Fixed after re-review; hostile-ambient verification passed |
-| RV2-003: the five-command gate claim used an older Ubuntu tree | MAJOR | Add a manual trigger to the unchanged Ubuntu workflow and require a current-tree run | Implemented; CI evidence pending |
+| RV2-003: the five-command gate claim used an older Ubuntu tree | MAJOR | Add a manual trigger to the unchanged Ubuntu workflow and require a current-tree run | Fixed; run `31127808294` passed |
 | RV2-004: durable path grammar applied Windows-invalid-name rejection only on Windows | MAJOR | Enforce the portable durable-name grammar on every host while retaining Windows-only legacy backslash reads | Fixed; cross-host specification verification passed |
 | P2-SEC-001 / RC-003: recovery mutated journal/locks before validating the complete path set | MAJOR | Validate journal identity, regular-file existence, all graph/image paths, containment, reparse state, and NTFS alias collisions before takeover mutation | Fixed after re-review; missing-file and fault-injection verification passed |
 | P2-SEC-002: direct state-module execution bypassed mutation preflight | MAJOR | Disable the internal module entry point; retain the public preflighted launcher as the sole CLI | Fixed; byte-identical refusal verification passed |

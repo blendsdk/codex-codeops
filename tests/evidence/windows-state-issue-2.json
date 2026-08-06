@@ -3,9 +3,9 @@
   "issue": 2,
   "feature": "native-windows-support",
   "phase": 2,
-  "capturedAt": "2026-08-06T22:10:00+02:00",
+  "capturedAt": "2026-08-06T22:44:00+02:00",
   "sourceRef": "feat/native-windows-support",
-  "verifiedParent": "58226fdaea615850f384998096ce0a8c612adadb",
+  "verifiedParent": "1f6ca26f9c9deeefbedf1d288672c989c61886ba",
   "host": {
     "classification": "native-windows",
     "product": "Windows 11",
@@ -21,7 +21,7 @@
       "log": "%TEMP%/verify-phase-2-state-all.log"
     },
     "repositoryConformance": {
-      "passed": 245,
+      "passed": 252,
       "failed": 0,
       "log": "%TEMP%/verify-phase-2-full-conformance-rerun.log"
     },
@@ -42,8 +42,8 @@
     ]
   },
   "ubuntuBaseline": {
-    "run": 31116047265,
-    "commit": "a3890b8970fb00ca4cc71e9b12588f7d90ceaeca",
+    "run": 31127808294,
+    "commit": "1f6ca26f9c9deeefbedf1d288672c989c61886ba",
     "conclusion": "success"
   },
   "boundary": {
