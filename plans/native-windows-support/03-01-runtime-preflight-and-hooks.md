@@ -161,6 +161,13 @@ and PreToolUse hooks invoke the same gate as defense in depth; neither is treate
 for a direct CLI mutation. Shared atomic writers repeat the path/filesystem portion immediately
 before replacement or recovery (AR-5).
 
+The portable hook module exposes `run_hook(payload, dependencies)`. Its required
+`HookDependencies` protocol supplies preflight, session-context rendering, and marker-guard calls.
+For SessionStart, successful preflight precedes context rendering. For PreToolUse, mutation
+preflight precedes the marker guard; a blocking preflight prevents the later call. The production
+CLI constructs the real dependency object, while tests use an in-memory ordered call recorder.
+CLI payloads cannot select dependencies or enable a test mode (AR-16).
+
 ## Error Handling
 
 | Error Case | Handling Strategy | AR Ref |

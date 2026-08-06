@@ -20,7 +20,7 @@
 | AR-13 | Evidence | What evidence closes the Windows claim? | CI plus real Windows 11 installed-plugin evidence and desktop smoke / CI alone | Require CI plus retained, version-matched native Windows 11 CLI installed-plugin evidence and a Windows desktop installation/representative-workflow smoke test before claiming support. | ✅ Resolved |
 | AR-14 | Verification | Which repository commands are the authoritative full gate? | All five `AGENTS.md` commands / a narrower subset | Use all five commands from `AGENTS.md`; provide native Python/PowerShell entry points that prove the same checks on Windows. | ✅ Resolved |
 | AR-15 | Execution bootstrap (runtime) | How is task progress tracked before the plan's own Windows process-identity work makes atomic traceability transitions available? | Pause all implementation / use an explicit temporary Markdown-first bootstrap and reconcile immediately after native transition integration | User authorized implementation to proceed without WSL. Keep the execution-plan marks current, commit only verified tasks, leave graph task nodes pending, and atomically reconcile every deferred task transition immediately after Task 2.2.6 makes native transitions available; do not proceed to Task 2.2.7 until reconciliation passes. | ✅ Resolved |
-| AR-16 | Test architecture (runtime) | How can specification tests control Windows host/probe/clock/attestation outcomes without depending on implementation internals or a test-only CLI mode? | Required dependency protocol at the Python orchestration boundary / patch private functions / environment-variable simulation | Add a required `PreflightDependencies` protocol to `run_preflight`; production CLI constructs native dependencies, while specification tests supply an in-memory implementation. No test-mode branch or environment backdoor ships. | ✅ Resolved |
+| AR-16 | Test architecture (runtime) | How can specification tests control Windows host/probe/clock/attestation and hook-order outcomes without depending on implementation internals or a test-only CLI mode? | Required dependency protocols at Python orchestration boundaries / patch private functions / environment-variable simulation | Add required `PreflightDependencies` and `HookDependencies` protocols to the preflight and hook orchestrators; production CLIs construct native dependencies, while specification tests supply in-memory implementations. No test-mode branch or environment backdoor ships. | ✅ Resolved |
 
 ## Resolution Notes
 
@@ -48,7 +48,7 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
 - **Eligibility:** Internal testing/interface mechanism inside the approved runtime contract; no
   product behavior, compatibility boundary, or scope change.
 - **Objective:** Preserve implementation-independent specification tests while making every host,
-  clock, probe, and attestation outcome deterministic.
+  clock, probe, attestation, and hook-order outcome deterministic.
 - **Evidence:** The public orchestration signature is specified before implementation, Windows
   probes are platform-bound, and environment simulation would create a production backdoor.
 - **Rejected alternatives:** Private-function patching couples tests to implementation structure;

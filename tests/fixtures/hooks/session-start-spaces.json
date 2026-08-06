@@ -1,0 +1,8 @@
+{
+  "session_id": "fixture-session",
+  "cwd": "C:\\Users\\Example User\\Project With Spaces",
+  "hook_event_name": "SessionStart",
+  "source": "startup",
+  "model": "fixture-model",
+  "permission_mode": "default"
+}

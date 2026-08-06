@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 20:19
-> **Progress**: 1/72 tasks (1%)
+> **Last Updated**: 2026-08-06 20:22
+> **Progress**: 2/72 tasks (3%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -56,7 +56,7 @@ in Phase 2; the broader umbrella issue closes only after Phase 5 evidence.
 AR-3–AR-7
 
 - [x] 1.1.1 [spec-author] Add bootstrap, closed mode/input matrix, status/exit, WSL, Python 3.10+, sandbox, and attestation specification cases — `tests/conformance/test_windows_preflight_spec.py` ✅ (completed: 2026-08-06 20:19)
-- [ ] 1.1.2 [spec-author] Add dual-host hook-manifest, path-with-spaces, mutation-order, and missing-trust specification cases — `tests/conformance/test_windows_preflight_spec.py`, `tests/fixtures/hooks/`
+- [x] 1.1.2 [spec-author] Add dual-host hook-manifest, path-with-spaces, mutation-order, and missing-trust specification cases — `tests/conformance/test_windows_preflight_spec.py`, `tests/fixtures/hooks/` ✅ (completed: 2026-08-06 20:22)
 - [ ] 1.1.3 Run the new Phase-1 specification module, record expected red results, and prove every pre-existing conformance test remains green — `tests/conformance/test_windows_preflight_spec.py`
 
 ### Step 1.2: Implementation
