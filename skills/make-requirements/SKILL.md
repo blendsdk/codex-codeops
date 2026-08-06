@@ -43,7 +43,7 @@ from, the make-plan skill — neither requires the other.
 For every accepted requirement and material ambiguity, maintain the feature's `traceability.json` according to [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). Requirements use stable `RD-*` identifiers; ambiguities and decisions use stable `AR-*` identifiers. Link each resolved ambiguity to every requirement or specification it affects. Before declaring requirements complete, run:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
   --gate requirements --target <target>
 ```
 

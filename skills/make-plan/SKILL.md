@@ -36,7 +36,7 @@ never accepts them; only the user may choose `Keep`.
 Maintain the feature's typed requirement → specification/invariant → acceptance criterion → specification test → task chain in `traceability.json`; follow [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). A plan is not ready merely because its documents exist. Before presenting it as executable, run:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
   --gate plan --target <target>
 ```
 

@@ -48,7 +48,7 @@ until the artifact passes clean.
 Begin with deterministic evidence when the project has CodeOps traceability:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
   --gate audit --target <target>
 ```
 

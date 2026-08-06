@@ -1352,6 +1352,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:skill validators and host-neutral interpreter surface audit passed for requirements, planning, and preflight"
+      ],
       "id": "TASK-4.2.6",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1372,7 +1375,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Replace hardcoded `python3` runtime examples with the host-neutral interpreter contract in requirements, planning, and preflight skills",
       "type": "task",
       "validations": []
