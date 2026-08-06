@@ -980,6 +980,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Native PowerShell verifier listed the five closed gates; portable worktree list/help passed; Unix launchers were statically verified without Bash execution."
+      ],
       "id": "TASK-3.2.10",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -992,7 +995,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Convert the worktree binary and five verification shell files to thin Unix launchers; add native PowerShell verification launcher",
       "type": "task",
       "validations": []

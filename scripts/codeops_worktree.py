@@ -45,11 +45,16 @@ def _parser() -> argparse.ArgumentParser:
     remove.add_argument("--delete-branch", action="store_true")
     remove.add_argument("--dry-run", action="store_true")
     remove.add_argument("--json", action="store_true")
+    subparsers.add_parser("help")
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = _parser().parse_args(argv)
+    parser = _parser()
+    args = parser.parse_args(argv)
+    if args.command == "help":
+        parser.print_help()
+        return 0
     if args.command in {"list", "ls"}:
         try:
             worktrees = list_worktrees(args.root)

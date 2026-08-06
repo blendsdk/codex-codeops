@@ -283,7 +283,7 @@ AR-11, AR-14
 - [x] 3.2.7 Implement the portable validation/docs logical gates and deterministic aggregate reporter — `scripts/codeops_verify.py`, `scripts/codeops_verify_lib/core.py` ✅ (completed: 2026-08-06 23:36)
 - [x] 3.2.8 Implement portable migration/roadmap/compact logical gates by reusing Python commands and fixtures — `scripts/codeops_verify.py`, `scripts/codeops_verify_lib/fixtures.py` ✅ (completed: 2026-08-06 23:11)
 - [x] 3.2.9 Convert migration and roadmap shell files to thin strict argument-forwarding Unix launchers — `scripts/codeops-migrate.sh`, `scripts/codeops-roadmap-sync.sh`, `scripts/codeops-roadmap-compact.sh` ✅ (completed: 2026-08-06 23:16)
-- [ ] 3.2.10 Convert the worktree binary and five verification shell files to thin Unix launchers; add native PowerShell verification launcher — `bin/codeops-worktree`, `scripts/validate-codex.sh`, `scripts/codeops-verify.ps1`
+- [x] 3.2.10 Convert the worktree binary and five verification shell files to thin Unix launchers; add native PowerShell verification launcher — `bin/codeops-worktree`, `scripts/validate-codex.sh`, `scripts/codeops-verify.ps1` ✅ (completed: 2026-08-06 23:20)
 - [ ] 3.2.11 Complete remaining four verification launchers and run all Phase-3 specification cases green — `scripts/docs-check.sh`, `scripts/migration-check.sh`, `scripts/roadmap-sync-check.sh`
 
 ### Step 3.3: Implementation Tests and Hardening
