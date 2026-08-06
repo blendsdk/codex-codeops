@@ -225,6 +225,68 @@ class PortableWorktreeSpecification(unittest.TestCase):
         self.assertEqual(before, after)
         self.assertNotIn("whoami", result.stdout)
 
+    def test_worktree_dry_run_reports_argument_array_without_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw) / "project"
+            project.mkdir()
+            initialize_git(project)
+            result = run_cli(
+                WORKTREE,
+                "new",
+                "billing",
+                "--root",
+                str(project),
+                "--dry-run",
+                "--json",
+            )
+            payload = json.loads(result.stdout)
+            branches = subprocess.run(
+                ["git", "-C", str(project), "branch", "--format=%(refname:short)"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.splitlines()
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(payload["result"], "preview")
+        self.assertEqual(payload["branch"], "feat/billing")
+        self.assertEqual(payload["command"][0], "git")
+        self.assertEqual(branches, ["master"])
+
+    def test_worktree_create_and_remove_use_native_git(self) -> None:
+        with tempfile.TemporaryDirectory() as raw, tempfile.TemporaryDirectory() as plugin_raw:
+            project = Path(raw) / "project"
+            project.mkdir()
+            initialize_git(project)
+            target = project.parent / "project-billing"
+            with mock.patch.dict(
+                "os.environ",
+                {"PLUGIN_ROOT": str(ROOT), "PLUGIN_DATA": plugin_raw},
+            ):
+                created = run_cli(
+                    WORKTREE,
+                    "new",
+                    "billing",
+                    "--root",
+                    str(project),
+                    "--json",
+                )
+                removed = run_cli(
+                    WORKTREE,
+                    "remove",
+                    str(target),
+                    "--root",
+                    str(project),
+                    "--delete-branch",
+                    "--json",
+                )
+
+            self.assertEqual(created.returncode, 0, created.stderr)
+            self.assertEqual(json.loads(created.stdout)["result"], "created")
+            self.assertEqual(removed.returncode, 0, removed.stderr)
+            self.assertEqual(json.loads(removed.stdout)["result"], "removed")
+            self.assertFalse(target.exists())
+
 
 class ExistingPortableSurfaceSpecification(unittest.TestCase):
     def test_st_36_hooks_outcomes_and_agents_accept_paths_as_data(self) -> None:

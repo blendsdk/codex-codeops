@@ -892,6 +892,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Four native worktree specifications passed, including mutation-free preview, registered preflight, real native Git create/remove, branch deletion, hostile input refusal, and no shell delegation."
+      ],
       "id": "TASK-3.2.6",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -904,7 +907,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Implement mutation-gated worktree new/remove plus dry-run/launch using the shared native Git/Codex subprocess adapter",
       "type": "task",
       "validations": []

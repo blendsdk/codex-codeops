@@ -20,6 +20,7 @@ from scripts.codeops_worktree_lib.model import (
     slugify_topic,
     validate_branch,
 )
+from scripts.codeops_worktree_lib.commands import create_worktree, remove_worktree
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -64,17 +65,37 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     if args.command == "new":
         try:
-            project = git_root(args.root)
-            main = list_worktrees(project)[0].path
-            slug = slugify_topic(args.topic)
-            validate_branch(args.branch or f"feat/{slug}")
-            if args.path is not None:
-                contained_worktree_path(main, args.path)
+            code, payload = create_worktree(
+                args.root,
+                args.topic,
+                base=args.base,
+                branch=args.branch,
+                path=args.path,
+                dry_run=args.dry_run,
+                launch=args.launch,
+            )
         except (OSError, ValueError) as exc:
             print(f"codeops-worktree: {exc}", file=sys.stderr)
             return 2
-    print(f"codeops-worktree: {args.command} is not available yet", file=sys.stderr)
-    return 1
+    else:
+        try:
+            code, payload = remove_worktree(
+                args.root,
+                args.target,
+                force=args.force,
+                delete_branch=args.delete_branch,
+                dry_run=args.dry_run,
+            )
+        except (OSError, ValueError) as exc:
+            print(f"codeops-worktree: {exc}", file=sys.stderr)
+            return 2
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    elif code == 0:
+        print(f"codeops-worktree: {payload['result']} {payload['path']}")
+    else:
+        print(f"codeops-worktree: {payload['error']}", file=sys.stderr)
+    return code
 
 
 if __name__ == "__main__":

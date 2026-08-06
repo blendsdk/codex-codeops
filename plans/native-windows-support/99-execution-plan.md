@@ -279,7 +279,7 @@ AR-11, AR-14
 - [x] 3.2.3 Extract roadmap layout parsing, derived stage/status calculation, and deterministic rendering to Python — `scripts/codeops_roadmap.py`, `scripts/codeops_roadmap_lib/model.py` ✅ (completed: 2026-08-06 23:14)
 - [x] 3.2.4 Implement roadmap sync/compact check/write modes with command-boundary mutation gates and shared atomic writes — `scripts/codeops_roadmap.py`, `scripts/codeops_roadmap_lib/rendering.py` ✅ (completed: 2026-08-06 23:18)
 - [x] 3.2.5 Implement Python worktree parsing, topic/name validation, repository/default-branch discovery, and list behavior — `scripts/codeops_worktree.py`, `scripts/codeops_worktree_lib/model.py` ✅ (completed: 2026-08-06 23:24)
-- [ ] 3.2.6 Implement mutation-gated worktree new/remove plus dry-run/launch using the shared native Git/Codex subprocess adapter — `scripts/codeops_worktree.py`, `scripts/codeops_worktree_lib/commands.py`
+- [x] 3.2.6 Implement mutation-gated worktree new/remove plus dry-run/launch using the shared native Git/Codex subprocess adapter — `scripts/codeops_worktree.py`, `scripts/codeops_worktree_lib/commands.py` ✅ (completed: 2026-08-06 23:29)
 - [ ] 3.2.7 Implement the portable validation/docs logical gates and deterministic aggregate reporter — `scripts/codeops_verify.py`, `scripts/codeops_verify_lib/core.py`
 - [ ] 3.2.8 Implement portable migration/roadmap/compact logical gates by reusing Python commands and fixtures — `scripts/codeops_verify.py`, `scripts/codeops_verify_lib/fixtures.py`
 - [ ] 3.2.9 Convert migration and roadmap shell files to thin strict argument-forwarding Unix launchers — `scripts/codeops-migrate.sh`, `scripts/codeops-roadmap-sync.sh`, `scripts/codeops-roadmap-compact.sh`
