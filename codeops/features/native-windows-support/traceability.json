@@ -672,6 +672,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:152 state and 245 repository conformance tests pass natively; issue-2 evidence retained"
+      ],
       "id": "TASK-2.3.3",
       "revision": "sha256:6b0fdedf63e4da6bb25133a4448e5e9eeb5cf26a3bb0d6c807a08b5614bb2af9",
       "semanticSources": [
@@ -684,7 +687,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence",
       "type": "task",
       "validations": []

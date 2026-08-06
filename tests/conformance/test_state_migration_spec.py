@@ -12,6 +12,8 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from scripts.codeops_state_lib.processes import native_process_backend
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "codeops_state.py"
@@ -430,15 +432,13 @@ class TransitionSpecificationTests(unittest.TestCase):
         self.assertEqual(after, before)
 
     def test_st_44_recovery_refuses_when_owner_absence_is_unproven(self) -> None:
+        current = native_process_backend().identify(os.getpid())
+        self.assertIsNotNone(current)
         with tempfile.TemporaryDirectory() as raw:
             root, graph = self.make_root(raw, [requirement()])
             state = root / "codeops" / ".state-transactions"
             state.mkdir()
-            owner = {
-                "pid": os.getpid(),
-                "startTicks": Path(f"/proc/{os.getpid()}/stat").read_text().split()[21],
-                "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
-            }
+            owner = current.to_payload()
             (state / "op-1.lock").write_text(
                 json.dumps({"operationId": "op-1", "owner": owner, "nonce": "lock-1"}),
                 encoding="utf-8",

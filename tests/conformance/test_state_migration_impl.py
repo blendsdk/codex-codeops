@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -20,11 +21,20 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "codeops_state.py"
 ARTIFACT = b"# Artifact\n"
 REVISION = "sha256:" + hashlib.sha256(ARTIFACT).hexdigest()
-ABSENT_OWNER = {
-    "pid": 999999,
-    "startTicks": "1",
-    "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
-}
+ABSENT_OWNER = (
+    {
+        "schemaVersion": 1,
+        "backend": "windows-filetime",
+        "pid": 999999,
+        "creationFileTime": "1",
+    }
+    if os.name == "nt"
+    else {
+        "pid": 999999,
+        "startTicks": "1",
+        "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
+    }
+)
 
 
 def graph(status: str = "draft") -> dict[str, object]:
@@ -308,7 +318,17 @@ class TransitionImplementationTests(unittest.TestCase):
             }), encoding="utf-8")
             result = subprocess.run(self.command("transition-recover", root, request), capture_output=True, text=True)
         self.assertEqual(result.returncode, 1)
-        self.assertEqual(json.loads(result.stdout)["blockers"][0]["code"], "unsafe-recovery-path")
+        if os.name == "nt":
+            self.assertEqual(result.stdout, "")
+            self.assertEqual(
+                result.stderr,
+                "CodeOps state mutation prerequisite evaluation failed.\n",
+            )
+        else:
+            self.assertEqual(
+                json.loads(result.stdout)["blockers"][0]["code"],
+                "unsafe-recovery-path",
+            )
 
     def test_cross_platform_normalization_is_stable(self) -> None:
         variants = (b"\xef\xbb\xbfline  \r\nnext\t\r\n", b"line\nnext\n")

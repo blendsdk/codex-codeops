@@ -57,7 +57,12 @@ class NativePathProbe:
     is_windows = os.name == "nt"
 
     def canonical(self, path: Path) -> Path:
-        return path.resolve(strict=False)
+        resolved = str(path.resolve(strict=False))
+        if self.is_windows and resolved.startswith("\\\\?\\UNC\\"):
+            resolved = "\\\\" + resolved[8:]
+        elif self.is_windows and resolved.startswith("\\\\?\\"):
+            resolved = resolved[4:]
+        return Path(resolved)
 
     def volume_info(self, path: Path) -> VolumeInfo:
         existing = path

@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 22:02
-> **Progress**: 23/72 tasks (32%)
+> **Last Updated**: 2026-08-06 22:10
+> **Progress**: 24/72 tasks (33%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -141,7 +141,9 @@ that exact correction passed direct verification. Per the review cap, no third r
 > `tests/conformance/test_windows_state_impl.py`,
 > `tests/conformance/test_windows_state_native.py`,
 > `tests/conformance/test_state_migration_spec.py`,
+> `tests/conformance/test_state_migration_impl.py`,
 > `tests/conformance/test_state_test_collection.py`, `tests/fixtures/windows-state/`,
+> `tests/evidence/windows-state-issue-2.json`,
 > `scripts/codeops_state.py`, `scripts/codeops_state_lib/models.py`,
 > `scripts/codeops_state_lib/processes.py`, `scripts/codeops_state_lib/processes_windows.py`,
 > `scripts/codeops_state_lib/paths.py`, `scripts/codeops_state_lib/filesystem.py`,
@@ -151,6 +153,9 @@ that exact correction passed direct verification. Per the review cap, no third r
 > `scripts/codeops_windows_lib/probes.py` because native integration proved the Windows Store
 > `py.exe` alias cannot launch inside the restricted-token sandbox. The probe now uses the concrete
 > already-certified `sys.executable`; prerequisite policy and acceptance behavior are unchanged.
+> **Authorized collection correction:** Task 2.3.3 may update the migration fixtures to construct
+> equivalent current-host owner records instead of importing `/proc` during Windows collection.
+> Linux retains its original procfs record and assertions.
 
 ### Step 2.1: Specification Tests
 
@@ -195,9 +200,17 @@ not executed through an emulation layer on Windows under the no-WSL constraint.
 
 - [x] 2.3.1 Add Windows API failure/cleanup, foreign backend, NTFS alias/reparse grammar, exact retry classification/schedule, command-boundary gate, and every write-boundary fault-injection case — `tests/conformance/test_windows_state_impl.py` ✅ (completed: 2026-08-06 22:00)
 - [x] 2.3.2 Add native integration helpers for real concurrent owners, stale processes, PID reuse where controllable, interruption, and recovery; skip only with explicit non-Windows reason — `tests/conformance/test_windows_state_native.py` ✅ (completed: 2026-08-06 22:02)
-- [ ] 2.3.3 Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence — `tests/evidence/windows-state-issue-2.json`
+- [x] 2.3.3 Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence — `tests/evidence/windows-state-issue-2.json` ✅ (completed: 2026-08-06 22:10)
 
 **Verify**: run all five commands confirmed in AR-14.
+
+Native Phase-2 verification passed 152/152 state tests and 245/245 repository conformance tests,
+plus plugin, all 16 skill manifests, local Markdown links, retained scenario parity, compilation,
+documentation-release text, and Codex-native terminology checks. No Windows command used WSL,
+Git Bash, or Bash. The unchanged shell-only migration/roadmap/compact logical gates retain the
+successful Ubuntu baseline from run `31116047265`; their current-tree native equivalents remain
+owned by Phase 3 before the next full gate. Issue-#2 implementation evidence is retained in
+`tests/evidence/windows-state-issue-2.json`.
 
 ## Phase 3: Portable Utility Control Layer
 

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "issue": 2,
+  "feature": "native-windows-support",
+  "phase": 2,
+  "capturedAt": "2026-08-06T22:10:00+02:00",
+  "sourceRef": "feat/native-windows-support",
+  "verifiedParent": "58226fdaea615850f384998096ce0a8c612adadb",
+  "host": {
+    "classification": "native-windows",
+    "product": "Windows 11",
+    "version": "10.0.26100.0",
+    "python": "3.14.6",
+    "filesystem": "fixed-local-NTFS",
+    "prohibitedRuntimesUsed": []
+  },
+  "results": {
+    "stateTests": {
+      "passed": 152,
+      "failed": 0,
+      "log": "%TEMP%/verify-phase-2-state-all.log"
+    },
+    "repositoryConformance": {
+      "passed": 245,
+      "failed": 0,
+      "log": "%TEMP%/verify-phase-2-full-conformance-rerun.log"
+    },
+    "nativeLogicalChecks": [
+      "plugin",
+      "skill-manifests",
+      "markdown-links",
+      "scenario-parity",
+      "compile",
+      "documentation-release-text",
+      "native-terminology"
+    ],
+    "realHostScenarios": [
+      "concurrent-process-owners",
+      "stale-owner-recovery",
+      "abrupt-writer-termination",
+      "concurrent-atomic-writes"
+    ]
+  },
+  "ubuntuBaseline": {
+    "run": 31116047265,
+    "commit": "a3890b8970fb00ca4cc71e9b12588f7d90ceaeca",
+    "conclusion": "success"
+  },
+  "boundary": {
+    "implementationCauseClosed": true,
+    "nativeFiveGateVerifierPendingPhase": 3,
+    "releaseCertificationPendingPhase": 5
+  }
+}
