@@ -936,6 +936,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Native Windows migration, roadmap, and compact logical gates passed; Python compilation succeeded."
+      ],
       "id": "TASK-3.2.8",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -948,7 +951,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Implement portable migration/roadmap/compact logical gates by reusing Python commands and fixtures",
       "type": "task",
       "validations": []

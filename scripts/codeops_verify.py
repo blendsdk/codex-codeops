@@ -13,22 +13,16 @@ SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
-from scripts.codeops_verify_lib.core import CHECK_NAMES, CheckResult, docs, run_checks, validate
-
-
-def _pending(name: str):
-    def check(root: Path) -> CheckResult:
-        del root
-        return CheckResult(name, 1, stderr=f"{name} verification is not available yet.\n")
-    return check
+from scripts.codeops_verify_lib.core import CHECK_NAMES, docs, run_checks, validate
+from scripts.codeops_verify_lib.fixtures import compact_check, migration, roadmap
 
 
 CHECKS = {
     "validate": validate,
     "docs": docs,
-    "migration": _pending("migration"),
-    "roadmap": _pending("roadmap"),
-    "compact": _pending("compact"),
+    "migration": migration,
+    "roadmap": roadmap,
+    "compact": compact_check,
 }
 
 
