@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 from .models import (
@@ -23,6 +24,57 @@ class ProcessBackend(Protocol):
     def identify(self, pid: int) -> ProcessIdentity | None: ...
 
     def absence(self, identity: ProcessIdentity) -> AbsenceState: ...
+
+
+class LinuxProcBackend:
+    """Linux owner proof using the existing procfs start-tick and boot-ID rules."""
+
+    backend_name = "linux-proc"
+
+    def __init__(self, proc_root: Path = Path("/proc")) -> None:
+        self.proc_root = proc_root
+
+    def identify(self, pid: int) -> LinuxProcessIdentity | None:
+        if _positive_pid(pid) is None:
+            return None
+        stat = self.proc_root / str(pid) / "stat"
+        boot = self.proc_root / "sys/kernel/random/boot_id"
+        try:
+            fields = stat.read_text(encoding="utf-8").split()
+            return LinuxProcessIdentity(
+                pid,
+                fields[21],
+                boot.read_text(encoding="utf-8").strip(),
+            )
+        except (OSError, IndexError):
+            return None
+
+    def absence(self, identity: ProcessIdentity) -> AbsenceState:
+        if not isinstance(identity, LinuxProcessIdentity):
+            return AbsenceState.UNKNOWN
+        if not self.proc_root.is_dir():
+            return AbsenceState.UNKNOWN
+        try:
+            boot_id = (self.proc_root / "sys/kernel/random/boot_id").read_text(
+                encoding="utf-8"
+            ).strip()
+        except OSError:
+            return AbsenceState.UNKNOWN
+        if boot_id != identity.boot_id:
+            return AbsenceState.ABSENT
+        stat = self.proc_root / str(identity.pid) / "stat"
+        try:
+            fields = stat.read_text(encoding="utf-8").split()
+        except FileNotFoundError:
+            return AbsenceState.ABSENT
+        except OSError:
+            return AbsenceState.UNKNOWN
+        try:
+            if fields[21] != identity.start_ticks:
+                return AbsenceState.ABSENT
+        except IndexError:
+            return AbsenceState.UNKNOWN
+        return AbsenceState.PRESENT
 
 
 def _positive_pid(value: object) -> int | None:

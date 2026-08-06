@@ -15,12 +15,14 @@ from typing import Any
 from .discovery import discover_state
 from .gates import compatibility_problem, evaluate_target
 from .models import (
+    AbsenceState,
     Graph,
     Node,
     SemanticSource,
     SourceSelector,
     StructuralProblem,
 )
+from .processes import LinuxProcBackend, current_process_identity, owner_absence
 from .rendering import problem_json
 from .revisions import compute_revision
 from .schema import parse_graph_v2, validate_portfolio_v2
@@ -294,51 +296,27 @@ def _sync_directory(path: Path) -> None:
         pass
 
 
+_LINUX_PROCESS_BACKEND = LinuxProcBackend()
+
+
 def _process_identity(pid: int) -> dict[str, Any] | None:
-    stat = Path(f"/proc/{pid}/stat")
-    boot = Path("/proc/sys/kernel/random/boot_id")
-    try:
-        fields = stat.read_text(encoding="utf-8").split()
-        return {
-            "pid": pid,
-            "startTicks": fields[21],
-            "bootId": boot.read_text(encoding="utf-8").strip(),
-        }
-    except (OSError, IndexError):
+    identity = current_process_identity(_LINUX_PROCESS_BACKEND, pid)
+    if identity is None:
         return None
+    return {
+        "pid": identity.pid,
+        "startTicks": identity.start_ticks,
+        "bootId": identity.boot_id,
+    }
 
 
 def _owner_is_absent(owner: Any) -> bool | None:
-    if not isinstance(owner, dict) or set(owner) != {"pid", "startTicks", "bootId"}:
-        return None
-    if (
-        not isinstance(owner["pid"], int)
-        or not isinstance(owner["startTicks"], str)
-        or not isinstance(owner["bootId"], str)
-    ):
-        return None
-    proc_root = Path("/proc")
-    if not proc_root.is_dir():
-        return None
-    try:
-        boot_id = (proc_root / "sys/kernel/random/boot_id").read_text(
-            encoding="utf-8"
-        ).strip()
-    except OSError:
-        return None
-    if boot_id != owner["bootId"]:
+    absence = owner_absence(owner, _LINUX_PROCESS_BACKEND)
+    if absence is AbsenceState.ABSENT:
         return True
-    stat = proc_root / str(owner["pid"]) / "stat"
-    try:
-        fields = stat.read_text(encoding="utf-8").split()
-    except FileNotFoundError:
-        return True
-    except OSError:
-        return None
-    try:
-        return fields[21] != owner["startTicks"]
-    except IndexError:
-        return None
+    if absence is AbsenceState.PRESENT:
+        return False
+    return None
 
 
 def _failure(

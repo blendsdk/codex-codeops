@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 21:39
-> **Progress**: 15/72 tasks (21%)
+> **Last Updated**: 2026-08-06 21:41
+> **Progress**: 16/72 tasks (22%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -174,7 +174,7 @@ not executed through an emulation layer on Windows under the no-WSL constraint.
 **Reference**: [03-03 §Process Identity Contract](03-03-state-and-filesystem-safety.md#process-identity-contract) and [§Atomic Write Contract](03-03-state-and-filesystem-safety.md#atomic-write-contract)
 
 - [x] 2.2.1 Add closed versioned Linux/Windows process identity models, backend protocol, and exact legacy-Linux record parser — `scripts/codeops_state_lib/processes.py`, `scripts/codeops_state_lib/models.py` ✅ (completed: 2026-08-06 21:39)
-- [ ] 2.2.2 Move current `/proc` behavior behind the Linux backend without changing its absence decisions — `scripts/codeops_state_lib/processes.py`, `scripts/codeops_state_lib/transitions.py`
+- [x] 2.2.2 Move current `/proc` behavior behind the Linux backend without changing its absence decisions — `scripts/codeops_state_lib/processes.py`, `scripts/codeops_state_lib/transitions.py` ✅ (completed: 2026-08-06 21:41)
 - [ ] 2.2.3 Implement least-privilege Windows PID/creation-FILETIME probing with guaranteed handle cleanup and fail-closed uncertainty — `scripts/codeops_state_lib/processes_windows.py`, `scripts/codeops_state_lib/processes.py`
 - [ ] 2.2.4 Implement canonical durable paths, safe legacy reads, NTFS/case/8.3 collision keys, every-existing-component root-to-target reparse rejection, containment, and invalid-component rejection — `scripts/codeops_state_lib/paths.py`
 - [ ] 2.2.5 Implement shared same-directory atomic writes with the fixed WinError 32/33 retry schedule, immediate filesystem revalidation, and no delete fallback — `scripts/codeops_state_lib/filesystem.py`
