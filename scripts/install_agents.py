@@ -216,7 +216,9 @@ def main() -> int:
     target_dir = project / ".codex" / "agents"
     roles = list(ROLE_SOURCES)
     if args.roles:
-        roles = [role.strip() for role in args.roles.split(",") if role.strip()]
+        roles = list(dict.fromkeys(
+            role.strip() for role in args.roles.split(",") if role.strip()
+        ))
     unknown = sorted(set(roles) - set(ROLE_SOURCES))
     if unknown:
         print(f"Unknown roles: {', '.join(unknown)}", file=sys.stderr)

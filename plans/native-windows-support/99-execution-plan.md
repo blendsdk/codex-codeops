@@ -389,12 +389,17 @@ necessary correction.
 |---|---|---|---|
 | P4-RV-001 / P4-SEC-001 / P4-RC-002: linked-worktree snapshots used the checkout as root and omitted the predictable index lock | MAJOR | Use the primary worktree's parent as the common sibling boundary; gate the common directory, objects, temporary index, and index lock; clean both temporary paths | Fixed; real linked-worktree regression passed |
 | P4-SEC-002 / P4-RC-001: concurrent outcome read/replace lost successful events | MAJOR | Serialize the complete read-and-atomic-replace operation with a process-owned per-path OS lock | Fixed; eight-process native concurrency regression retained every event |
-| P4-RC-003 / P4-SEC-006: multi-role agent installation could partially apply | MAJOR | Publish a closed hash-bound multi-file transaction with process locking, rollback, journal-first cleanup, and restart recovery | Fixed; later-write rollback and interrupted-restart regressions passed |
+| P4-RC-003 / P4-SEC-006: multi-role agent installation could partially apply, and duplicate requested roles could make its recovery journal invalid | MAJOR | Deduplicate roles before planning, then publish a closed hash-bound multi-file transaction with process locking, rollback, journal-first cleanup, and restart recovery | Fixed; duplicate-role, later-write rollback, and interrupted-restart regressions passed |
 | P4-RV-002 / P4-SEC-003: command evidence captured only test-owned top-level wrappers | MAJOR | Add an explicit inherited absolute evidence sink to the shared argument-array adapter, serialize its writers, and prove nested Git capture plus trace-free ordinary operation | Fixed; nested capture/default-no-trace regressions passed |
-| P4-RV-003 / P4-SEC-003: ST-40 did not execute the required spaces-path lifecycle | MAJOR | Run requirements, planning, execution preflight, state transition, roadmap, migration, and final validation sequentially in native spaces paths with captured command assertions | Fixed; sequential lifecycle regression passed |
+| P4-RV-003 / P4-SEC-003: ST-40 did not execute the required installed spaces-path lifecycle and initially accepted a no-op roadmap result | MAJOR | Run the copied installed plugin's requirements, planning, execution preflight, state-transition, roadmap, and migration CLIs through real native command gates; require durable roadmap changes, an in-sync follow-up, final state validation, and captured nested commands | Fixed; installed native sequential lifecycle and roadmap post-state regression passed |
 | P4-RV-004: shared quality instructions retained a hardcoded `python3` command | MAJOR | Use `<CODEOPS_PYTHON>` and add the shared file to both interpreter inventories | Fixed; complete surface scan passed |
 | P4-SEC-004: recorded Phase-4 baseline hash was not a real commit | MAJOR | Replace it with the resolved Phase-3 closure commit | Fixed; baseline resolves to `c4626d86426d98f0a0f0bcf1e515ae283750f441` |
 | P4-SEC-005: the generic project root could not contain linked-worktree Git metadata for guarded commits | MAJOR | Define the Git-specific common sibling boundary and closed index/object/ref/log/HEAD/message target set, rerun before staging and commit | Fixed; guarded-commit contract regression passed |
+
+The single permitted re-review cleared all recovery findings plus the original linked-worktree,
+command-capture, interpreter, baseline, and Git-boundary findings. It exposed the duplicate-role
+journal edge and a roadmap false-positive in ST-40. Those exact residuals were corrected and
+verified directly without requesting a third review, honoring the review cap.
 
 **Verify**: run all five commands confirmed in AR-14.
 

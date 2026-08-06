@@ -268,6 +268,25 @@ class MutationUtilityImplementationTests(unittest.TestCase):
         self.assertEqual(installed, ["design-challenger.toml", "explorer.toml"])
         self.assertFalse(state.exists())
 
+    def test_duplicate_agent_roles_are_deduplicated_before_transaction_planning(self) -> None:
+        from scripts import install_agents
+
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw)
+            argv = [
+                "install_agents.py", "--project", str(project),
+                "--roles", "explorer,explorer",
+            ]
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(install_agents, "run_mutation_preflight", return_value=0),
+            ):
+                self.assertEqual(install_agents.main(), 0)
+            installed = list((project / ".codex/agents").glob("*.toml"))
+            state = project / ".codex/agents" / install_agents.TRANSACTION_DIRECTORY
+        self.assertEqual([path.name for path in installed], ["explorer.toml"])
+        self.assertFalse(state.exists())
+
     def test_snapshot_gates_git_object_and_temporary_index_mutations(self) -> None:
         from scripts import codeops_worktree_snapshot as snapshot
 

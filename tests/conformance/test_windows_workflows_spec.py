@@ -13,7 +13,6 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -188,15 +187,18 @@ class InstalledWorkflowSpecification(unittest.TestCase):
         self.assertNotIn("bash.exe", launcher)
 
     def test_st_40_spaces_path_runs_sequential_native_lifecycle_with_final_validation(self) -> None:
-        from scripts.codeops_migrate_lib.apply import apply_preview
-        from scripts.codeops_migrate_lib.model import build_preview
-        from scripts import codeops_roadmap
         from scripts.codeops_platform.subprocesses import run_command
-        from scripts.codeops_state_lib.transitions import transition
 
         with tempfile.TemporaryDirectory() as raw:
             base = Path(raw) / "Native Lifecycle With Spaces"
             base.mkdir()
+            installed = base / "Installed Plugin With Spaces"
+            shutil.copytree(ROOT / "scripts", installed / "scripts")
+            shutil.copytree(ROOT / "agent-templates", installed / "agent-templates")
+            shutil.copytree(ROOT / ".codex-plugin", installed / ".codex-plugin")
+            shutil.copytree(ROOT / "hooks", installed / "hooks")
+            plugin_data = base / "Plugin Data"
+            plugin_data.mkdir()
             project = base / "Lifecycle Project"
             feature = project / "codeops/features/sample"
             feature.mkdir(parents=True)
@@ -259,16 +261,32 @@ class InstalledWorkflowSpecification(unittest.TestCase):
             graph_path = feature / "traceability.json"
             graph_path.write_text(json.dumps(graph, indent=2) + "\n", encoding="utf-8")
             (project / "codeops/.codeops.yml").write_text("codeopsLayout: nested\nschema: 1\n", encoding="utf-8")
-            (project / "codeops/00-roadmap.md").write_text("# Portfolio Roadmap\n", encoding="utf-8")
+            (project / "codeops/00-roadmap.md").write_text(
+                "# Portfolio Roadmap\n\n"
+                "> **Features**: 0 / 1 done\n"
+                "> **Last Updated**: 1999-01-01\n\n"
+                "| Feature | Roadmap | Stage Summary | Progress | Status | Last Updated |\n"
+                "|---------|---------|---------------|----------|--------|--------------|\n"
+                "| sample | [→](features/sample/00-roadmap.md) | execution | 0/1 RDs | ⬜ | 1999-01-01 |\n",
+                encoding="utf-8",
+            )
             (feature / "00-roadmap.md").write_text(
-                "# Feature Roadmap\n\n| ID | Requirement | Plan | Audit | Status | Progress |\n"
-                "|----|-------------|------|-------|--------|----------|\n"
-                "| RD-001 | Requirement | PLAN-001 | pass | 🔄 | 0 / 1 (0%) |\n",
+                "# Feature Roadmap\n\n"
+                "> **Progress**: 0 / 1 (0%)\n"
+                "> **Last Updated**: 1999-01-01\n\n"
+                "| ID | Title | RD | Plan | Stage | Status | Last Updated | Depends-on / Blocker |\n"
+                "|----|-------|----|------|-------|--------|--------------|----------------------|\n"
+                "| RD-001 | Requirement | — | PLAN-001 | Done | done | 1999-01-01 | — |\n",
                 encoding="utf-8",
             )
             evidence = base / "commands.json"
-            environment = {**os.environ, "CODEOPS_COMMAND_EVIDENCE": str(evidence)}
-            state = ROOT / "scripts/codeops_state.py"
+            environment = {
+                **os.environ,
+                "CODEOPS_COMMAND_EVIDENCE": str(evidence),
+                "PLUGIN_ROOT": str(installed),
+                "PLUGIN_DATA": str(plugin_data),
+            }
+            state = installed / "scripts/codeops_state.py"
             lifecycle_commands = (
                 (sys.executable, str(state), "readiness", "--root", str(project), "--gate", "requirements", "--target", "sample/RD-001", "--json"),
                 (sys.executable, str(state), "readiness", "--root", str(project), "--gate", "plan", "--target", "sample/PLAN-001", "--json"),
@@ -284,13 +302,24 @@ class InstalledWorkflowSpecification(unittest.TestCase):
                 "sourceUpdates": [], "validationAdditions": [], "validationRemovals": [],
                 "staleReason": None, "evidence": {},
             }), encoding="utf-8")
-            transition_code, transition_result = transition(project, request)
-
-            with (
-                patch.dict(os.environ, {"CODEOPS_COMMAND_EVIDENCE": str(evidence)}),
-                patch("scripts.codeops_roadmap_lib.rendering.run_mutation_preflight", return_value=0),
-            ):
-                roadmap_code = codeops_roadmap.main(["sync", "--root", str(project), "--write", "--date", "2026-08-07"])
+            transition_run = run_command(
+                (sys.executable, str(state), "transition", "--root", str(project),
+                 "--request", str(request), "--json"),
+                cwd=project,
+                environment=environment,
+            )
+            roadmap_run = run_command(
+                (sys.executable, str(installed / "scripts/codeops_roadmap.py"), "sync",
+                 "--root", str(project), "--write", "--date", "2026-08-07", "--json"),
+                cwd=project,
+                environment=environment,
+            )
+            roadmap_check = run_command(
+                (sys.executable, str(installed / "scripts/codeops_roadmap.py"), "sync",
+                 "--root", str(project), "--check", "--date", "2026-08-07", "--json"),
+                cwd=project,
+                environment=environment,
+            )
 
             migration = base / "Migration Project"
             (migration / "requirements").mkdir(parents=True)
@@ -302,12 +331,12 @@ class InstalledWorkflowSpecification(unittest.TestCase):
             subprocess.run(("git", "-C", str(migration), "config", "user.name", "CodeOps Test"), check=True)
             subprocess.run(("git", "-C", str(migration), "add", "."), check=True)
             subprocess.run(("git", "-C", str(migration), "commit", "-qm", "baseline"), check=True)
-            preview = build_preview(migration)
-            with (
-                patch.dict(os.environ, {"CODEOPS_COMMAND_EVIDENCE": str(evidence)}),
-                patch("scripts.codeops_migrate_lib.apply.run_mutation_preflight", return_value=0),
-            ):
-                migration_code, migration_result = apply_preview(migration, preview)
+            migration_run = run_command(
+                (sys.executable, str(installed / "scripts/codeops_migrate.py"), "apply",
+                 "--root", str(migration), "--json"),
+                cwd=migration,
+                environment=environment,
+            )
 
             validation = run_command(
                 (sys.executable, str(state), "validate", "--root", str(project), "--json"),
@@ -316,12 +345,20 @@ class InstalledWorkflowSpecification(unittest.TestCase):
             )
             records = json.loads(evidence.read_text(encoding="utf-8"))
             migrated_marker = (migration / "codeops/.codeops.yml").is_file()
+            feature_roadmap = (feature / "00-roadmap.md").read_text(encoding="utf-8")
+            portfolio_roadmap = (project / "codeops/00-roadmap.md").read_text(encoding="utf-8")
 
         self.assertTrue(all(result.exit_code == 0 for result in results), results)
-        self.assertEqual(transition_code, 0, transition_result)
-        self.assertEqual(transition_result["result"], "committed")
-        self.assertEqual(roadmap_code, 0)
-        self.assertEqual(migration_code, 0, migration_result)
+        self.assertEqual(transition_run.exit_code, 0, transition_run.stderr)
+        self.assertEqual(json.loads(transition_run.stdout)["result"], "committed")
+        self.assertEqual(roadmap_run.exit_code, 0, roadmap_run.stderr)
+        self.assertNotIn("DRIFT", roadmap_run.stdout + roadmap_run.stderr)
+        self.assertEqual(roadmap_check.exit_code, 0, roadmap_check.stderr)
+        self.assertEqual(json.loads(roadmap_check.stdout)["drift"], [])
+        self.assertIn("> **Progress**: 1 / 1 (100%)", feature_roadmap)
+        self.assertIn("> **Last Updated**: 2026-08-07", feature_roadmap)
+        self.assertIn("> **Features**: 1 / 1 done", portfolio_roadmap)
+        self.assertEqual(migration_run.exit_code, 0, migration_run.stderr)
         self.assertEqual(validation.exit_code, 0, validation.stderr)
         self.assertTrue(migrated_marker)
         forbidden = {"wsl", "wsl.exe", "bash", "bash.exe", "git-bash", "git-bash.exe"}
