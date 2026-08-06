@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +29,7 @@ EVENTS = {
 }
 STAGES = {"requirements", "specification", "planning", "execution", "verification", "review", "recovery"}
 RESULTS = {"pass", "fail", "resolved", "blocked", "accurate", "inaccurate"}
+OUTCOME_ACCESS_RETRY_DELAYS = (0.05, 0.10, 0.20, 0.40)
 
 
 def config_for(root: Path) -> dict[str, Any]:
@@ -96,7 +98,14 @@ def emit(args: argparse.Namespace) -> int:
     line = (json.dumps(event, separators=(",", ":"), sort_keys=True) + "\n").encode("utf-8")
     with exclusive_path_lock(store):
         existing = store.read_bytes() if store.is_file() else b""
-        atomic_write_bytes(store, existing + line, ops=NativeAtomicWriteOps(gate_root))
+        for attempt in range(len(OUTCOME_ACCESS_RETRY_DELAYS) + 1):
+            try:
+                atomic_write_bytes(store, existing + line, ops=NativeAtomicWriteOps(gate_root))
+                break
+            except PermissionError as exc:
+                if getattr(exc, "winerror", None) != 5 or attempt == len(OUTCOME_ACCESS_RETRY_DELAYS):
+                    raise
+                time.sleep(OUTCOME_ACCESS_RETRY_DELAYS[attempt])
     print("Outcome event recorded.")
     return 0
 

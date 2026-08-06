@@ -428,7 +428,13 @@ ambient UTF-8 variables. No Windows command used WSL, Git Bash, or Bash. Ubuntu 
 
 - [x] 5.1.1 [spec-author] Add explicit Windows 11 runner, Python 3.10+, native-command, and prohibited-runtime specification cases — `tests/conformance/test_windows_certification_spec.py` ✅ (completed: 2026-08-07 01:12)
 - [x] 5.1.2 [spec-author] Add capture/supporting-record hash binding, sanitization, evidence schema, completeness, failure, version binding, CLI/desktop provenance, and support-claim cases — `tests/conformance/test_windows_certification_spec.py`, `tests/fixtures/windows-evidence/` ✅ (completed: 2026-08-07 01:16)
-- [ ] 5.1.3 Run Phase-5 certification cases red while all functional Windows/Unix suites remain green — `tests/conformance/test_windows_certification_spec.py`
+- [x] 5.1.3 Run Phase-5 certification cases red while all functional Windows/Unix suites remain green — `tests/conformance/test_windows_certification_spec.py` ✅ (completed: 2026-08-07 01:25)
+
+The red gate collected all nine certification specifications at the missing CI/evidence owners.
+The prior functional inventory passed 281 tests with four platform skips. That inventory exposed
+a transient Windows access-denied race around the outcome store; the correction retains the
+shared atomic-writer contract and applies a bounded outcome-specific retry while holding the
+exclusive store lock. Three consecutive eight-process regressions passed.
 
 ### Step 5.2: Implementation
 

@@ -1666,6 +1666,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:nine Phase-5 certification cases red at intended boundaries; 281 earlier functional tests green with four platform skips; outcome concurrency passed three consecutive native runs"
+      ],
       "id": "TASK-5.1.3",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1678,7 +1681,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Run Phase-5 certification cases red while all functional Windows/Unix suites remain green",
       "type": "task",
       "validations": []
