@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+"""Portable Git worktree command for native Codex sessions."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import sys
+from typing import Sequence
+
+SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from scripts.codeops_worktree_lib.model import (
+    contained_worktree_path,
+    git_root,
+    list_worktrees,
+    slugify_topic,
+    validate_branch,
+)
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    listing = subparsers.add_parser("list", aliases=["ls"])
+    listing.add_argument("--root", type=Path, default=Path("."))
+    listing.add_argument("--json", action="store_true")
+    new = subparsers.add_parser("new")
+    new.add_argument("topic")
+    new.add_argument("--root", type=Path, default=Path("."))
+    new.add_argument("--from", dest="base")
+    new.add_argument("--branch")
+    new.add_argument("--path", type=Path)
+    new.add_argument("--launch", action="store_true")
+    new.add_argument("--dry-run", action="store_true")
+    new.add_argument("--json", action="store_true")
+    remove = subparsers.add_parser("remove", aliases=["rm"])
+    remove.add_argument("target")
+    remove.add_argument("--root", type=Path, default=Path("."))
+    remove.add_argument("--force", action="store_true")
+    remove.add_argument("--delete-branch", action="store_true")
+    remove.add_argument("--dry-run", action="store_true")
+    remove.add_argument("--json", action="store_true")
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parser().parse_args(argv)
+    if args.command in {"list", "ls"}:
+        try:
+            worktrees = list_worktrees(args.root)
+        except (OSError, ValueError) as exc:
+            print(f"codeops-worktree: {exc}", file=sys.stderr)
+            return 1
+        payload = {"result": "listed", "worktrees": [item.to_json() for item in worktrees]}
+        if args.json:
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            for item in worktrees:
+                print(f"{item.path}\t{item.branch or '(detached)'}")
+        return 0
+    if args.command == "new":
+        try:
+            project = git_root(args.root)
+            main = list_worktrees(project)[0].path
+            slug = slugify_topic(args.topic)
+            validate_branch(args.branch or f"feat/{slug}")
+            if args.path is not None:
+                contained_worktree_path(main, args.path)
+        except (OSError, ValueError) as exc:
+            print(f"codeops-worktree: {exc}", file=sys.stderr)
+            return 2
+    print(f"codeops-worktree: {args.command} is not available yet", file=sys.stderr)
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

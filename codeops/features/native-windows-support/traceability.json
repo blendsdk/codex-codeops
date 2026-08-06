@@ -870,6 +870,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Two native worktree specifications passed for Git porcelain listing, paths with spaces, closed branch/path validation, and mutation-free hostile argument refusal."
+      ],
       "id": "TASK-3.2.5",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -882,7 +885,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Implement Python worktree parsing, topic/name validation, repository/default-branch discovery, and list behavior",
       "type": "task",
       "validations": []
