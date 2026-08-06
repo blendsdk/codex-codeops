@@ -86,7 +86,8 @@ class FakeDependencies:
     ) -> None:
         self.stored.append((dict(request), result))
 
-    def cleanup_attestations(self) -> None:
+    def cleanup_attestations(self, request: Mapping[str, object]) -> None:
+        del request
         self.cleanup_calls += 1
 
 

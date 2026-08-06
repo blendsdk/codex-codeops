@@ -42,6 +42,25 @@ class CheckResult:
             "remediation": self.remediation,
         }
 
+    @classmethod
+    def from_payload(cls, payload: object) -> "CheckResult":
+        """Parse one closed check payload from a validated attestation."""
+        if not isinstance(payload, dict) or set(payload) != {
+            "code",
+            "status",
+            "message",
+            "remediation",
+        }:
+            raise ValueError("attested check payload is malformed")
+        code = payload["code"]
+        message = payload["message"]
+        remediation = payload["remediation"]
+        if not isinstance(code, str) or not isinstance(message, str):
+            raise ValueError("attested check text is malformed")
+        if remediation is not None and not isinstance(remediation, str):
+            raise ValueError("attested remediation is malformed")
+        return cls(code, Readiness(payload["status"]), message, remediation)
+
 
 @dataclass(frozen=True, slots=True)
 class PreflightResult:
@@ -75,6 +94,28 @@ class PreflightResult:
             ensure_ascii=False,
             sort_keys=True,
             separators=(",", ":"),
+        )
+
+    @classmethod
+    def from_payload(cls, payload: object) -> "PreflightResult":
+        """Parse the closed result payload stored in a bound attestation."""
+        if not isinstance(payload, dict) or set(payload) != {
+            "schemaVersion",
+            "status",
+            "sessionId",
+            "checks",
+        }:
+            raise ValueError("attested result payload is malformed")
+        if payload["schemaVersion"] != 1 or not isinstance(payload["sessionId"], str):
+            raise ValueError("attested result identity is malformed")
+        checks = payload["checks"]
+        if not isinstance(checks, list):
+            raise ValueError("attested checks are malformed")
+        return cls(
+            1,
+            Readiness(payload["status"]),
+            payload["sessionId"],
+            tuple(CheckResult.from_payload(check) for check in checks),
         )
 
 

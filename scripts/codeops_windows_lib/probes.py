@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Mapping, Sequence
 
 from scripts.codeops_platform.hosts import classify_process_host
+from scripts.codeops_windows_lib.attestation import AttestationStore
 from scripts.codeops_windows_lib.models import CheckResult, PreflightResult, Readiness
 
 
@@ -89,10 +90,13 @@ def _is_administrator() -> bool:
 class NativeProbeDependencies:
     """Production host and prerequisite probes for the native evaluator.
 
-    Attestation persistence is deliberately inert until the dedicated persistence component is
-    installed. The command entrypoint is added only after that component can store successful
-    results atomically.
+    The optional store injection keeps clock and filesystem behavior deterministic in tests while
+    production uses the bound atomic store.
     """
+
+    def __init__(self, attestations: AttestationStore | None = None) -> None:
+        """Create native probes with an optional deterministic attestation store."""
+        self._attestations = attestations or AttestationStore()
 
     def classify_host(self, environment: Mapping[str, str]) -> str:
         """Return the passive process-host classification."""
@@ -132,21 +136,20 @@ class NativeProbeDependencies:
         self,
         request: Mapping[str, object],
     ) -> Mapping[str, object] | None:
-        """Return no cache until atomic attestation persistence is installed."""
-        del request
-        return None
+        """Load a candidate from the bound atomic store."""
+        return self._attestations.load(request)
 
     def store_attestation(
         self,
         request: Mapping[str, object],
         result: PreflightResult,
     ) -> None:
-        """Refuse production persistence until the atomic attestation store is installed."""
-        del request, result
-        raise RuntimeError("attestation persistence is not installed")
+        """Persist a successful result through the bound atomic store."""
+        self._attestations.store(request, result)
 
-    def cleanup_attestations(self) -> None:
-        """Perform no cleanup until the atomic attestation store is installed."""
+    def cleanup_attestations(self, request: Mapping[str, object]) -> None:
+        """Remove retention-expired orphan attestations."""
+        self._attestations.cleanup(request)
 
     def _windows_version(self, request: Mapping[str, object]) -> CheckResult:
         del request

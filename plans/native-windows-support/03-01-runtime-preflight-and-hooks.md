@@ -68,7 +68,7 @@ class PreflightDependencies(Protocol):
     def evaluate_check(self, code: str, request: Mapping[str, object]) -> CheckResult: ...
     def load_attestation(self, request: Mapping[str, object]) -> Mapping[str, object] | None: ...
     def store_attestation(self, request: Mapping[str, object], result: PreflightResult) -> None: ...
-    def cleanup_attestations(self) -> None: ...
+    def cleanup_attestations(self, request: Mapping[str, object]) -> None: ...
 
 def run_preflight(
     *,
@@ -86,7 +86,8 @@ def run_preflight(
     """Evaluate the closed native-runtime prerequisite contract."""
 ```
 
-`dependencies` is required. The production command constructs the native implementation; tests
+`dependencies` is required. Every persistence method receives the validated request so storage
+remains explicitly bound to `PLUGIN_DATA` without global state. The production command constructs the native implementation; tests
 provide an in-memory implementation. CLI input cannot select or configure this dependency object,
 and the evaluator never reads hidden test-mode environment variables (AR-16).
 

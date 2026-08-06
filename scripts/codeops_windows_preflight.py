@@ -63,7 +63,7 @@ class PreflightDependencies(Protocol):
     ) -> None:
         """Persist a successful result atomically."""
 
-    def cleanup_attestations(self) -> None:
+    def cleanup_attestations(self, request: Mapping[str, object]) -> None:
         """Remove retention-expired orphan attestations."""
 
 
@@ -149,6 +149,32 @@ def _aggregate(checks: tuple[CheckResult, ...]) -> Readiness:
     return max((check.status for check in checks), key=_SEVERITY.__getitem__)
 
 
+def _read_result(payload: Mapping[str, object], session_id: str) -> PreflightResult:
+    """Restore a read-mode result while removing stale hook authority."""
+    cached = PreflightResult.from_payload(payload.get("result"))
+    if (
+        cached.session_id != session_id
+        or cached.status is Readiness.BLOCKED
+        or tuple(check.code for check in cached.checks) != _CHECK_CODES
+        or cached.status is not _aggregate(cached.checks)
+    ):
+        raise ValueError("attested result is not reusable")
+    checks = tuple(
+        (
+            CheckResult(
+                check.code,
+                Readiness.WARNING,
+                "Read mode has no current hook proof.",
+                None,
+            )
+            if check.code == "hooks-available"
+            else check
+        )
+        for check in cached.checks
+    )
+    return PreflightResult(1, _aggregate(checks), session_id, checks)
+
+
 def run_preflight(
     *,
     mode: str,
@@ -193,7 +219,12 @@ def run_preflight(
         if host != "native-windows":
             return PreflightResult(1, Readiness.BLOCKED, session_id, (native,))
 
-        dependencies.load_attestation(request)
+        attestation = dependencies.load_attestation(request)
+        if mode == "read" and attestation is not None:
+            try:
+                return _read_result(attestation, session_id)
+            except (TypeError, ValueError):
+                pass
         checks = (native,) + tuple(
             dependencies.evaluate_check(code, request) for code in _CHECK_CODES[1:]
         )
@@ -202,7 +233,7 @@ def run_preflight(
         result = PreflightResult(1, _aggregate(checks), session_id, checks)
         if result.status is not Readiness.BLOCKED:
             if mode == "session":
-                dependencies.cleanup_attestations()
+                dependencies.cleanup_attestations(request)
             dependencies.store_attestation(request, result)
         return result
     except PreflightInternalError:
