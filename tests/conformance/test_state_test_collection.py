@@ -29,6 +29,8 @@ WINDOWS_RUNTIME_MODULES = (
     "tests.conformance.test_agents",
     "tests.conformance.test_outcomes",
     "tests.conformance.test_worktree_snapshot",
+    "tests.conformance.test_windows_workflows_spec",
+    "tests.conformance.test_windows_workflows_impl",
 )
 
 DECLARED_MODULES = STATE_SPEC_MODULES + WINDOWS_RUNTIME_MODULES

@@ -374,7 +374,7 @@ ST-12, ST-39, ST-40 with regression reuse of ST-35 and ST-36 · AR-3–AR-8, AR-
 **Reference**: [03-01 §Error Handling](03-01-runtime-preflight-and-hooks.md#error-handling),
 [03-02 §Error Handling](03-02-portable-control-layer.md#error-handling)
 
-- [ ] 4.3.1 Add skill command-surface, installed-path, command-capture, outcome/agent/snapshot, docs wording, and interpreter-policy implementation tests — `tests/conformance/test_windows_workflows_impl.py`
+- [x] 4.3.1 Add skill command-surface, installed-path, command-capture, outcome/agent/snapshot, docs wording, and interpreter-policy implementation tests — `tests/conformance/test_windows_workflows_impl.py` ✅ (completed: 2026-08-07 00:44)
 - [ ] 4.3.2 Run all Windows workflow suites and the confirmed five-command full verification gate — `scripts/codeops_verify.py`, `scripts/validate-codex.sh`
 
 **Verify**: run all five commands confirmed in AR-14.
