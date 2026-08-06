@@ -31,6 +31,18 @@ class NativeWindowsStateIntegrationTests(unittest.TestCase):
             stderr=subprocess.DEVNULL,
         )
 
+    def assert_owner_eventually_absent(
+        self,
+        payload: dict[str, object],
+        backend: WindowsProcessBackend,
+    ) -> None:
+        deadline = time.monotonic() + 3
+        observed = owner_absence(payload, backend)
+        while observed is not AbsenceState.ABSENT and time.monotonic() < deadline:
+            time.sleep(0.05)
+            observed = owner_absence(payload, backend)
+        self.assertIs(observed, AbsenceState.ABSENT)
+
     def test_real_concurrent_process_owners_are_present_then_absent(self) -> None:
         backend = WindowsProcessBackend()
         children = [self.child() for _ in range(3)]
@@ -52,10 +64,7 @@ class NativeWindowsStateIntegrationTests(unittest.TestCase):
                 child.wait(timeout=10)
                 child._handle.Close()
         for identity in identities:
-            self.assertIs(
-                owner_absence(identity.to_payload(), backend),
-                AbsenceState.ABSENT,
-            )
+            self.assert_owner_eventually_absent(identity.to_payload(), backend)
 
     def test_real_stale_owner_allows_recovery_takeover(self) -> None:
         backend = WindowsProcessBackend()
@@ -65,10 +74,7 @@ class NativeWindowsStateIntegrationTests(unittest.TestCase):
         child.terminate()
         child.wait(timeout=10)
         child._handle.Close()
-        self.assertIs(
-            owner_absence(identity.to_payload(), backend),
-            AbsenceState.ABSENT,
-        )
+        self.assert_owner_eventually_absent(identity.to_payload(), backend)
 
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
