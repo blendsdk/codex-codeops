@@ -76,6 +76,7 @@ class PortableMigrationSpecification(unittest.TestCase):
             [
                 {"source": "requirements", "target": "codeops/features/billing-platform/requirements"},
                 {"source": "plans/invoicing", "target": "codeops/features/billing-platform/plans/invoicing"},
+                {"source": "plans/legacy", "target": "codeops/features/billing-platform/plans/legacy"},
                 {"source": "plans/00-roadmap.md", "target": "codeops/features/billing-platform/00-roadmap.md"},
                 {"source": "plans/_archive/billing-v1", "target": "codeops/_archive/billing-v1"},
             ],

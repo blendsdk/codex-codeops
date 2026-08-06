@@ -271,7 +271,7 @@ AR-11, AR-14
 
 **Reference**: [03-02 §Modules and Public Commands](03-02-portable-control-layer.md#modules-and-public-commands)
 
-- [ ] 3.2.1 Add the shared argument-array subprocess/evidence adapter, then extract layout discovery, preview, path mapping, and validation into the Python migration command — `scripts/codeops_platform/subprocesses.py`, `scripts/codeops_migrate.py`, `scripts/codeops_migrate_lib/model.py`
+- [x] 3.2.1 Add the shared argument-array subprocess/evidence adapter, then extract layout discovery, preview, path mapping, and validation into the Python migration command — `scripts/codeops_platform/subprocesses.py`, `scripts/codeops_migrate.py`, `scripts/codeops_migrate_lib/model.py` ✅ (completed: 2026-08-06 23:01)
 - [ ] 3.2.2 Implement mutation-gated authorized migration apply, clean-tree proof, native Git moves, marker-last commit state, idempotence, and recovery-safe failures — `scripts/codeops_migrate.py`, `scripts/codeops_migrate_lib/apply.py`
 - [ ] 3.2.3 Extract roadmap layout parsing, derived stage/status calculation, and deterministic rendering to Python — `scripts/codeops_roadmap.py`, `scripts/codeops_roadmap_lib/model.py`
 - [ ] 3.2.4 Implement roadmap sync/compact check/write modes with command-boundary mutation gates and shared atomic writes — `scripts/codeops_roadmap.py`, `scripts/codeops_roadmap_lib/rendering.py`

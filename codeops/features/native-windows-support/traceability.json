@@ -782,6 +782,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Canonical migration preview specification passed natively; argument-array adapter and migration modules compiled successfully."
+      ],
       "id": "TASK-3.2.1",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -794,7 +797,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add the shared argument-array subprocess/evidence adapter, then extract layout discovery, preview, path mapping, and validation into the Python migration command",
       "type": "task",
       "validations": []
