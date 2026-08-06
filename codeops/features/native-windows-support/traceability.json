@@ -1532,6 +1532,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:all six Phase-4 Windows workflow specification cases passed unchanged"
+      ],
       "id": "TASK-4.2.12",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1552,7 +1555,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Run all Phase-4 specification cases green without changing their expectations",
       "type": "task",
       "validations": []
