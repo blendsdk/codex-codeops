@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  validate-ubuntu:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -22,3 +22,38 @@ jobs:
       - run: ./scripts/migration-check.sh
       - run: ./scripts/roadmap-sync-check.sh
       - run: ./scripts/compact-check.sh
+
+  validate-windows-11-arm:
+    runs-on: windows-11-arm
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: source with spaces
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: source with spaces
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          architecture: arm64
+      - name: Assert native Windows 11 ARM64 runner
+        run: |
+          if ([Environment]::OSVersion.Version.Build -lt 22000) { throw 'Windows 11 build required' }
+          if ($env:PROCESSOR_ARCHITECTURE -ne 'ARM64') { throw 'Native ARM64 runner required' }
+      - name: Resolve certified Python and install dependencies
+        run: |
+          $python = & .\scripts\codeops-windows-preflight.ps1 -ResolvePython
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $python -m pip install -r requirements-dev.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run native Windows conformance tests
+        run: |
+          $python = & .\scripts\codeops-windows-preflight.ps1 -ResolvePython
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $python -m unittest discover -s tests/conformance -p 'test_*.py'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run all five native logical gates
+        run: |
+          & .\scripts\codeops-verify.ps1 all
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -441,7 +441,7 @@ exclusive store lock. Three consecutive eight-process regressions passed.
 **Reference**: [03-04 §CI Contract](03-04-certification-and-release.md#ci-contract),
 [§Evidence Manifest](03-04-certification-and-release.md#evidence-manifest)
 
-- [ ] 5.2.1 Add Ubuntu and explicit `windows-11-arm` CI jobs with one Python 3.10+ each and native Windows bootstrap/test/verification commands — `.github/workflows/ci.yml`
+- [x] 5.2.1 Add Ubuntu and explicit `windows-11-arm` CI jobs with one Python 3.10+ each and native Windows bootstrap/test/verification commands — `.github/workflows/ci.yml` ✅ (completed: 2026-08-07 01:29)
 - [ ] 5.2.2 Add the closed Windows evidence schema, compact capture runner, and deterministic supporting-record/version/commit/scenario/native-runtime validator — `tests/windows-evidence.schema.json`, `scripts/capture_windows_evidence.py`, `scripts/validate_windows_evidence.py`
 - [ ] 5.2.3 Add synthetic valid/invalid CLI/desktop/supporting-record fixtures, the declared implementation-boundary suite, and portable/full evidence validation — `tests/fixtures/windows-evidence/`, `tests/conformance/test_windows_certification_impl.py`, `scripts/codeops_verify_lib/core.py`
 - [ ] 5.2.4 Add documentation/release-claim guards that require matching CI, CLI, and desktop evidence before support wording — `scripts/validate_plugin.py`, `scripts/validate_windows_evidence.py`

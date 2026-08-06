@@ -1688,6 +1688,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:ST-46 passed for explicit Ubuntu and windows-11-arm jobs, one Python 3.10+ per host, spaces checkout, native PowerShell, and five logical gates"
+      ],
       "id": "TASK-5.2.1",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1700,7 +1703,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add Ubuntu and explicit `windows-11-arm` CI jobs with one Python 3.10+ each and native Windows bootstrap/test/verification commands",
       "type": "task",
       "validations": []
