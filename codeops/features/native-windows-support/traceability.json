@@ -760,6 +760,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Nine Phase-3 specification cases remained red at the planned entry-point/launcher boundary while 46 existing native migration, worktree, agent, outcome, and hook regression tests passed."
+      ],
       "id": "TASK-3.1.4",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -772,7 +775,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Run the Phase-3 specification module red while existing migration, roadmap, compact, worktree, agent, outcome, and hook suites remain green",
       "type": "task",
       "validations": []
