@@ -1,7 +1,7 @@
 # Ambiguity Register: Native Windows Support
 
-> **Status**: ✅ GATE PASSED — all 16 items resolved
-> **Last Updated**: 2026-08-06 19:02 CEST
+> **Status**: ✅ GATE PASSED — all 17 items resolved
+> **Last Updated**: 2026-08-06 20:31 CEST
 
 | # | Category | Ambiguity / Gap | Options Presented | User Decision | Status |
 |---|---|---|---|---|---|
@@ -21,6 +21,7 @@
 | AR-14 | Verification | Which repository commands are the authoritative full gate? | All five `AGENTS.md` commands / a narrower subset | Use all five commands from `AGENTS.md`; provide native Python/PowerShell entry points that prove the same checks on Windows. | ✅ Resolved |
 | AR-15 | Execution bootstrap (runtime) | How is task progress tracked before the plan's own Windows process-identity work makes atomic traceability transitions available? | Pause all implementation / use an explicit temporary Markdown-first bootstrap and reconcile immediately after native transition integration | User authorized implementation to proceed without WSL. Keep the execution-plan marks current, commit only verified tasks, leave graph task nodes pending, and atomically reconcile every deferred task transition immediately after Task 2.2.6 makes native transitions available; do not proceed to Task 2.2.7 until reconciliation passes. | ✅ Resolved |
 | AR-16 | Test architecture (runtime) | How can specification tests control Windows host/probe/clock/attestation and hook-order outcomes without depending on implementation internals or a test-only CLI mode? | Required dependency protocols at Python orchestration boundaries / patch private functions / environment-variable simulation | Add required `PreflightDependencies` and `HookDependencies` protocols to the preflight and hook orchestrators; production CLIs construct native dependencies, while specification tests supply in-memory implementations. No test-mode branch or environment backdoor ships. | ✅ Resolved |
+| AR-17 | Hook proof (runtime) | How does the checker distinguish a trusted hook invocation from a direct command boundary without trusting mutable environment variables? | Closed `hook_event` input derived from validated hook JSON / hidden environment marker / infer trust from mode | Add explicit `hook_event` to the closed request. Session requires `SessionStart`; read accepts no hook proof; mutation accepts `PreToolUse` or no hook because the registered entrypoint remains authoritative. Unknown or mismatched events are malformed input. | ✅ Resolved |
 
 ## Resolution Notes
 
@@ -61,3 +62,17 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
   evaluator, and no test flag is accepted from CLI input.
 - **Policy version:** 1.
 - **Root invocation ID:** `exec-native-windows-support-20260806-01`.
+
+## Runtime Decision AR-17 Provenance
+
+- **Authority:** AI — delegated by `--auto-design`.
+- **Eligibility:** Internal request representation inside the approved hook/preflight behavior.
+- **Decision:** Carry validated hook-event identity as a closed field; never derive trust from an
+  environment variable or from the selected mode alone.
+- **Evidence:** Hook JSON already names the event, while environment values are caller-controlled
+  and mutation authority belongs to registered command entrypoints.
+- **Rejected alternatives:** Environment markers are forgeable; mode inference cannot distinguish
+  hooks from direct commands.
+- **Strongest counterargument:** The additional field slightly enlarges every preflight call.
+- **Confidence:** High; reopen if the Codex hook contract stops providing event identity.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.

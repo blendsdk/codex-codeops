@@ -99,6 +99,7 @@ class NativePreflightSpecificationTests(unittest.TestCase):
         *,
         mode: str = "session",
         entrypoint_code: str | None = None,
+        hook_event: str | None = None,
         targets: tuple[Path, ...] = (),
         session_id: str = "session-1",
         environment: Mapping[str, str] | None = None,
@@ -117,6 +118,7 @@ class NativePreflightSpecificationTests(unittest.TestCase):
             return preflight.run_preflight(
                 mode=mode,
                 entrypoint_code=entrypoint_code,
+                hook_event=("SessionStart" if mode == "session" else hook_event),
                 targets=normalized_targets,
                 root=root,
                 plugin_root=plugin_root,
@@ -270,6 +272,8 @@ class NativePreflightSpecificationTests(unittest.TestCase):
         cases = (
             {"mode": "unknown"},
             {"mode": "session", "entrypoint_code": "state-transition"},
+            {"mode": "read", "hook_event": "SessionStart"},
+            {"mode": "mutation", "hook_event": "SessionStart"},
             {"mode": "read", "targets": (Path("unexpected.json"),)},
             {"mode": "mutation", "entrypoint_code": None, "targets": (Path("a"),)},
             {"mode": "mutation", "entrypoint_code": "unknown", "targets": (Path("a"),)},

@@ -80,6 +80,7 @@ def _validate_request(
     *,
     mode: str,
     entrypoint_code: str | None,
+    hook_event: str | None,
     targets: tuple[Path, ...],
     root: Path,
     plugin_root: Path,
@@ -90,6 +91,8 @@ def _validate_request(
     """Validate and normalize the complete closed request object."""
     if mode not in {"session", "read", "mutation"}:
         raise PreflightInputError("unknown preflight mode")
+    if hook_event not in {None, "SessionStart", "PreToolUse"}:
+        raise PreflightInputError("hook event is unknown")
     if not isinstance(session_id, str) or _SESSION_ID.fullmatch(session_id) is None:
         raise PreflightInputError("session ID is malformed")
     if not all(
@@ -112,7 +115,13 @@ def _validate_request(
     if mode in {"session", "read"}:
         if entrypoint_code is not None or canonical_targets:
             raise PreflightInputError("session and read modes do not accept mutation inputs")
+        if mode == "session" and hook_event != "SessionStart":
+            raise PreflightInputError("session mode requires SessionStart hook proof")
+        if mode == "read" and hook_event is not None:
+            raise PreflightInputError("read mode does not accept hook proof")
     else:
+        if hook_event not in {None, "PreToolUse"}:
+            raise PreflightInputError("mutation hook proof must be PreToolUse")
         if entrypoint_code not in _REGISTERED_ENTRYPOINTS:
             raise PreflightInputError("mutation entrypoint is missing or unknown")
         if not canonical_targets:
@@ -125,6 +134,7 @@ def _validate_request(
     return {
         "mode": mode,
         "entrypointCode": entrypoint_code,
+        "hookEvent": hook_event,
         "targets": canonical_targets,
         "root": canonical_root,
         "pluginRoot": plugin_root.resolve(strict=False),
@@ -143,6 +153,7 @@ def run_preflight(
     *,
     mode: str,
     entrypoint_code: str | None,
+    hook_event: str | None,
     targets: tuple[Path, ...],
     root: Path,
     plugin_root: Path,
@@ -159,6 +170,7 @@ def run_preflight(
     request = _validate_request(
         mode=mode,
         entrypoint_code=entrypoint_code,
+        hook_event=hook_event,
         targets=targets,
         root=root,
         plugin_root=plugin_root,

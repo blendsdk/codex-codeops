@@ -74,6 +74,7 @@ def run_preflight(
     *,
     mode: str,
     entrypoint_code: str | None,
+    hook_event: str | None,
     targets: tuple[Path, ...],
     root: Path,
     plugin_root: Path,
@@ -126,11 +127,14 @@ without emitting a synthetic Windows readiness result.
 | `read` | A matching same-session record may be reused; otherwise run all checks | All ten root/workspace checks on refresh; transaction-only subchecks are not applicable | `entrypoint_code` is null and `targets` is empty; missing hook proof is WARNING | `0` READY/WARNING; `2` BLOCKED |
 | `mutation` | Cache supplies diagnostics only | Passive host rejection, then all ten root/workspace checks immediately before the command's first write; check 10 validates the declared targets and repeats at each atomic write/recovery boundary | A closed registered `entrypoint_code` and the complete nonempty durable `targets` set prove the command-level gate; missing hook trust is WARNING | `0` READY/WARNING; `2` BLOCKED |
 
-Mode, registered entrypoint code, complete normalized target set, root, plugin paths, and session ID
-are a closed input object. Session/read reject an entrypoint or targets; mutation requires one known
-entrypoint and a nonempty, duplicate-free target set wholly contained by the root. Every writer
+Mode, registered entrypoint code, hook event, complete normalized target set, root, plugin paths,
+and session ID are a closed input object. Session requires `SessionStart`; read accepts no hook
+event; mutation accepts `PreToolUse` or no hook because the registered entrypoint is authoritative.
+Session/read reject an entrypoint or targets; mutation requires one known entrypoint and a
+nonempty, duplicate-free target set wholly contained by the root. Every writer
 rejects a path absent from that declared set. Unknown fields, unknown modes/entrypoints, missing or
-hostile targets, type errors, and hostile path/session values are malformed input and exit `1`. A
+hostile targets, unknown/mismatched hook events, type errors, and hostile path/session values are
+malformed input and exit `1`. A
 well-formed environmental prerequisite failure is BLOCKED and exits `2`. Internal failures also
 exit `1` with sanitized diagnostics and no write.
 
