@@ -137,14 +137,19 @@ class PortableRoadmapSpecification(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             project = Path(raw) / "bloated"
             shutil.copytree(FIXTURES / "bloated-repo" / "nested", project)
-            result = run_cli(
-                ROADMAP,
-                "compact",
-                "--root",
-                str(project),
-                "--write",
-                "--json",
-            )
+            initialize_git(project)
+            with tempfile.TemporaryDirectory() as plugin_raw, mock.patch.dict(
+                "os.environ",
+                {"PLUGIN_ROOT": str(ROOT), "PLUGIN_DATA": plugin_raw},
+            ):
+                result = run_cli(
+                    ROADMAP,
+                    "compact",
+                    "--root",
+                    str(project),
+                    "--write",
+                    "--json",
+                )
             payload = json.loads(result.stdout)
             pairs = [
                 (

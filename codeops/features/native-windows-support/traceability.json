@@ -848,6 +848,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Roadmap sync and compact specifications passed with deterministic check output, registered mutation preflight, shared atomic writes, exact golden rendering, and original line-ending preservation."
+      ],
       "id": "TASK-3.2.4",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -860,7 +863,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Implement roadmap sync/compact check/write modes with command-boundary mutation gates and shared atomic writes",
       "type": "task",
       "validations": []
