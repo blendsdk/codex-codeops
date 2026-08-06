@@ -826,6 +826,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Nested roadmap sync specification passed with deterministic parsing, RD-only progress, follow-on/blocked roll-up, annotation preservation, and held values."
+      ],
       "id": "TASK-3.2.3",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -838,7 +841,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Extract roadmap layout parsing, derived stage/status calculation, and deterministic rendering to Python",
       "type": "task",
       "validations": []
