@@ -330,7 +330,16 @@ no-third-review cap.
 
 ## Phase 4: Workflow Integration and Native Verification
 
-> **Phase baseline tree**: _(recorded by the exec-plan skill at phase start)_
+> **Phase baseline tree**: `c4626d853e7a4bd2d03a1cd8888f743d9486ac22`
+> **Scope mode**: strict
+> **Expected modification set**: `tests/conformance/test_windows_workflows_spec.py`,
+> `tests/conformance/test_windows_workflows_impl.py`, `_shared/native-runtime.md`, the skill and
+> reference files named by Tasks 4.2.1–4.2.8, `scripts/codeops_windows_preflight.py`,
+> `scripts/codeops_outcomes.py`, `scripts/codeops_worktree_snapshot.py`, `scripts/install_agents.py`,
+> `docs/installation.md`, `docs/troubleshooting.md`, `docs/migration.md`, `docs/tutorial.md`,
+> `docs/concepts.md`, `README.md`, this execution plan, and the feature traceability graph.
+> **Necessary command-registry correction:** Phase 4 may register the defense-in-depth skill gate
+> and the outcome, snapshot, and agent mutation entrypoints required by Tasks 4.2.1–4.2.9.
 
 ### Step 4.1: Specification Tests
 
@@ -338,7 +347,7 @@ no-third-review cap.
 [03-02 §Compatibility Launchers](03-02-portable-control-layer.md#compatibility-launchers) ·
 ST-12, ST-39, ST-40 with regression reuse of ST-35 and ST-36 · AR-3–AR-8, AR-14
 
-- [ ] 4.1.1 [spec-author] Add ST-12 command-contract cases proving direct CLIs own mutation gates, every mutating skill invokes defense-in-depth preflight, and every workflow uses Python 3.10+ through the certified interpreter — `tests/conformance/test_windows_workflows_spec.py`
+- [x] 4.1.1 [spec-author] Add ST-12 command-contract cases proving direct CLIs own mutation gates, every mutating skill invokes defense-in-depth preflight, and every workflow uses Python 3.10+ through the certified interpreter — `tests/conformance/test_windows_workflows_spec.py` ✅ (completed: 2026-08-07 00:09)
 - [ ] 4.1.2 [spec-author] Add installed-plugin path-with-spaces lifecycle, no-WSL/Git-Bash command-capture, outcomes, agents, and native full-verification specification cases — `tests/conformance/test_windows_workflows_spec.py`
 - [ ] 4.1.3 Run Phase-4 workflow specification cases red while all earlier Windows and Unix suites remain green — `tests/conformance/test_windows_workflows_spec.py`
 

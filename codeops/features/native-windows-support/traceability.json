@@ -1112,6 +1112,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:ST-12 specification cases collect and fail at the intended missing direct gates, shared skill defense contract, and host-neutral interpreter surfaces."
+      ],
       "id": "TASK-4.1.1",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1132,7 +1135,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add ST-12 command-contract cases proving direct CLIs own mutation gates, every mutating skill invokes defense-in-depth preflight, and every workflow uses Python 3.10+ through the certified interpreter",
       "type": "task",
       "validations": []
