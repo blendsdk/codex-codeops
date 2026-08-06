@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 22:00
-> **Progress**: 22/72 tasks (31%)
+> **Last Updated**: 2026-08-06 22:02
+> **Progress**: 23/72 tasks (32%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -139,6 +139,7 @@ that exact correction passed direct verification. Per the review cap, no third r
 > **Scope mode**: strict
 > **Expected modification set**: `tests/conformance/test_windows_state_spec.py`,
 > `tests/conformance/test_windows_state_impl.py`,
+> `tests/conformance/test_windows_state_native.py`,
 > `tests/conformance/test_state_migration_spec.py`,
 > `tests/conformance/test_state_test_collection.py`, `tests/fixtures/windows-state/`,
 > `scripts/codeops_state.py`, `scripts/codeops_state_lib/models.py`,
@@ -193,7 +194,7 @@ not executed through an emulation layer on Windows under the no-WSL constraint.
 **Reference**: [03-03 §Error Handling](03-03-state-and-filesystem-safety.md#error-handling)
 
 - [x] 2.3.1 Add Windows API failure/cleanup, foreign backend, NTFS alias/reparse grammar, exact retry classification/schedule, command-boundary gate, and every write-boundary fault-injection case — `tests/conformance/test_windows_state_impl.py` ✅ (completed: 2026-08-06 22:00)
-- [ ] 2.3.2 Add native integration helpers for real concurrent owners, stale processes, PID reuse where controllable, interruption, and recovery; skip only with explicit non-Windows reason — `tests/conformance/test_windows_state_native.py`
+- [x] 2.3.2 Add native integration helpers for real concurrent owners, stale processes, PID reuse where controllable, interruption, and recovery; skip only with explicit non-Windows reason — `tests/conformance/test_windows_state_native.py` ✅ (completed: 2026-08-06 22:02)
 - [ ] 2.3.3 Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence — `tests/evidence/windows-state-issue-2.json`
 
 **Verify**: run all five commands confirmed in AR-14.

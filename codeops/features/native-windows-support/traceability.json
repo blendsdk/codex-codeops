@@ -650,6 +650,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:4 real native Windows process, recovery, interruption, and concurrency tests pass"
+      ],
       "id": "TASK-2.3.2",
       "revision": "sha256:6b0fdedf63e4da6bb25133a4448e5e9eeb5cf26a3bb0d6c807a08b5614bb2af9",
       "semanticSources": [
@@ -662,7 +665,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add native integration helpers for real concurrent owners, stale processes, PID reuse where controllable, interruption, and recovery; skip only with explicit non-Windows reason",
       "type": "task",
       "validations": []
