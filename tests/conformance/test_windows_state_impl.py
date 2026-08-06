@@ -224,6 +224,7 @@ class AtomicWriteImplementationTests(unittest.TestCase):
 
 
 class StateCommandBoundaryImplementationTests(unittest.TestCase):
+    @unittest.skipUnless(os.name == "nt", "native mutation preflight is Windows-only")
     def test_direct_mutation_without_plugin_authority_blocks_before_write(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
