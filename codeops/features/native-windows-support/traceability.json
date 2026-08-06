@@ -738,6 +738,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Portable verifier and strict Unix argument-forwarding launcher specification cases collected red against the absent Python verifier and current behavioral shell owners."
+      ],
       "id": "TASK-3.1.3",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -750,7 +753,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add portable five-gate verifier and Unix compatibility-launcher specification cases",
       "type": "task",
       "validations": []

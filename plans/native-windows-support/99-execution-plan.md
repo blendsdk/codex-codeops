@@ -264,7 +264,7 @@ AR-11, AR-14
 
 - [x] 3.1.1 [spec-author] Add layout migration and roadmap sync/compact cross-host specification cases using existing fixtures and canonical outputs — `tests/conformance/test_portable_utilities_spec.py` ✅ (completed: 2026-08-06 22:50)
 - [x] 3.1.2 [spec-author] Add native worktree, hook, outcome, agent, and hostile-argument/path specification cases — `tests/conformance/test_portable_utilities_spec.py` ✅ (completed: 2026-08-06 22:53)
-- [ ] 3.1.3 [spec-author] Add portable five-gate verifier and Unix compatibility-launcher specification cases — `tests/conformance/test_portable_utilities_spec.py`
+- [x] 3.1.3 [spec-author] Add portable five-gate verifier and Unix compatibility-launcher specification cases — `tests/conformance/test_portable_utilities_spec.py` ✅ (completed: 2026-08-06 22:54)
 - [ ] 3.1.4 Run the Phase-3 specification module red while existing migration, roadmap, compact, worktree, agent, outcome, and hook suites remain green — `tests/conformance/test_portable_utilities_spec.py`
 
 ### Step 3.2: Implementation

@@ -21,6 +21,7 @@ WORKTREE = ROOT / "scripts" / "codeops_worktree.py"
 HOOKS = ROOT / "scripts" / "codeops_hooks.py"
 OUTCOMES = ROOT / "scripts" / "codeops_outcomes.py"
 AGENTS = ROOT / "scripts" / "install_agents.py"
+VERIFY = ROOT / "scripts" / "codeops_verify.py"
 
 
 def run_cli(script: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
@@ -240,6 +241,52 @@ class ExistingPortableSurfaceSpecification(unittest.TestCase):
 
         self.assertEqual(outcome.returncode, 0, outcome.stderr)
         self.assertEqual(agents.returncode, 0, agents.stderr)
+
+
+class PortableVerificationSpecification(unittest.TestCase):
+    def test_st_37_verifier_exposes_closed_five_gate_surface(self) -> None:
+        result = run_cli(VERIFY, "list", "--json")
+        payload = json.loads(result.stdout)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            payload["checks"],
+            ["validate", "docs", "migration", "roadmap", "compact"],
+        )
+
+    def test_st_38_aggregate_reports_each_gate_in_deterministic_order(self) -> None:
+        result = run_cli(VERIFY, "all", "--root", str(ROOT), "--json")
+        payload = json.loads(result.stdout)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            [item["name"] for item in payload["results"]],
+            ["validate", "docs", "migration", "roadmap", "compact"],
+        )
+        self.assertTrue(all(item["exitCode"] == 0 for item in payload["results"]))
+
+    def test_unix_compatibility_launchers_are_strict_argument_forwarders(self) -> None:
+        launchers = {
+            "scripts/codeops-migrate.sh": "codeops_migrate.py",
+            "scripts/codeops-roadmap-sync.sh": "codeops_roadmap.py",
+            "scripts/codeops-roadmap-compact.sh": "codeops_roadmap.py",
+            "bin/codeops-worktree": "codeops_worktree.py",
+            "scripts/validate-codex.sh": "codeops_verify.py",
+            "scripts/docs-check.sh": "codeops_verify.py",
+            "scripts/migration-check.sh": "codeops_verify.py",
+            "scripts/roadmap-sync-check.sh": "codeops_verify.py",
+            "scripts/compact-check.sh": "codeops_verify.py",
+        }
+        for relative, owner in launchers.items():
+            with self.subTest(launcher=relative):
+                text = (ROOT / relative).read_text(encoding="utf-8")
+                executable = [
+                    line
+                    for line in text.splitlines()
+                    if line.strip() and not line.lstrip().startswith("#")
+                ]
+                self.assertIn("set -euo pipefail", text)
+                self.assertIn(owner, text)
+                self.assertIn('"$@"', text)
+                self.assertLessEqual(len(executable), 12)
 
 
 if __name__ == "__main__":
