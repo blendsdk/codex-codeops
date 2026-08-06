@@ -427,7 +427,7 @@ ambient UTF-8 variables. No Windows command used WSL, Git Bash, or Bash. Ubuntu 
 **Reference**: [03-04](03-04-certification-and-release.md) · ST-46–ST-54 · AR-12–AR-14
 
 - [x] 5.1.1 [spec-author] Add explicit Windows 11 runner, Python 3.10+, native-command, and prohibited-runtime specification cases — `tests/conformance/test_windows_certification_spec.py` ✅ (completed: 2026-08-07 01:12)
-- [ ] 5.1.2 [spec-author] Add capture/supporting-record hash binding, sanitization, evidence schema, completeness, failure, version binding, CLI/desktop provenance, and support-claim cases — `tests/conformance/test_windows_certification_spec.py`, `tests/fixtures/windows-evidence/`
+- [x] 5.1.2 [spec-author] Add capture/supporting-record hash binding, sanitization, evidence schema, completeness, failure, version binding, CLI/desktop provenance, and support-claim cases — `tests/conformance/test_windows_certification_spec.py`, `tests/fixtures/windows-evidence/` ✅ (completed: 2026-08-07 01:16)
 - [ ] 5.1.3 Run Phase-5 certification cases red while all functional Windows/Unix suites remain green — `tests/conformance/test_windows_certification_spec.py`
 
 ### Step 5.2: Implementation

@@ -1644,6 +1644,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:ST-47 through ST-54 certification cases collected and failed at intended missing validator/CI implementation boundaries"
+      ],
       "id": "TASK-5.1.2",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1656,7 +1659,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add capture/supporting-record hash binding, sanitization, evidence schema, completeness, failure, version binding, CLI/desktop provenance, and support-claim cases",
       "type": "task",
       "validations": []
