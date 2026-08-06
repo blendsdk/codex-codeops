@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 18:09
-> **Progress**: 0/72 tasks (0%)
+> **Last Updated**: 2026-08-06 20:19
+> **Progress**: 1/72 tasks (1%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -37,14 +37,25 @@ in Phase 2; the broader umbrella issue closes only after Phase 5 evidence.
 
 ## Phase 1: Native Preflight and Hook Enforcement
 
-> **Phase baseline tree**: _(recorded by the exec-plan skill at phase start)_
+> **Phase baseline tree**: `5337b567cf44b83e00d125f82567ae33214d67ea`
+> **Scope mode**: strict
+> **Expected modification set**: `tests/conformance/test_windows_preflight_spec.py`,
+> `tests/fixtures/hooks/`, `scripts/codeops_windows_preflight.py`,
+> `scripts/codeops_windows_lib/`, `scripts/codeops_platform/hosts.py`,
+> `scripts/codeops-windows-preflight.ps1`, `scripts/codeops_hooks.py`, `hooks/hooks.json`,
+> `scripts/hook_session_context.sh`, `scripts/hook_marker_guard.sh`,
+> `tests/conformance/test_windows_preflight_impl.py`, `tests/conformance/test_hooks.py`, this
+> execution plan, and the feature traceability graph.
+> **Bootstrap tracking exception**: User-authorized under AR-15. Until Task 2.2.6 enables native
+> Windows traceability transitions, verified task marks and per-task commits advance while graph
+> task nodes remain pending. Reconcile them atomically after 2.2.6 and before 2.2.7.
 
 ### Step 1.1: Specification Tests
 
 **Reference**: [03-01](03-01-runtime-preflight-and-hooks.md) · ST-1–ST-11, ST-28–ST-30 ·
 AR-3–AR-7
 
-- [ ] 1.1.1 [spec-author] Add bootstrap, closed mode/input matrix, status/exit, WSL, Python 3.10+, sandbox, and attestation specification cases — `tests/conformance/test_windows_preflight_spec.py`
+- [x] 1.1.1 [spec-author] Add bootstrap, closed mode/input matrix, status/exit, WSL, Python 3.10+, sandbox, and attestation specification cases — `tests/conformance/test_windows_preflight_spec.py` ✅ (completed: 2026-08-06 20:19)
 - [ ] 1.1.2 [spec-author] Add dual-host hook-manifest, path-with-spaces, mutation-order, and missing-trust specification cases — `tests/conformance/test_windows_preflight_spec.py`, `tests/fixtures/hooks/`
 - [ ] 1.1.3 Run the new Phase-1 specification module, record expected red results, and prove every pre-existing conformance test remains green — `tests/conformance/test_windows_preflight_spec.py`
 

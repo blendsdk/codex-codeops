@@ -40,7 +40,7 @@ launchers and do not run the Windows-only checker (AR-2, AR-4).
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Mapping, Sequence
+from typing import Mapping, Protocol, Sequence
 
 class Readiness(str, Enum):
     READY = "READY"
@@ -61,6 +61,15 @@ class PreflightResult:
     session_id: str
     checks: tuple[CheckResult, ...]
 
+class PreflightDependencies(Protocol):
+    """Provide host facts, ordered probes, clock access, and attestation persistence."""
+
+    def classify_host(self, environment: Mapping[str, str]) -> str: ...
+    def evaluate_check(self, code: str, request: Mapping[str, object]) -> CheckResult: ...
+    def load_attestation(self, request: Mapping[str, object]) -> Mapping[str, object] | None: ...
+    def store_attestation(self, request: Mapping[str, object], result: PreflightResult) -> None: ...
+    def cleanup_attestations(self) -> None: ...
+
 def run_preflight(
     *,
     mode: str,
@@ -71,9 +80,14 @@ def run_preflight(
     plugin_data: Path,
     session_id: str,
     environment: Mapping[str, str],
+    dependencies: PreflightDependencies,
 ) -> PreflightResult:
     """Evaluate the closed native-runtime prerequisite contract."""
 ```
+
+`dependencies` is required. The production command constructs the native implementation; tests
+provide an in-memory implementation. CLI input cannot select or configure this dependency object,
+and the evaluator never reads hidden test-mode environment variables (AR-16).
 
 JSON uses camelCase field names, schema version `1`, UTF-8, deterministic check order, and no
 machine-specific secret values. The aggregate status is the greatest severity. Exit 0 means
