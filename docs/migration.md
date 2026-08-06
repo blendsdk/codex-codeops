@@ -27,3 +27,18 @@ Review the preview; resolve every classified ambiguity or explicitly omit the li
 atomic, creates a protected backup, and reports recovery-required state instead of guessing after
 an interrupted write. Do not mark legacy work ready until every active node has valid links,
 current source revisions and snapshots, and semantic review passes.
+
+On native Windows 11, select Python 3.10 or newer through the trusted PowerShell bootstrap and run
+the same portable owner directly:
+
+```powershell
+$python = & "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1" -ResolvePython
+& $python "$env:PLUGIN_ROOT\scripts\codeops_state.py" traceability-upgrade --root . `
+  --feature my-feature --preview upgrade.json
+& $python "$env:PLUGIN_ROOT\scripts\codeops_state.py" validate --root .
+```
+
+WSL may be installed on the machine, but CodeOps does not run through WSL or Git Bash on Windows;
+an actual WSL process is rejected before mutation. Apply migrations only from a writable
+fixed local NTFS checkout without reparse-backed path components. See [installation](installation.md)
+for the complete pre-certification boundary.

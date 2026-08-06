@@ -1502,6 +1502,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:portable docs gate and native command/WSL/Python/NTFS wording audit passed"
+      ],
       "id": "TASK-4.2.11",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1522,7 +1525,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Update migration/tutorial/concepts documentation for native command selection, WSL-installed versus WSL-running behavior, Python 3.10+, and fixed-local-NTFS constraints",
       "type": "task",
       "validations": []

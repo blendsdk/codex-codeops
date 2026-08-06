@@ -25,6 +25,15 @@ Schema 2 binds semantic sources to normalized revisions and stores relationship 
 Changing upstream meaning therefore makes affected downstream claims stale. Legal lifecycle
 changes are atomic compare-and-swap transitions with recovery evidence.
 
+## Native Windows boundary
+
+Windows command selection is host-native: PowerShell resolves Python 3.10 or newer and portable
+Python owners perform the work. WSL may be installed, but a CodeOps process actually running in
+WSL is unsupported and blocks before mutation; Git Bash is not a Windows runtime path. Durable
+mutation support is limited to writable fixed local NTFS workspaces without reparse-backed path
+components. These constraints are prerequisites, not evidence of a release support claim; see
+[installation](installation.md) for current certification status and commands.
+
 ## Delegated technical design
 
 `--auto-design` lets CodeOps resolve eligible technical choices during `make-requirements`,

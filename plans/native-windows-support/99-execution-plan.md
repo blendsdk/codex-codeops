@@ -366,7 +366,7 @@ ST-12, ST-39, ST-40 with regression reuse of ST-35 and ST-36 · AR-3–AR-8, AR-
 - [x] 4.2.8 Replace remaining runtime command examples in execution, setup, and artifact references without changing their workflow semantics — `skills/exec-plan/SKILL.md`, `skills/setup-codeops/SKILL.md`, `references/artifacts/traceability.md` ✅ (completed: 2026-08-07 00:34)
 - [x] 4.2.9 Integrate registered mutation gates plus shared canonical paths/atomic writes into outcomes, worktree snapshots, and optional-agent installation — `scripts/codeops_outcomes.py`, `scripts/codeops_worktree_snapshot.py`, `scripts/install_agents.py` ✅ (completed: 2026-08-07 00:31)
 - [x] 4.2.10 Add native Windows developer commands and pre-certification documentation that accurately says support is pending evidence — `docs/installation.md`, `docs/troubleshooting.md`, `README.md` ✅ (completed: 2026-08-07 00:35)
-- [ ] 4.2.11 Update migration/tutorial/concepts documentation for native command selection, WSL-installed versus WSL-running behavior, Python 3.10+, and fixed-local-NTFS constraints — `docs/migration.md`, `docs/tutorial.md`, `docs/concepts.md`
+- [x] 4.2.11 Update migration/tutorial/concepts documentation for native command selection, WSL-installed versus WSL-running behavior, Python 3.10+, and fixed-local-NTFS constraints — `docs/migration.md`, `docs/tutorial.md`, `docs/concepts.md` ✅ (completed: 2026-08-07 00:38)
 - [ ] 4.2.12 Run all Phase-4 specification cases green without changing their expectations — `tests/conformance/test_windows_workflows_spec.py`
 
 ### Step 4.3: Implementation Tests and Hardening
