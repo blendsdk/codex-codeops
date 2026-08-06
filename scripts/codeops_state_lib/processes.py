@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
 from typing import Protocol, runtime_checkable
 
 from .models import (
@@ -175,3 +176,13 @@ def owner_absence(payload: object, backend: ProcessBackend) -> AbsenceState:
     if not isinstance(result, AbsenceState):
         return AbsenceState.UNKNOWN
     return result
+
+
+def native_process_backend() -> ProcessBackend:
+    """Return the process backend for the current native host."""
+
+    if os.name == "nt":
+        from .processes_windows import WindowsProcessBackend
+
+        return WindowsProcessBackend()
+    return LinuxProcBackend()
