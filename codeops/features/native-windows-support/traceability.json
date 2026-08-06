@@ -1142,6 +1142,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Three installed-path, command-capture, outcomes/agents, and closed native verification surface specifications passed on native Windows."
+      ],
       "id": "TASK-4.1.2",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1162,7 +1165,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add installed-plugin path-with-spaces lifecycle, no-WSL/Git-Bash command-capture, outcomes, agents, and native full-verification specification cases",
       "type": "task",
       "validations": []
