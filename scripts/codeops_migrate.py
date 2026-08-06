@@ -24,6 +24,11 @@ def _parser() -> argparse.ArgumentParser:
         child = subparsers.add_parser(command)
         child.add_argument("--root", type=Path, default=Path("."))
         child.add_argument("--json", action="store_true")
+    legacy = subparsers.add_parser("legacy")
+    legacy.add_argument("--root", type=Path, default=Path("."))
+    legacy.add_argument("--yes", action="store_true")
+    legacy.add_argument("--dry-run", action="store_true")
+    legacy.add_argument("--json", action="store_true")
     return parser
 
 
@@ -34,7 +39,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (OSError, UnicodeError, ValueError) as exc:
         print(f"codeops-migrate: {exc}", file=sys.stderr)
         return 1
-    if args.command == "apply":
+    command = (
+        "apply"
+        if args.command == "legacy" and args.yes and not args.dry_run
+        else "preview"
+        if args.command == "legacy"
+        else args.command
+    )
+    if command == "apply":
         code, payload = apply_preview(args.root, preview)
         if args.json:
             print(json.dumps(payload, indent=2, sort_keys=True))

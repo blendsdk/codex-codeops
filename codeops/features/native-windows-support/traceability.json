@@ -958,6 +958,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Native Python compatibility modes passed; all three Unix launchers statically verified as strict three-line argument forwarders without local Bash execution."
+      ],
       "id": "TASK-3.2.9",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -970,7 +973,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Convert migration and roadmap shell files to thin strict argument-forwarding Unix launchers",
       "type": "task",
       "validations": []

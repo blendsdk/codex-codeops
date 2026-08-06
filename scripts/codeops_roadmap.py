@@ -54,7 +54,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"WOULD-STRIP {item}")
         for item in result.flags:
             print(f"FLAG {item}")
-    if args.write:
+    if args.write or (not args.check and not args.dry_run):
         code = write_rendered(root, result.rendered)
         if code != 0:
             print("codeops-roadmap: native mutation prerequisites are blocked", file=sys.stderr)
