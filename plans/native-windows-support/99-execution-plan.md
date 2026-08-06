@@ -444,7 +444,7 @@ exclusive store lock. Three consecutive eight-process regressions passed.
 - [x] 5.2.1 Add Ubuntu and explicit `windows-11-arm` CI jobs with one Python 3.10+ each and native Windows bootstrap/test/verification commands — `.github/workflows/ci.yml` ✅ (completed: 2026-08-07 01:29)
 - [x] 5.2.2 Add the closed Windows evidence schema, compact capture runner, and deterministic supporting-record/version/commit/scenario/native-runtime validator — `tests/windows-evidence.schema.json`, `scripts/capture_windows_evidence.py`, `scripts/validate_windows_evidence.py` ✅ (completed: 2026-08-07 01:30)
 - [x] 5.2.3 Add synthetic valid/invalid CLI/desktop/supporting-record fixtures, the declared implementation-boundary suite, and portable/full evidence validation — `tests/fixtures/windows-evidence/`, `tests/conformance/test_windows_certification_impl.py`, `scripts/codeops_verify_lib/core.py` ✅ (completed: 2026-08-07 01:34)
-- [ ] 5.2.4 Add documentation/release-claim guards that require matching CI, CLI, and desktop evidence before support wording — `scripts/validate_plugin.py`, `scripts/validate_windows_evidence.py`
+- [x] 5.2.4 Add documentation/release-claim guards that require matching CI, CLI, and desktop evidence before support wording — `scripts/validate_plugin.py`, `scripts/validate_windows_evidence.py` ✅ (completed: 2026-08-07 01:36)
 - [ ] 5.2.5 Run Phase-5 specification/implementation cases green and obtain passing Ubuntu plus explicit native Windows 11 CI for the release-candidate commit — `.github/workflows/ci.yml`
 
 ### Step 5.3: Real-Host Evidence and Hardening

@@ -14,6 +14,7 @@ from unittest.mock import patch
 from scripts.capture_windows_evidence import _normalized, capture
 from scripts.codeops_verify_lib.core import windows_evidence
 from scripts.validate_windows_evidence import validate_evidence_set
+from scripts.validate_plugin import validate_windows_support_claim
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -114,6 +115,36 @@ class PortableVerificationTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 1)
         self.assertIn("CLI evidence", result.stderr)
         self.assertIn("desktop evidence", result.stderr)
+
+
+class ReleaseClaimGuardTests(unittest.TestCase):
+    def test_current_pending_documentation_passes_claim_guard(self) -> None:
+        errors: list[str] = []
+        validate_windows_support_claim(ROOT, {"version": VERSION}, errors)
+        self.assertEqual(errors, [])
+
+    def test_affirmative_claim_without_retained_pair_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / "README.md").write_text(
+                "CodeOps supports native Windows 11 with Python 3.10 or newer.\n",
+                encoding="utf-8",
+            )
+            errors: list[str] = []
+            validate_windows_support_claim(root, {"version": VERSION}, errors)
+        self.assertTrue(any("CLI evidence" in error for error in errors), errors)
+        self.assertTrue(any("desktop evidence" in error for error in errors), errors)
+
+    def test_conflicting_pending_wording_blocks_a_claim(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / "README.md").write_text(
+                "CodeOps supports native Windows 11. Windows remains unsupported.\n",
+                encoding="utf-8",
+            )
+            errors: list[str] = []
+            validate_windows_support_claim(root, {"version": VERSION}, errors)
+        self.assertTrue(any("conflicts" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

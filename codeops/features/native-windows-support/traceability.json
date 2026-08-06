@@ -1756,6 +1756,10 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "implementationEvidence:plugin validation now binds affirmative Windows claims to consistent policy and matching retained evidence",
+        "verificationEvidence:21 focused certification tests, plugin validation, and 49-test integration selection passed"
+      ],
       "id": "TASK-5.2.4",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1768,7 +1772,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add documentation/release-claim guards that require matching CI, CLI, and desktop evidence before support wording",
       "type": "task",
       "validations": []

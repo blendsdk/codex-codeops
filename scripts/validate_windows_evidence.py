@@ -28,6 +28,12 @@ PROHIBITED_RUNTIME_RE = re.compile(
     r"(?:^|[\\/\s])(?:wsl|bash|git-bash)(?:\.exe)?(?:$|[\\/\s])|(?:^|[\\/])/mnt(?:[\\/]|$)",
     re.IGNORECASE,
 )
+WINDOWS_SUPPORT_CLAIM_RE = re.compile(
+    r"\b(?:CodeOps\s+)?supports?\s+(?:native\s+)?Windows 11\b|"
+    r"\b(?:native\s+)?Windows 11\s+is\s+(?:a\s+)?supported\b|"
+    r"\bsupported\s+on\s+(?:native\s+)?Windows 11\b",
+    re.IGNORECASE,
+)
 
 COMMON_FIELDS = {
     "schemaVersion", "pluginVersion", "commit", "candidateSha256", "reviewer", "kind",
@@ -340,7 +346,6 @@ def validate_documentation_policy(
     """Reject unsafe prerequisites and premature native Windows support wording."""
 
     errors: list[str] = []
-    support_re = re.compile(r"\b(?:supports?|supported on)\s+(?:native\s+)?Windows 11\b", re.IGNORECASE)
     old_python_re = re.compile(r"\bPython\s+3\.(?:[0-9])\b", re.IGNORECASE)
     patch_pin_re = re.compile(r"\bPython\s+3\.\d+\.\d+\b", re.IGNORECASE)
     wsl_removal_re = re.compile(r"\b(?:uninstall|remove)\s+WSL\b", re.IGNORECASE)
@@ -351,9 +356,15 @@ def validate_documentation_policy(
             errors.append(f"{name}: Windows Python prerequisite must not pin a patch release")
         if wsl_removal_re.search(text):
             errors.append(f"{name}: WSL may remain installed; only its execution is prohibited")
-        if not support_claimed and support_re.search(text):
+        if not support_claimed and WINDOWS_SUPPORT_CLAIM_RE.search(text):
             errors.append(f"{name}: native Windows support claim requires valid retained evidence")
     return errors
+
+
+def documentation_claims_windows_support(texts: Mapping[str, str]) -> bool:
+    """Return whether any public surface makes an affirmative Windows support claim."""
+
+    return any(WINDOWS_SUPPORT_CLAIM_RE.search(text) is not None for text in texts.values())
 
 
 def _parser() -> argparse.ArgumentParser:

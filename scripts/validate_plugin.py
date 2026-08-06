@@ -7,10 +7,21 @@ import argparse
 import json
 import re
 from pathlib import Path, PurePosixPath
+import sys
 from typing import Any
 from urllib.parse import urlparse
 
 import yaml
+
+SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from scripts.validate_windows_evidence import (
+    documentation_claims_windows_support,
+    validate_documentation_policy,
+    validate_evidence_set,
+)
 
 
 TODO_MARKER = "[TODO:"
@@ -52,7 +63,61 @@ def validate_plugin(plugin_root: Path) -> list[str]:
 
     reject_todo_markers(manifest, "$", errors)
     validate_manifest_shape(plugin_root, manifest, errors)
+    validate_windows_support_claim(plugin_root, manifest, errors)
     return errors
+
+
+def validate_windows_support_claim(
+    plugin_root: Path,
+    manifest: dict[str, Any],
+    errors: list[str],
+) -> None:
+    """Bind affirmative public Windows claims to matching retained evidence."""
+
+    public_paths = (
+        plugin_root / "README.md",
+        plugin_root / "CHANGELOG.md",
+        plugin_root / "docs" / "installation.md",
+        plugin_root / "docs" / "troubleshooting.md",
+        plugin_root / "docs" / "migration.md",
+        plugin_root / "docs" / "tutorial.md",
+    )
+    texts: dict[str, str] = {}
+    for path in public_paths:
+        if path.is_file():
+            try:
+                texts[path.relative_to(plugin_root).as_posix()] = path.read_text(encoding="utf-8")
+            except OSError as error:
+                errors.append(f"unable to read Windows support surface `{path.name}`: {error}")
+    support_claimed = documentation_claims_windows_support(texts)
+    errors.extend(validate_documentation_policy(texts, support_claimed=support_claimed))
+    if not support_claimed:
+        return
+    pending = re.compile(r"Windows[^\n]{0,120}\b(?:unsupported|pending)\b", re.IGNORECASE)
+    for name, text in sorted(texts.items()):
+        if pending.search(text):
+            errors.append(f"{name}: Windows support wording conflicts with the affirmative support claim")
+    version = manifest.get("version")
+    if not isinstance(version, str):
+        return
+    evidence_root = plugin_root / "tests" / "evidence"
+    cli_path = evidence_root / f"windows-native-{version}.json"
+    desktop_path = evidence_root / f"windows-desktop-{version}.json"
+    expected_commit = ""
+    if cli_path.is_file():
+        try:
+            cli = json.loads(cli_path.read_text(encoding="utf-8"))
+            expected_commit = cli.get("commit", "") if isinstance(cli, dict) else ""
+        except (OSError, json.JSONDecodeError):
+            pass
+    errors.extend(validate_evidence_set(
+        evidence_root,
+        cli_path=cli_path if cli_path.is_file() else None,
+        desktop_path=desktop_path if desktop_path.is_file() else None,
+        expected_version=version,
+        expected_commit=expected_commit,
+        support_claimed=True,
+    ))
 
 
 def load_json_object(path: Path, errors: list[str]) -> dict[str, Any] | None:
