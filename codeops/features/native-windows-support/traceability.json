@@ -1592,6 +1592,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:native Windows all passed 315 tests with 4 platform skips; Ubuntu run 31129821708 passed all five public launchers at 4c9abb6; capped quality loop closed with direct residual verification"
+      ],
       "id": "TASK-4.3.2",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1612,7 +1615,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Run all Windows workflow suites and the confirmed five-command full verification gate",
       "type": "task",
       "validations": []

@@ -375,7 +375,7 @@ ST-12, ST-39, ST-40 with regression reuse of ST-35 and ST-36 · AR-3–AR-8, AR-
 [03-02 §Error Handling](03-02-portable-control-layer.md#error-handling)
 
 - [x] 4.3.1 Add skill command-surface, installed-path, command-capture, outcome/agent/snapshot, docs wording, and interpreter-policy implementation tests — `tests/conformance/test_windows_workflows_impl.py` ✅ (completed: 2026-08-07 00:44)
-- [ ] 4.3.2 Run all Windows workflow suites and the confirmed five-command full verification gate — `scripts/codeops_verify.py`, `scripts/validate-codex.sh`
+- [x] 4.3.2 Run all Windows workflow suites and the confirmed five-command full verification gate — `scripts/codeops_verify.py`, `scripts/validate-codex.sh` ✅ (completed: 2026-08-07 01:07)
 
 ### Phase 4 Quality Review
 
@@ -400,6 +400,11 @@ The single permitted re-review cleared all recovery findings plus the original l
 command-capture, interpreter, baseline, and Git-boundary findings. It exposed the duplicate-role
 journal edge and a roadmap false-positive in ST-40. Those exact residuals were corrected and
 verified directly without requesting a third review, honoring the review cap.
+
+Final Phase-4 native verification passed 315 repository tests with four explicit platform skips,
+all five logical gates, real installed-plugin mutation preflights in paths with spaces, and no
+ambient UTF-8 variables. No Windows command used WSL, Git Bash, or Bash. Ubuntu authority run
+`31129821708` passed the exact five retained public launchers at fixed commit `4c9abb6`.
 
 **Verify**: run all five commands confirmed in AR-14.
 
