@@ -1,7 +1,7 @@
 # Ambiguity Register: Native Windows Support
 
-> **Status**: ✅ GATE PASSED — all 20 items resolved
-> **Last Updated**: 2026-08-06 21:11 CEST
+> **Status**: ✅ GATE PASSED — all 21 items resolved
+> **Last Updated**: 2026-08-06 21:25 CEST
 
 | # | Category | Ambiguity / Gap | Options Presented | User Decision | Status |
 |---|---|---|---|---|---|
@@ -25,6 +25,7 @@
 | AR-18 | Windows shell (runtime) | May native Windows hooks require separately installed PowerShell 7 when the plan declares no such prerequisite? | Built-in Windows PowerShell 5.1 / add and probe a PowerShell 7 prerequisite | Use `powershell.exe`, which is part of the Windows 11 boundary. Do not add an undeclared PowerShell 7 dependency. | ✅ Resolved |
 | AR-19 | Preflight CLI (runtime) | How does the PowerShell bootstrap transport the closed preflight request to Python? | Explicit allowlisted argument array / JSON stdin | Use explicit non-abbreviated flags with repeated `--target`; reject unknown or missing fields before probes, construct production dependencies internally, emit one closed JSON result, and preserve exits 0/1/2. | ✅ Resolved |
 | AR-20 | Windows hook launcher (runtime) | How can hooks execute from legal hostile plugin paths without evaluating path content? | Checked-in `-File` launcher using `$env:PLUGIN_ROOT` and `$PSScriptRoot` / inline `-Command` interpolation | Use a checked-in PowerShell `-File` launcher. The manifest contains no `${PLUGIN_ROOT}` substitution or inline script block; the launcher derives sibling scripts from `$PSScriptRoot` and forwards stdin as data. | ✅ Resolved |
+| AR-21 | Process adapter API (runtime) | What public Python surface owns versioned identities and absence decisions before platform backends exist? | Immutable backend-specific identities plus a three-state result and injectable protocol / raw dictionaries and nullable booleans | Use immutable Linux/Windows identity models, `AbsenceState`, an injected `ProcessBackend`, one exact parser including legacy Linux, and centralized mismatch/malformed handling. | ✅ Resolved |
 
 ## Resolution Notes
 
@@ -125,4 +126,20 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
 - **Strongest counterargument:** One additional launcher file must be shipped and validated.
 - **Confidence / hardening:** High; native tests execute it from paths containing spaces, `$()`,
   and a single quote and assert no side effect.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
+
+## Runtime Decision AR-21 Provenance
+
+- **Authority:** AI — delegated by `--auto-design`.
+- **Eligibility:** Internal adapter/interface design needed to express already approved AR-9
+  behavior; it does not change process-ownership semantics.
+- **Decision:** Use two immutable identity models, a three-state absence enum, an injectable
+  backend protocol, and one strict parser for versioned plus legacy Linux records.
+- **Evidence:** Nullable booleans currently conflate malformed input and platform uncertainty;
+  backend-specific models preserve exact record shapes without reinterpretation.
+- **Rejected alternative:** Raw dictionaries plus `bool | None` retain the current ambiguity and
+  make backend mismatch handling easy to bypass.
+- **Strongest counterargument:** Typed models add conversion code around existing dictionaries.
+- **Confidence / hardening:** High; specification tests own exact payloads, malformed inputs,
+  backend mismatch, absence, PID reuse, and uncertainty before implementation.
 - **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.

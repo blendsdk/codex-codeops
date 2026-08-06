@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 21:23
-> **Progress**: 11/72 tasks (15%)
+> **Last Updated**: 2026-08-06 21:29
+> **Progress**: 12/72 tasks (17%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -132,16 +132,30 @@ that exact correction passed direct verification. Per the review cap, no third r
 
 ## Phase 2: Windows State, Recovery, and Filesystem Safety
 
-> **Phase baseline tree**: _(recorded by the exec-plan skill at phase start)_
+> **Phase baseline tree**: `662a25f283d4e2876b7382335057cb39abdb37a4`
+> **Scope mode**: strict
+> **Expected modification set**: `tests/conformance/test_windows_state_spec.py`,
+> `tests/conformance/test_windows_state_impl.py`,
+> `tests/conformance/test_state_migration_spec.py`,
+> `tests/conformance/test_state_test_collection.py`, `tests/fixtures/windows-state/`,
+> `scripts/codeops_state.py`, `scripts/codeops_state_lib/models.py`,
+> `scripts/codeops_state_lib/processes.py`, `scripts/codeops_state_lib/processes_windows.py`,
+> `scripts/codeops_state_lib/paths.py`, `scripts/codeops_state_lib/filesystem.py`,
+> `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/migration.py`,
+> `scripts/codeops_state_lib/rendering.py`, this execution plan, and the feature traceability graph.
 
 ### Step 2.1: Specification Tests
 
 **Reference**: [03-03](03-03-state-and-filesystem-safety.md) · ST-13–ST-27, ST-37,
 ST-41–ST-45 · AR-9–AR-11
 
-- [ ] 2.1.1 [spec-author] Add versioned Windows/legacy Linux owner, absence, PID-reuse, uncertainty, concurrency, and recovery specification cases — `tests/conformance/test_windows_state_spec.py`
+- [x] 2.1.1 [spec-author] Add versioned Windows/legacy Linux owner, absence, PID-reuse, uncertainty, concurrency, and recovery specification cases — `tests/conformance/test_windows_state_spec.py` ✅ (completed: 2026-08-06 21:29)
 - [ ] 2.1.2 [spec-author] Add canonical/legacy/hostile path, reserved/alias/reparse cases, exact WinError 32/33 retry, generic-access refusal, interruption, and non-NTFS specification cases — `tests/conformance/test_windows_state_spec.py`, `tests/fixtures/windows-state/`
 - [ ] 2.1.3 Run new state specification cases red while the immutable Linux state and migration specification modules remain green — `tests/conformance/test_windows_state_spec.py`, `tests/conformance/test_state_migration_spec.py`
+
+Task 2.1.1 red evidence: native collection and syntax validation succeeded; all nine process-owner
+specification cases failed solely because the planned `scripts.codeops_state_lib.processes` module
+does not exist yet. Full output is retained at `%TEMP%/verify-red-task-2.1.1.log`.
 
 ### Step 2.2: Implementation
 

@@ -41,6 +41,45 @@ missing PID or a different creation `FILETIME` proves the recorded process absen
 malformed values, API failure, or backend mismatch returns unknown rather than absent. Windows
 does not derive or compare a boot epoch (AR-9).
 
+The portable Python contract is:
+
+```python
+class AbsenceState(str, Enum):
+    ABSENT = "absent"
+    PRESENT = "present"
+    UNKNOWN = "unknown"
+
+@dataclass(frozen=True, slots=True)
+class LinuxProcessIdentity:
+    pid: int
+    start_ticks: str
+    boot_id: str
+    def to_payload(self) -> dict[str, object]: ...
+
+@dataclass(frozen=True, slots=True)
+class WindowsProcessIdentity:
+    pid: int
+    creation_file_time: str
+    def to_payload(self) -> dict[str, object]: ...
+
+ProcessIdentity = LinuxProcessIdentity | WindowsProcessIdentity
+
+class ProcessBackend(Protocol):
+    backend_name: str
+    def identify(self, pid: int) -> ProcessIdentity | None: ...
+    def absence(self, identity: ProcessIdentity) -> AbsenceState: ...
+
+def parse_process_identity(payload: object) -> ProcessIdentity | None: ...
+def current_process_identity(backend: ProcessBackend, pid: int) -> ProcessIdentity | None: ...
+def owner_absence(payload: object, backend: ProcessBackend) -> AbsenceState: ...
+```
+
+`parse_process_identity` accepts exactly the two versioned shapes above plus the exact legacy
+Linux `{pid,startTicks,bootId}` shape. Unknown fields, bool-as-int PIDs, nonpositive PIDs, empty
+identity strings, malformed decimals, and unknown schema/backend values return no identity.
+`owner_absence` returns UNKNOWN for malformed input, failed identification, or backend mismatch;
+the backend owns only same-backend presence/absence decisions (AR-21).
+
 ### Atomic Write Contract
 
 ```python
