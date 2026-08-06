@@ -1046,6 +1046,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Ubuntu authority run 31128730695 passed retained Unix characterization and all five compatibility launchers at fixed commit b9c14fe."
+      ],
       "id": "TASK-3.3.2",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -1058,7 +1061,7 @@
           }
         }
       ],
-      "status": "implemented",
+      "status": "verified",
       "title": "Run characterization comparisons proving retained Unix launchers match approved behavior on migration, roadmap, compact, worktree, hook, agent, and outcome fixtures",
       "type": "task",
       "validations": []
@@ -1087,6 +1090,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Native Windows portable all passed 292 tests and five logical gates without ambient UTF-8 overrides; Ubuntu run 31128730695 passed the exact five public launcher commands at b9c14fe."
+      ],
       "id": "TASK-3.3.4",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -1099,7 +1105,7 @@
           }
         }
       ],
-      "status": "implemented",
+      "status": "verified",
       "title": "Run portable `all`, every legacy public launcher, and the confirmed five-command full verification gate",
       "type": "task",
       "validations": []

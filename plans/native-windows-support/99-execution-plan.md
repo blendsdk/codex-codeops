@@ -296,9 +296,9 @@ AR-11, AR-14
 > retained-Unix characterization run passes.
 
 - [x] 3.3.1 Complete compact launcher extraction and add parser, output/exit, injection, containment, Git failure, and deterministic rendering implementation tests — `scripts/compact-check.sh`, `tests/conformance/test_portable_utilities_impl.py` ✅ (completed: 2026-08-06 23:33)
-- [~] 3.3.2 Run characterization comparisons proving retained Unix launchers match approved behavior on migration, roadmap, compact, worktree, hook, agent, and outcome fixtures — `tests/conformance/test_portable_utilities_impl.py` (implemented: 2026-08-06 23:37)
+- [x] 3.3.2 Run characterization comparisons proving retained Unix launchers match approved behavior on migration, roadmap, compact, worktree, hook, agent, and outcome fixtures — `tests/conformance/test_portable_utilities_impl.py` ✅ (completed: 2026-08-07 00:05)
 - [x] 3.3.3 Assert every declared Windows/runtime test module is collected and no shipped Windows path contains Bash/WSL delegation — `tests/conformance/test_state_test_collection.py`, `tests/conformance/test_portable_utilities_impl.py` ✅ (completed: 2026-08-06 23:49)
-- [~] 3.3.4 Run portable `all`, every legacy public launcher, and the confirmed five-command full verification gate — `scripts/codeops_verify.py` (implemented: 2026-08-06 23:52; native `all` passed 276 tests, four platform skips; Ubuntu authority pending)
+- [x] 3.3.4 Run portable `all`, every legacy public launcher, and the confirmed five-command full verification gate — `scripts/codeops_verify.py` ✅ (completed: 2026-08-07 00:05)
 
 **Verify**: run all five commands confirmed in AR-14.
 
@@ -323,9 +323,10 @@ verified without a third review, as required by the review cap.
 
 Native correction verification passed 292 repository tests with four explicit platform skips, all
 five logical gates, restored scenario/contract checks, and no ambient UTF-8 variables. No Windows
-command used WSL, Git Bash, or Bash. Ubuntu current-tree authority remains required before Phase 3
-closure. The reviewer re-review was clear; the security and recovery re-reviews identified the
-final transaction edges recorded above, which were fixed under the no-third-review cap.
+command used WSL, Git Bash, or Bash. Ubuntu run `31128730695` passed the exact five retained public
+launchers at fixed commit `b9c14fe`. The reviewer re-review was clear; the security and recovery
+re-reviews identified the final transaction edges recorded above, which were fixed under the
+no-third-review cap.
 
 ## Phase 4: Workflow Integration and Native Verification
 
