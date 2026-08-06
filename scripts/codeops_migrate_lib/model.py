@@ -79,6 +79,24 @@ def _source_link_warnings(root: Path) -> list[str]:
     return warnings
 
 
+def valid_layout_marker(path: Path) -> bool:
+    """Recognize only the complete nested-layout marker emitted by this migrator."""
+
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return False
+    required = (
+        r"(?m)^codeopsLayout:\s*nested\s*$",
+        r'(?m)^layoutVersion:\s*["\']?3\.0\.0["\']?\s*$',
+        r"(?m)^integrationBranch:\s*[^\s#]+\s*$",
+        r"(?m)^\s+rdIdScope:\s*per-feature\s*$",
+        r"(?m)^\s+maintenanceFeature:\s*_maintenance\s*$",
+        r"(?m)^\s+archiveDir:\s*codeops/_archive\s*$",
+    )
+    return all(re.search(pattern, text) is not None for pattern in required)
+
+
 def build_preview(root: Path) -> MigrationPreview:
     """Discover a canonical move map without changing the project."""
 
@@ -86,6 +104,8 @@ def build_preview(root: Path) -> MigrationPreview:
     marker = root / "codeops" / ".codeops.yml"
     feature, source = _feature(root)
     if marker.is_file():
+        if not valid_layout_marker(marker):
+            raise ValueError("existing CodeOps layout marker is malformed or incomplete")
         return MigrationPreview(feature, source, (), (), True)
     moves: list[Move] = []
     warnings: list[str] = []

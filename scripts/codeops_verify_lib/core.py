@@ -9,9 +9,11 @@ import sys
 from typing import Callable, Mapping
 
 from scripts.codeops_platform.subprocesses import run_command
+from scripts.codeops_verify_lib.contracts import validate_contracts
 
 
 CHECK_NAMES = ("validate", "docs", "migration", "roadmap", "compact")
+VERIFIER_ROOT = Path(__file__).resolve().parents[2]
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,7 +33,13 @@ class CheckResult:
 
 
 def _python(root: Path, *arguments: str, environment: Mapping[str, str] | None = None) -> CheckResult:
-    result = run_command((sys.executable, *arguments), cwd=root, environment=environment)
+    values = list(arguments)
+    if values and values[0].startswith("scripts/"):
+        values[0] = str(VERIFIER_ROOT / values[0])
+    selected_environment = dict(os.environ if environment is None else environment)
+    selected_environment["PYTHONUTF8"] = "1"
+    selected_environment["PYTHONIOENCODING"] = "utf-8"
+    result = run_command((sys.executable, *values), cwd=root, environment=selected_environment)
     return CheckResult("", result.exit_code, result.stdout, result.stderr)
 
 
@@ -49,6 +57,7 @@ def validate(root: Path) -> CheckResult:
             "scripts/validate_markdown_links.py",
             "skills", "_shared", "standards", "references", "docs", "plans", "README.md", "AGENTS.md",
         ),
+        *(('scripts/compare_scenarios.py', f'tests/scenarios/{scenario}') for scenario in ('compiler', 'financial', 'web')),
     ]
     stdout: list[str] = []
     stderr: list[str] = []
@@ -58,6 +67,10 @@ def validate(root: Path) -> CheckResult:
         stdout.append(result.stdout)
         stderr.append(result.stderr)
         failures += result.exit_code != 0
+    contract_failures = validate_contracts(root)
+    if contract_failures:
+        stderr.append("\n".join(contract_failures) + "\n")
+        failures += len(contract_failures)
     environment = dict(os.environ)
     environment["CODEOPS_VERIFY_CHILD"] = "1"
     environment.setdefault("PYTHONUTF8", "1")

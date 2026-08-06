@@ -21,6 +21,7 @@ from scripts.codeops_worktree_lib.model import (
     validate_branch,
 )
 from scripts.codeops_worktree_lib.commands import create_worktree, remove_worktree
+from scripts.codeops_platform.subprocesses import run_command
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -65,8 +66,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.json:
             print(json.dumps(payload, indent=2, sort_keys=True))
         else:
-            for item in worktrees:
-                print(f"{item.path}\t{item.branch or '(detached)'}")
+            project = git_root(args.root)
+            human = run_command(("git", "-C", str(project), "worktree", "list"), cwd=project)
+            if human.exit_code != 0:
+                print(human.stderr, end="", file=sys.stderr)
+                return human.exit_code
+            print(human.stdout, end="")
         return 0
     if args.command == "new":
         try:

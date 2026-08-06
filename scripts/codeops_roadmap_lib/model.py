@@ -142,7 +142,18 @@ def _computed_header(
     return text
 
 
-def _feature_render(path: Path, root: Path, drift: list[str], held: list[str]) -> tuple[str, RoadmapRows, bool]:
+def _replace_header(text: str, key: str, value: str) -> str:
+    pattern = re.compile(rf"(?m)^> \*\*{re.escape(key)}\*\*:.*$")
+    return pattern.sub(lambda _match: f"> **{key}**: {value}", text, count=1)
+
+
+def _feature_render(
+    path: Path,
+    root: Path,
+    drift: list[str],
+    held: list[str],
+    today: str,
+) -> tuple[str, RoadmapRows, bool]:
     text = path.read_text(encoding="utf-8")
     analysis = analyze_roadmap(text)
     token = f"{analysis.done} / {analysis.total} ({analysis.percentage}%)"
@@ -155,6 +166,8 @@ def _feature_render(path: Path, root: Path, drift: list[str], held: list[str]) -
         drift,
         held,
     )
+    if rendered != text:
+        rendered = _replace_header(rendered, "Last Updated", today)
     return rendered, analysis, rendered == text and any(
         item.startswith(f"{path.relative_to(root).as_posix()}: Progress=") for item in held
     )
@@ -163,7 +176,6 @@ def _feature_render(path: Path, root: Path, drift: list[str], held: list[str]) -
 def synchronize(root: Path, today: str) -> SyncResult:
     """Compute all deterministic roadmap rewrites without touching disk."""
 
-    del today  # Dates change only when an owned computed value changes; rendering owns that later.
     root = root.resolve()
     layout = detect_layout(root)
     drift: list[str] = []
@@ -173,14 +185,14 @@ def synchronize(root: Path, today: str) -> SyncResult:
         path = root / "plans" / "00-roadmap.md"
         if not path.is_file():
             return SyncResult(layout, (), (), {})
-        value, _, _ = _feature_render(path, root, drift, held)
+        value, _, _ = _feature_render(path, root, drift, held, today)
         if value != path.read_text(encoding="utf-8"):
             rendered[path] = value.encode("utf-8")
         return SyncResult(layout, tuple(drift), tuple(held), rendered)
 
     features: dict[str, tuple[RoadmapRows, bool]] = {}
     for path in sorted((root / "codeops" / "features").glob("*/00-roadmap.md")):
-        value, analysis, is_held = _feature_render(path, root, drift, held)
+        value, analysis, is_held = _feature_render(path, root, drift, held, today)
         features[path.parent.name] = (analysis, is_held)
         if value != path.read_text(encoding="utf-8"):
             rendered[path] = value.encode("utf-8")
@@ -217,6 +229,7 @@ def synchronize(root: Path, today: str) -> SyncResult:
             )
             cells[3] = expected_progress
             cells[4] = expected_status
+            cells[5] = today
             ending = "\n" if line.endswith("\n") else ""
             lines[index] = "| " + " | ".join(cells) + " |" + ending
     value = "".join(lines)
@@ -229,6 +242,8 @@ def synchronize(root: Path, today: str) -> SyncResult:
         drift,
         held,
     )
+    if value != original:
+        value = _replace_header(value, "Last Updated", today)
     if value != original:
         rendered[portfolio] = value.encode("utf-8")
     return SyncResult(layout, tuple(drift), tuple(held), rendered)

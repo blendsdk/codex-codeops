@@ -27,7 +27,7 @@ CHECKS = {
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("command", choices=("list", "all", *CHECK_NAMES))
     parser.add_argument("--root", type=Path, default=Path("."))
     parser.add_argument("--json", action="store_true")

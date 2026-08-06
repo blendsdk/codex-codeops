@@ -26,6 +26,29 @@ def _ref_exists(root: Path, ref: str) -> bool:
     return _git(root, "show-ref", "--verify", "--quiet", ref)[0] == 0
 
 
+def _git_common_dir(root: Path) -> Path:
+    code, stdout, stderr = _git(root, "rev-parse", "--path-format=absolute", "--git-common-dir")
+    if code != 0 or not stdout.strip():
+        raise ValueError(stderr.strip() or "cannot resolve Git common directory")
+    return Path(stdout.strip()).resolve()
+
+
+def _mutation_targets(project: Path, main: Path, worktree: Path) -> tuple[Path, tuple[Path, ...]]:
+    boundary = main.resolve().parent
+    common = _git_common_dir(project)
+    targets = tuple(dict.fromkeys((
+        common,
+        (project / ".git").resolve(strict=False),
+        worktree.resolve(strict=False),
+    )))
+    for target in targets:
+        try:
+            target.relative_to(boundary)
+        except ValueError as exc:
+            raise ValueError("Git/worktree mutation target escapes the common sibling boundary") from exc
+    return boundary, targets
+
+
 def create_worktree(
     root: Path,
     topic: str,
@@ -71,9 +94,10 @@ def create_worktree(
     }
     if dry_run:
         return 0, payload
+    boundary, targets = _mutation_targets(project, main, selected_path)
     if run_mutation_preflight(
-        project,
-        (project / ".git",),
+        boundary,
+        targets,
         entrypoint_code="worktree-mutation",
     ) != 0:
         return 2, {"result": "blocked", "error": "native mutation prerequisites are blocked"}
@@ -123,7 +147,7 @@ def remove_worktree(
     commands = [["git", "-C", str(project), *arguments]]
     if delete_branch and selected.branch:
         commands.append([
-            "git", "-C", str(project), "branch", "-D" if force else "-d", selected.branch,
+            "git", "-C", str(project), "branch", "-D", selected.branch,
         ])
     payload: dict[str, object] = {
         "result": "preview" if dry_run else "removed",
@@ -133,14 +157,33 @@ def remove_worktree(
     }
     if dry_run:
         return 0, payload
+    boundary, targets = _mutation_targets(project, main, candidate)
     if run_mutation_preflight(
-        project,
-        (project / ".git",),
+        boundary,
+        targets,
         entrypoint_code="worktree-mutation",
     ) != 0:
         return 2, {"result": "blocked", "error": "native mutation prerequisites are blocked"}
+    completed = 0
     for command in commands:
         result = run_command(command, cwd=project)
         if result.exit_code != 0:
-            return 1, {"result": "refused", "error": result.stderr.strip() or "Git command failed"}
+            error = result.stderr.strip() or "Git command failed"
+            if completed and selected.branch:
+                restored, _, restore_error = _git(
+                    project,
+                    "worktree",
+                    "add",
+                    str(candidate),
+                    selected.branch,
+                )
+                if restored == 0:
+                    return 1, {"result": "refused", "error": error, "rolledBack": True}
+                return 2, {
+                    "result": "recovery-required",
+                    "error": error,
+                    "recoveryError": restore_error.strip() or "worktree restoration failed",
+                }
+            return 1, {"result": "refused", "error": error}
+        completed += 1
     return 0, payload

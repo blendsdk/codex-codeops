@@ -9,7 +9,7 @@ from pathlib import Path
 from scripts.codeops_platform.subprocesses import run_command, run_mutation_preflight
 from scripts.codeops_state_lib.filesystem import NativeAtomicWriteOps, atomic_write_bytes
 
-from .model import MigrationPreview
+from .model import MigrationPreview, valid_layout_marker
 
 
 def _git(root: Path, *arguments: str) -> tuple[int, str, str]:
@@ -51,6 +51,8 @@ def apply_preview(root: Path, preview: MigrationPreview) -> tuple[int, dict[str,
 
     root = root.resolve()
     marker = root / "codeops" / ".codeops.yml"
+    if marker.is_file() and not valid_layout_marker(marker):
+        return 1, {"result": "refused", "error": "existing CodeOps layout marker is malformed or incomplete"}
     if preview.already_migrated or marker.is_file():
         return 0, {"result": "already-migrated", "feature": preview.feature, "moves": []}
     code, stdout, stderr = _git(root, "rev-parse", "--show-toplevel")
@@ -62,6 +64,12 @@ def apply_preview(root: Path, preview: MigrationPreview) -> tuple[int, dict[str,
     codeops = root / "codeops"
     if codeops.exists() and not codeops.is_dir():
         return 1, {"result": "refused", "error": "codeops exists but is not a directory"}
+    generated = [root / move.target for move in preview.moves]
+    generated.extend((codeops / "codeops.json", codeops / "00-roadmap.md"))
+    collisions = [path for path in generated if path.exists()]
+    if collisions:
+        names = ", ".join(path.relative_to(root).as_posix() for path in collisions)
+        return 1, {"result": "refused", "error": f"migration destination already exists: {names}"}
     targets = [root / move.source for move in preview.moves]
     targets.extend(root / move.target for move in preview.moves)
     config = codeops / "codeops.json"
@@ -83,6 +91,7 @@ def apply_preview(root: Path, preview: MigrationPreview) -> tuple[int, dict[str,
             completed.append((source, target))
         codeops.mkdir(parents=True, exist_ok=True)
         writer = NativeAtomicWriteOps(root)
+        created_files.append(config)
         atomic_write_bytes(
             config,
             (json.dumps({
@@ -98,9 +107,8 @@ def apply_preview(root: Path, preview: MigrationPreview) -> tuple[int, dict[str,
             }, indent=2, sort_keys=True) + "\n").encode("utf-8"),
             ops=writer,
         )
-        created_files.append(config)
-        atomic_write_bytes(portfolio, _portfolio(root, preview), ops=writer)
         created_files.append(portfolio)
+        atomic_write_bytes(portfolio, _portfolio(root, preview), ops=writer)
         marker_text = (
             "# CodeOps layout marker.\n"
             "codeopsLayout: nested\n"
@@ -112,15 +120,20 @@ def apply_preview(root: Path, preview: MigrationPreview) -> tuple[int, dict[str,
             "  maintenanceFeature: _maintenance\n"
             "  archiveDir: codeops/_archive\n"
         ).encode("utf-8")
-        atomic_write_bytes(marker, marker_text, ops=writer)
         created_files.append(marker)
-    except (OSError, ValueError) as exc:
-        for path in reversed(created_files):
-            path.unlink(missing_ok=True)
+        atomic_write_bytes(marker, marker_text, ops=writer)
+    except BaseException as exc:
         rollback_ok = True
+        for path in reversed(created_files):
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                rollback_ok = False
         for source, target in reversed(completed):
             code, _, _ = _git(root, "mv", str(target), str(source))
             rollback_ok = rollback_ok and code == 0
+        if not isinstance(exc, Exception):
+            raise
         return (1 if rollback_ok else 2), {
             "result": "refused" if rollback_ok else "recovery-required",
             "error": str(exc),

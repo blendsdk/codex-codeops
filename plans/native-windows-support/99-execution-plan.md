@@ -302,6 +302,31 @@ AR-11, AR-14
 
 **Verify**: run all five commands confirmed in AR-14.
 
+### Phase 3 Quality Review
+
+The independent reviewer, security auditor, and recovery/compatibility auditor reviewed the
+strict Phase-3 tree. Auto-design selected a technical correction for every critical/major
+finding; no risk was waived. The single permitted re-review cleared the reviewer's original set
+and exposed the remaining transaction/recovery edges below. Those edges were corrected and
+verified without a third review, as required by the review cap.
+
+| Finding | Severity | Decision | State |
+|---|---|---|---|
+| P3-RV-001 / P3-SEC-002 / P3-RC-001: migration could overwrite/delete destinations or leave a false marker after interruption | CRITICAL | Refuse every generated collision, validate marker semantics, register cleanup before writes, and make cleanup/Git rollback non-short-circuiting | Fixed; collision, malformed-marker, post-marker, and cleanup-failure regressions passed |
+| P3-RV-002 / P3-RC-003 / P3-RC-005: portable validation lost retained groups and depended on ambient encoding | MAJOR | Port every former logical contract/scenario check, bind trusted validator paths, and force UTF-8 for every child/capture | Fixed; ambient-free native `all` passed |
+| P3-SEC-004: PowerShell forwarded-root and argparse abbreviations could rebind trusted validation | MAJOR | Reject explicit root forwarding, disable argparse abbreviation, and resolve validator scripts from the trusted plugin tree | Fixed; `--root`, `--root=`, `--ro`, and `--r` regressions passed |
+| P3-RV-003: roadmap sync no longer validated authoritative traceability | MAJOR | Run the authoritative state validator before every sync mode when schema-2 graphs exist | Fixed; invalid-graph refusal passed byte-identically |
+| P3-RV-004 / P3-RC-002: roadmap dates no longer followed owned-change semantics | MAJOR | Apply the injected date only when an owned feature/portfolio value changes and recompute stable output deterministically | Fixed; drift/stability regression passed |
+| P3-SEC-001 / P3-RV-005: worktree preflight omitted the sibling target/common Git metadata | MAJOR | Gate the deduplicated common Git directory, checkout metadata, and sibling worktree under their common boundary | Fixed; complete-target regression passed |
+| P3-RC-004 / P3-RC-006: retained worktree output and explicit force-delete semantics changed; second-command failure was partially mutating | MAJOR | Delegate human list output to native Git, retain explicit `-D`, and restore the removed worktree if branch deletion fails | Fixed; golden-output, unmerged-delete, and rollback regressions passed |
+| P3-SEC-003 / P3-RC-007 / P3-RC-008: multi-roadmap writes lacked safe set recovery and recomputation | MAJOR | Add an OS-owned exclusive lock, closed/hash-bound canonical journal, journal-first commit cleanup, complete rollback, and retry-after-recovery recomputation | Fixed; partial-crash, hostile-journal, concurrency, and later-write failure regressions passed |
+
+Native correction verification passed 292 repository tests with four explicit platform skips, all
+five logical gates, restored scenario/contract checks, and no ambient UTF-8 variables. No Windows
+command used WSL, Git Bash, or Bash. Ubuntu current-tree authority remains required before Phase 3
+closure. The reviewer re-review was clear; the security and recovery re-reviews identified the
+final transaction edges recorded above, which were fixed under the no-third-review cap.
+
 ## Phase 4: Workflow Integration and Native Verification
 
 > **Phase baseline tree**: _(recorded by the exec-plan skill at phase start)_

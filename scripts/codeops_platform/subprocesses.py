@@ -43,6 +43,8 @@ def run_command(
         cwd=cwd,
         env=dict(environment) if environment is not None else None,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         capture_output=True,
         check=False,
         shell=False,
