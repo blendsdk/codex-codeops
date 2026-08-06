@@ -5,6 +5,14 @@ description: Safely verify, stage, and commit repository changes with a detailed
 
 # Guarded Git commit
 
+## Native prerequisite gate
+
+Before staging or committing project changes, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command. Read-only inspection and verification do not
+invoke the mutation gate.
+
 ## Authority
 
 A request to commit authorizes a local commit only. Push only when the user explicitly asks to push or has already granted continuing push authority for this repository. Never amend published history, force-push, reset, or bypass hooks without separate explicit authorization.

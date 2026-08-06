@@ -1322,6 +1322,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:git-commit skill validation and ST-12 all-mutating-skill defense-in-depth specification passed"
+      ],
       "id": "TASK-4.2.5",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1342,7 +1345,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Complete prerequisite integration for git-commit and audit every remaining skill so no project-mutating path lacks the gate",
       "type": "task",
       "validations": []
