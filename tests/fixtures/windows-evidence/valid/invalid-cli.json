@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.4.0",
+  "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "candidateSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "reviewer": {
+    "github": "octocat",
+    "timestamp": "2026-08-07T00:00:00Z"
+  },
+  "kind": "cli",
+  "host": {
+    "edition": "Windows 11",
+    "build": 26100,
+    "architecture": "ARM64",
+    "native": true
+  },
+  "tools": {
+    "python": "3.12.4",
+    "git": "git version 2.50.0.windows.1",
+    "codex": "codex-cli 1.0.0"
+  },
+  "ci": {
+    "runId": "12345",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "conclusion": "success",
+    "runner": "windows-11-arm"
+  },
+  "captureVersion": 1,
+  "assertions": {
+    "wslInvoked": false,
+    "gitBashInvoked": false
+  },
+  "commandTrace": {
+    "path": "records/commands.json",
+    "sha256": "68bd3f550839122e5419d33dca83b65663f9eeb69b500d7bb06c4141e6297dcd"
+  },
+  "scenarios": [
+    {
+      "id": "enablement",
+      "status": "pass",
+      "record": "records/enablement.json",
+      "sha256": "8e04ea29ebf28aa47ee16753f442996e83a39d1fc052bd19aa65dcdb5dbfae6b"
+    },
+    {
+      "id": "session-preflight",
+      "status": "pass",
+      "record": "records/session-preflight.json",
+      "sha256": "fa46d3ce9835e1bbf45374a2e82a4ad77ef79838f097751719a5cbf0d49a0a8c"
+    },
+    {
+      "id": "requirements",
+      "status": "pass",
+      "record": "records/requirements.json",
+      "sha256": "82e3baf6d8f42d4d713a0237fd3a29d2df68220ad9e0ea26103e908d09a9524d"
+    },
+    {
+      "id": "planning",
+      "status": "pass",
+      "record": "records/planning.json",
+      "sha256": "09590b137ed09c40a5dc19454c9e191368fc4a31f9d4e27c978f643dddfc3ca6"
+    },
+    {
+      "id": "preflight-audit",
+      "status": "pass",
+      "record": "records/preflight-audit.json",
+      "sha256": "e19b31f37623aeb81051f9e7f20b3d1509e7fe6d264e116c5a773a40a756fb68"
+    },
+    {
+      "id": "execution-transition-recovery",
+      "status": "pass",
+      "record": "records/execution-transition-recovery.json",
+      "sha256": "5e51435c5f98cf37154bc9a0ac1976c1be98cee1715bcc37b60cd4d2678cb621"
+    },
+    {
+      "id": "migration",
+      "status": "pass",
+      "record": "records/migration.json",
+      "sha256": "9398265d77329f60ff818a59fe541efcd964b71e525f4cd203f585f0b2744176"
+    },
+    {
+      "id": "roadmap",
+      "status": "pass",
+      "record": "records/roadmap.json",
+      "sha256": "ec0ac2ab7512b1bd8fb3ae58c0fcd8fba0a1f804839ad5071280d8eb908a3e8b"
+    },
+    {
+      "id": "worktree",
+      "status": "pass",
+      "record": "records/worktree.json",
+      "sha256": "f0b3c28bd55a57e99121f8936bc617aa7be8e2c307d1abbba866c44be353af77"
+    },
+    {
+      "id": "agent-install-check",
+      "status": "pass",
+      "record": "records/agent-install-check.json",
+      "sha256": "962040267fbdd5cec0273ed8e0747679d9cc7b0d809079eb7f910ced850d0810"
+    },
+    {
+      "id": "outcomes",
+      "status": "pass",
+      "record": "records/outcomes.json",
+      "sha256": "588d4c5431d8ec4801a084d69b96d8bbfb5d50850d348f6bf2e1d27b438a8d25"
+    },
+    {
+      "id": "verification",
+      "status": "pass",
+      "record": "records/verification.json",
+      "sha256": "bc8a13a7e7b8655ce636937b566d45f1402e9cbba8ba903abf34585c6026f22b"
+    }
+  ]
+}

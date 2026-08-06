@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.4.0",
+  "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "candidateSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "reviewer": {
+    "github": "octocat",
+    "timestamp": "2026-08-07T00:00:00Z"
+  },
+  "kind": "desktop",
+  "tools": {
+    "codex": "codex-desktop 1.0.0"
+  },
+  "assertions": {
+    "nativeWindows": true,
+    "wslInvoked": false,
+    "gitBashInvoked": false
+  },
+  "checklist": [
+    {
+      "id": "installation",
+      "status": "pass"
+    },
+    {
+      "id": "enablement",
+      "status": "pass"
+    },
+    {
+      "id": "hook-review",
+      "status": "pass"
+    },
+    {
+      "id": "preflight",
+      "status": "pass"
+    },
+    {
+      "id": "requirements-to-plan",
+      "status": "pass"
+    }
+  ]
+}

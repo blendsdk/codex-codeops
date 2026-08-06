@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "migration",
+  "result": "pass",
+  "commandClass": "native-python",
+  "timestamp": "2026-08-07T00:00:00Z",
+  "summary": "synthetic passing result"
+}

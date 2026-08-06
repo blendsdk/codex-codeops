@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import os
 from pathlib import Path
 import sys
@@ -10,6 +11,7 @@ from typing import Callable, Mapping
 
 from scripts.codeops_platform.subprocesses import run_command
 from scripts.codeops_verify_lib.contracts import validate_contracts
+from scripts.validate_windows_evidence import validate_evidence_set
 
 
 CHECK_NAMES = ("validate", "docs", "migration", "roadmap", "compact")
@@ -71,6 +73,10 @@ def validate(root: Path) -> CheckResult:
     if contract_failures:
         stderr.append("\n".join(contract_failures) + "\n")
         failures += len(contract_failures)
+    evidence = windows_evidence(root)
+    stdout.append(evidence.stdout)
+    stderr.append(evidence.stderr)
+    failures += evidence.exit_code != 0
     environment = dict(os.environ)
     environment["CODEOPS_VERIFY_CHILD"] = "1"
     environment.setdefault("PYTHONUTF8", "1")
@@ -83,6 +89,42 @@ def validate(root: Path) -> CheckResult:
     stderr.append(tests.stderr)
     failures += tests.exit_code != 0
     return CheckResult("validate", 1 if failures else 0, "".join(stdout), "".join(stderr))
+
+
+def windows_evidence(root: Path, *, required: bool = False) -> CheckResult:
+    """Validate a retained Windows evidence pair when present or explicitly required."""
+
+    manifest_path = root / ".codex-plugin" / "plugin.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        version = manifest["version"]
+    except (OSError, json.JSONDecodeError, KeyError, TypeError):
+        return CheckResult("windows-evidence", 1, stderr="unable to resolve plugin version\n")
+    evidence_root = root / "tests" / "evidence"
+    cli = evidence_root / f"windows-native-{version}.json"
+    desktop = evidence_root / f"windows-desktop-{version}.json"
+    if not cli.is_file() and not desktop.is_file() and not required:
+        return CheckResult("windows-evidence", 0)
+    expected_commit = ""
+    if cli.is_file():
+        try:
+            payload = json.loads(cli.read_text(encoding="utf-8"))
+            expected_commit = payload.get("commit", "") if isinstance(payload, dict) else ""
+        except (OSError, json.JSONDecodeError):
+            pass
+    errors = validate_evidence_set(
+        evidence_root,
+        cli_path=cli if cli.is_file() else None,
+        desktop_path=desktop if desktop.is_file() else None,
+        expected_version=str(version),
+        expected_commit=expected_commit,
+        support_claimed=required,
+    )
+    return CheckResult(
+        "windows-evidence",
+        1 if errors else 0,
+        stderr="" if not errors else "\n".join(errors) + "\n",
+    )
 
 
 def docs(root: Path) -> CheckResult:

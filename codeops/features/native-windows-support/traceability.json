@@ -1733,6 +1733,10 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "implementationEvidence:hash-bound fixture set, implementation-boundary tests, and portable/full evidence gate added",
+        "verificationEvidence:18 certification tests and full 333-test native conformance suite passed with four expected skips"
+      ],
       "id": "TASK-5.2.3",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1745,7 +1749,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add synthetic valid/invalid CLI/desktop/supporting-record fixtures, the declared implementation-boundary suite, and portable/full evidence validation",
       "type": "task",
       "validations": []

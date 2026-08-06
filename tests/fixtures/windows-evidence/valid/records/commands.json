@@ -1,0 +1,119 @@
+[
+  {
+    "scenarioId": "installation",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "enablement",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "session-preflight",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "requirements",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "planning",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "preflight-audit",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "execution-transition-recovery",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "migration",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "roadmap",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "worktree",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "agent-install-check",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "outcomes",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  },
+  {
+    "scenarioId": "verification",
+    "executable": "C:/Program Files/Python/python.exe",
+    "arguments": [
+      "<PLUGIN_ROOT>/scripts/codeops_verify.py",
+      "list"
+    ],
+    "exitClass": "success"
+  }
+]
