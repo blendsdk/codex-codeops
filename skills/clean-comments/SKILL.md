@@ -5,6 +5,14 @@ description: Audit and clean source comments and API documentation without chang
 
 # Clean source documentation
 
+## Native prerequisite gate
+
+Before the first comment or documentation mutation, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command. Report-only operation does not invoke the
+mutation gate.
+
 ## Safety boundary
 
 This is a comment-only workflow. Never alter executable tokens, declarations, types, imports, string literals, generated files, vendored code, snapshots, CodeOps artifacts, or `AGENTS.md`.

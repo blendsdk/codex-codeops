@@ -18,6 +18,14 @@ description: >-
 
 > **CodeOps Artifact Schema**: 1
 
+## Native prerequisite gate
+
+Before the first project mutation, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command. Review-only operation does not invoke the
+mutation gate.
+
 Create and maintain a living, VitePress-compatible technical architecture documentation set in
 the project's `docs/` directory, capturing accumulated design knowledge across requirements and
 planning phases. The body branches by phrasing and arguments:

@@ -5,6 +5,13 @@ description: Analyze the current repository and create or refresh concise CodeOp
 
 # Analyze project guidance
 
+## Native prerequisite gate
+
+Before writing or replacing the managed project-guidance section, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command.
+
 Codex `/init` can create a basic `AGENTS.md`; this skill adds CodeOps-specific, evidence-grounded guidance without replacing hand-authored policy.
 
 ## Protocol

@@ -1292,6 +1292,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:UTF-8 skill validation and static native prerequisite gate audit passed for techdocs, analyze-project, and clean-comments"
+      ],
       "id": "TASK-4.2.4",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1312,7 +1315,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Complete prerequisite integration for techdocs, analyze-project, and clean-comments mutations",
       "type": "task",
       "validations": []
