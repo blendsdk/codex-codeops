@@ -1099,7 +1099,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "implemented",
       "title": "Run portable `all`, every legacy public launcher, and the confirmed five-command full verification gate",
       "type": "task",
       "validations": []
