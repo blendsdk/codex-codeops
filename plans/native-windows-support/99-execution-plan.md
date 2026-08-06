@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 21:36
-> **Progress**: 13/72 tasks (18%)
+> **Last Updated**: 2026-08-06 21:37
+> **Progress**: 14/72 tasks (19%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -151,7 +151,7 @@ ST-41–ST-45 · AR-9–AR-11
 
 - [x] 2.1.1 [spec-author] Add versioned Windows/legacy Linux owner, absence, PID-reuse, uncertainty, concurrency, and recovery specification cases — `tests/conformance/test_windows_state_spec.py` ✅ (completed: 2026-08-06 21:29)
 - [x] 2.1.2 [spec-author] Add canonical/legacy/hostile path, reserved/alias/reparse cases, exact WinError 32/33 retry, generic-access refusal, interruption, and non-NTFS specification cases — `tests/conformance/test_windows_state_spec.py`, `tests/fixtures/windows-state/` ✅ (completed: 2026-08-06 21:36)
-- [ ] 2.1.3 Run new state specification cases red while the immutable Linux state and migration specification modules remain green — `tests/conformance/test_windows_state_spec.py`, `tests/conformance/test_state_migration_spec.py`
+- [x] 2.1.3 Run new state specification cases red while the immutable Linux state and migration specification modules remain green — `tests/conformance/test_windows_state_spec.py`, `tests/conformance/test_state_migration_spec.py` ✅ (completed: 2026-08-06 21:37)
 
 Task 2.1.1 red evidence: native collection and syntax validation succeeded; all nine process-owner
 specification cases failed solely because the planned `scripts.codeops_state_lib.processes` module
@@ -161,6 +161,13 @@ Task 2.1.2 red evidence: the 20-case combined module collected; its eleven files
 solely because the planned `scripts.codeops_state_lib.paths` module does not exist, while the nine
 owner cases retain their expected missing-process-module failure. Python compilation and fixture
 JSON parsing passed. Full output is retained at `%TEMP%/verify-red-task-2.1.2.log`.
+
+Task 2.1.3 regression evidence: the combined Windows module retained exactly 20 expected missing-
+adapter errors at `%TEMP%/verify-red-task-2.1.3-windows-state.log`; 48 existing portable state
+tests passed natively at `%TEMP%/verify-green-task-2.1.3-native-state.log`. The Linux-only migration
+specification, implementation tests, transition implementation, and migration implementation have
+the same Git object IDs as successful Ubuntu five-gate run `31116047265` at `a3890b8`. They were
+not executed through an emulation layer on Windows under the no-WSL constraint.
 
 ### Step 2.2: Implementation
 
