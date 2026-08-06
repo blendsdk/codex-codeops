@@ -13,6 +13,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.codeops_platform.subprocesses import run_mutation_preflight
+from scripts.codeops_state_lib.filesystem import NativeAtomicWriteOps, atomic_write_bytes
+from scripts.codeops_state_lib.paths import NativePathProbe
+
 
 EVENTS = {
     "task-verified", "verification-run", "review-completed", "finding-escaped",
@@ -49,7 +56,8 @@ def project_id(root: Path) -> str:
 
 
 def emit(args: argparse.Namespace) -> int:
-    root = Path(args.root).resolve()
+    probe = NativePathProbe()
+    root = probe.canonical(Path(args.root))
     if not enabled(root):
         print("CodeOps outcomes disabled; no event recorded.", file=sys.stderr)
         return 0
@@ -67,10 +75,27 @@ def emit(args: argparse.Namespace) -> int:
     }
     if args.duration_ms is not None:
         event["duration_ms"] = args.duration_ms
-    store = Path(args.store).expanduser()
+    store = probe.canonical(Path(args.store).expanduser())
+    gate_root = root
+    try:
+        store.relative_to(root)
+    except ValueError:
+        gate_root = store.parent
+        while not gate_root.exists() and gate_root != gate_root.parent:
+            gate_root = gate_root.parent
+    targets = tuple(
+        dict.fromkeys(
+            path for path in (store.parent, store)
+            if probe.canonical(path) != probe.canonical(gate_root)
+        )
+    )
+    if run_mutation_preflight(gate_root, targets, entrypoint_code="outcome-write") != 0:
+        print("Native mutation prerequisites are blocked.", file=sys.stderr)
+        return 2
     store.parent.mkdir(parents=True, exist_ok=True)
-    with store.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(event, separators=(",", ":"), sort_keys=True) + "\n")
+    existing = store.read_bytes() if store.is_file() else b""
+    line = (json.dumps(event, separators=(",", ":"), sort_keys=True) + "\n").encode("utf-8")
+    atomic_write_bytes(store, existing + line, ops=NativeAtomicWriteOps(gate_root))
     print("Outcome event recorded.")
     return 0
 
@@ -91,9 +116,10 @@ def read_events(store: Path, project: str | None) -> list[dict[str, Any]]:
 
 
 def report(args: argparse.Namespace) -> int:
-    root = Path(args.root).resolve()
+    probe = NativePathProbe()
+    root = probe.canonical(Path(args.root))
     project = None if args.all_projects else project_id(root)
-    events = read_events(Path(args.store).expanduser(), project)
+    events = read_events(probe.canonical(Path(args.store).expanduser()), project)
     by_event = Counter(event.get("event") for event in events)
     by_result = Counter(event.get("result") for event in events)
     totals = Counter()

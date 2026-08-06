@@ -2,8 +2,8 @@
 """Create and compare complete Git worktree snapshots without changing the real index.
 
 Examples:
-    python3 scripts/codeops_worktree_snapshot.py snapshot --root .
-    python3 scripts/codeops_worktree_snapshot.py diff --root . --baseline <tree>
+    <CODEOPS_PYTHON> scripts/codeops_worktree_snapshot.py snapshot --root .
+    <CODEOPS_PYTHON> scripts/codeops_worktree_snapshot.py diff --root . --baseline <tree>
 """
 
 from __future__ import annotations
@@ -11,9 +11,14 @@ from __future__ import annotations
 import argparse
 import os
 import re
-import subprocess
-import tempfile
+import sys
 from pathlib import Path
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.codeops_platform.subprocesses import run_command, run_mutation_preflight
+from scripts.codeops_state_lib.paths import NativePathProbe
 
 
 OBJECT_ID_RE = re.compile(r"[0-9a-f]{40,64}")
@@ -28,14 +33,8 @@ def run_git(root: Path, args: list[str], *, index_path: Path | None = None) -> s
     environment = os.environ.copy()
     if index_path is not None:
         environment["GIT_INDEX_FILE"] = str(index_path)
-    result = subprocess.run(
-        ["git", "-C", str(root), *args],
-        text=True,
-        capture_output=True,
-        check=False,
-        env=environment,
-    )
-    if result.returncode != 0:
+    result = run_command(("git", "-C", str(root), *args), cwd=root, environment=environment)
+    if result.exit_code != 0:
         message = result.stderr.strip() or result.stdout.strip() or "Git command failed"
         raise SnapshotError(message)
     return result.stdout
@@ -43,10 +42,19 @@ def run_git(root: Path, args: list[str], *, index_path: Path | None = None) -> s
 
 def snapshot_worktree(root: Path) -> str:
     """Write the complete non-ignored worktree to a Git tree without staging files."""
-    descriptor, raw_path = tempfile.mkstemp(prefix="codeops-phase-index-")
-    os.close(descriptor)
-    index_path = Path(raw_path)
-    index_path.unlink()
+    probe = NativePathProbe()
+    raw_common = run_git(root, ["rev-parse", "--git-common-dir"]).strip()
+    common_dir = Path(raw_common)
+    if not common_dir.is_absolute():
+        common_dir = probe.canonical(root / common_dir)
+    else:
+        common_dir = probe.canonical(common_dir)
+    index_path = common_dir / f"codeops-phase-index-{os.getpid()}"
+    if index_path.exists():
+        raise SnapshotError("temporary snapshot index already exists")
+    targets = (common_dir / "objects", index_path)
+    if run_mutation_preflight(root, targets, entrypoint_code="snapshot-write") != 0:
+        raise SnapshotError("native mutation prerequisites are blocked")
     try:
         run_git(root, ["read-tree", "HEAD"], index_path=index_path)
         run_git(root, ["add", "-A", "--", "."], index_path=index_path)
@@ -79,7 +87,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     """Execute the requested worktree snapshot operation."""
     args = parse_args()
-    root = Path(args.root).resolve()
+    root = NativePathProbe().canonical(Path(args.root))
     try:
         if args.command == "snapshot":
             if args.baseline is not None:

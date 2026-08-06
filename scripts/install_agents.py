@@ -9,6 +9,13 @@ import re
 import sys
 from pathlib import Path
 
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.codeops_platform.subprocesses import run_mutation_preflight
+from scripts.codeops_state_lib.filesystem import NativeAtomicWriteOps, atomic_write_bytes
+from scripts.codeops_state_lib.paths import NativePathProbe
+
 
 MARKER = "# CODEOPS-GENERATED: install_agents.py schema=1"
 ROLE_SOURCES = {
@@ -77,7 +84,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     plugin_root = Path(__file__).resolve().parent.parent
-    project = Path(args.project).resolve()
+    project = NativePathProbe().canonical(Path(args.project))
     target_dir = project / ".codex" / "agents"
     roles = list(ROLE_SOURCES)
     if args.roles:
@@ -114,11 +121,17 @@ def main() -> int:
 
     if args.check:
         return 1 if failed else 0
+    if planned and not args.dry_run:
+        targets = tuple(dict.fromkeys((target_dir, *(destination for destination, _ in planned))))
+        if run_mutation_preflight(project, targets, entrypoint_code="agent-install") != 0:
+            print("Native mutation prerequisites are blocked.", file=sys.stderr)
+            return 2
+        target_dir.mkdir(parents=True, exist_ok=True)
+        writer = NativeAtomicWriteOps(project)
     for destination, expected in planned:
         print(f"{'WOULD WRITE' if args.dry_run else 'WRITE'} {destination}")
         if not args.dry_run:
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text(expected, encoding="utf-8")
+            atomic_write_bytes(destination, expected.encode("utf-8"), ops=writer)
     return 0
 
 

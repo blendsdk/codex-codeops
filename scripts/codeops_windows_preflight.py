@@ -35,10 +35,13 @@ _CHECK_CODES = (
     "path-filesystem",
 )
 _REGISTERED_ENTRYPOINTS = frozenset({
+    "agent-install",
     "hook-pre-tool-use",
     "layout-migration",
+    "outcome-write",
     "roadmap-write",
     "skill-mutation",
+    "snapshot-write",
     "state-transition",
     "worktree-mutation",
 })

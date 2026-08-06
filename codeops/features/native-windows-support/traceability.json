@@ -1442,6 +1442,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:workflow specification, Python compilation, and read-only/no-op utility regressions passed"
+      ],
       "id": "TASK-4.2.9",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1462,7 +1465,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Integrate registered mutation gates plus shared canonical paths/atomic writes into outcomes, worktree snapshots, and optional-agent installation",
       "type": "task",
       "validations": []
