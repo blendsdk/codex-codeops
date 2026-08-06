@@ -38,6 +38,7 @@ _REGISTERED_ENTRYPOINTS = frozenset({
     "hook-pre-tool-use",
     "layout-migration",
     "roadmap-write",
+    "skill-mutation",
     "state-transition",
     "worktree-mutation",
 })

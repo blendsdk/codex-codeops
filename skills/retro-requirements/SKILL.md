@@ -20,6 +20,13 @@ description: >-
 
 > **CodeOps Artifact Schema**: 1
 
+## Native prerequisite gate
+
+Before the first project mutation, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command.
+
 Analyze an existing codebase — any language, any framework — and produce a
 structured **reconstruction brief** that can be fed to the make-requirements
 skill to generate formal requirement documents capable of rebuilding the entire

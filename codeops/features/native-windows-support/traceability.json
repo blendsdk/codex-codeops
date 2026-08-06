@@ -1202,6 +1202,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Shared native runtime contract added; requirements, retro-requirements, and planning skills validate; closed preflight input regression passed."
+      ],
       "id": "TASK-4.2.1",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1222,7 +1225,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add the common prerequisite invocation contract to requirements, retro-requirements, planning, preflight, execution, and upgrade workflows",
       "type": "task",
       "validations": []
