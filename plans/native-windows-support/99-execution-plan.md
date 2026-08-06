@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 21:44
-> **Progress**: 18/72 tasks (25%)
+> **Last Updated**: 2026-08-06 21:45
+> **Progress**: 19/72 tasks (26%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -177,7 +177,7 @@ not executed through an emulation layer on Windows under the no-WSL constraint.
 - [x] 2.2.2 Move current `/proc` behavior behind the Linux backend without changing its absence decisions — `scripts/codeops_state_lib/processes.py`, `scripts/codeops_state_lib/transitions.py` ✅ (completed: 2026-08-06 21:41)
 - [x] 2.2.3 Implement least-privilege Windows PID/creation-FILETIME probing with guaranteed handle cleanup and fail-closed uncertainty — `scripts/codeops_state_lib/processes_windows.py`, `scripts/codeops_state_lib/processes.py` ✅ (completed: 2026-08-06 21:42)
 - [x] 2.2.4 Implement canonical durable paths, safe legacy reads, NTFS/case/8.3 collision keys, every-existing-component root-to-target reparse rejection, containment, and invalid-component rejection — `scripts/codeops_state_lib/paths.py` ✅ (completed: 2026-08-06 21:44)
-- [ ] 2.2.5 Implement shared same-directory atomic writes with the fixed WinError 32/33 retry schedule, immediate filesystem revalidation, and no delete fallback — `scripts/codeops_state_lib/filesystem.py`
+- [x] 2.2.5 Implement shared same-directory atomic writes with the fixed WinError 32/33 retry schedule, immediate filesystem revalidation, and no delete fallback — `scripts/codeops_state_lib/filesystem.py` ✅ (completed: 2026-08-06 21:45)
 - [ ] 2.2.6 Integrate the registered mutation preflight and process/filesystem adapters into the direct state CLI, transition, journal, lock, rollback, replacement, and recovery boundaries — `scripts/codeops_state.py`, `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/filesystem.py`
 - [ ] 2.2.7 Integrate canonical paths and shared writes into graph migration and rendering, then run Phase-2 specification cases green — `scripts/codeops_state_lib/migration.py`, `scripts/codeops_state_lib/rendering.py`
 
