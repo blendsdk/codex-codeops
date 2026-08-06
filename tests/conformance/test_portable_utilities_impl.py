@@ -546,6 +546,7 @@ class PortableRenderingAndReportingTests(unittest.TestCase):
         self.assertEqual(environment["PYTHONUTF8"], "1")
         self.assertEqual(environment["PYTHONIOENCODING"], "utf-8")
 
+    @unittest.skipUnless(os.name == "nt", "native PowerShell launcher is Windows-only")
     def test_powershell_verifier_rejects_root_override(self) -> None:
         for option in ("--root", "--root=value", "--ro", "--r"):
             with self.subTest(option=option):
