@@ -1058,7 +1058,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "implemented",
       "title": "Run characterization comparisons proving retained Unix launchers match approved behavior on migration, roadmap, compact, worktree, hook, agent, and outcome fixtures",
       "type": "task",
       "validations": []

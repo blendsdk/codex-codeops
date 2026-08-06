@@ -10,6 +10,8 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest import mock
+import os
+import shutil
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -172,6 +174,133 @@ class PortableRenderingAndReportingTests(unittest.TestCase):
                 self.assertIn("set -euo pipefail", text)
                 self.assertIn('"$@"', text)
                 self.assertLessEqual(len(executable), 12)
+
+
+@unittest.skipIf(os.name == "nt", "retained Unix launchers run only on the Ubuntu authority")
+class UnixCharacterizationTests(unittest.TestCase):
+    """Compare retained Unix surfaces with their portable Python owners."""
+
+    def run_process(
+        self,
+        argv: list[str],
+        *,
+        cwd: Path,
+        input_text: str | None = None,
+        environment: dict[str, str] | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            argv,
+            cwd=cwd,
+            input=input_text,
+            env=environment,
+            text=True,
+            capture_output=True,
+            check=False,
+            shell=False,
+        )
+
+    def assert_same_process(
+        self,
+        portable: subprocess.CompletedProcess[str],
+        retained: subprocess.CompletedProcess[str],
+    ) -> None:
+        self.assertEqual(retained.returncode, portable.returncode, retained.stderr)
+        self.assertEqual(retained.stdout, portable.stdout)
+        self.assertEqual(retained.stderr, portable.stderr)
+
+    def test_migration_roadmap_and_compact_launchers_match_python(self) -> None:
+        fixtures = ROOT / "scripts" / "fixtures"
+        cases = (
+            (
+                fixtures / "flat-repo",
+                [sys.executable, str(ROOT / "scripts/codeops_migrate.py"), "legacy", "--root", ".", "--dry-run", "--json"],
+                [str(ROOT / "scripts/codeops-migrate.sh"), "--dry-run", "--json"],
+            ),
+            (
+                fixtures / "roadmap-repo" / "nested",
+                [sys.executable, str(ROOT / "scripts/codeops_roadmap.py"), "sync", "--root", ".", "--check", "--json"],
+                [str(ROOT / "scripts/codeops-roadmap-sync.sh"), "--check", "--json"],
+            ),
+            (
+                fixtures / "bloated-repo" / "flat",
+                [sys.executable, str(ROOT / "scripts/codeops_roadmap.py"), "compact", "--root", ".", "--dry-run", "--json"],
+                [str(ROOT / "scripts/codeops-roadmap-compact.sh"), "--dry-run", "--json"],
+            ),
+        )
+        for source, portable_argv, retained_argv in cases:
+            with self.subTest(launcher=retained_argv[0]), tempfile.TemporaryDirectory() as raw:
+                project = Path(raw) / "fixture"
+                shutil.copytree(source, project)
+                portable = self.run_process(portable_argv, cwd=project)
+                retained = self.run_process(retained_argv, cwd=project)
+                self.assert_same_process(portable, retained)
+
+    def test_worktree_and_hook_launchers_match_python(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw) / "project"
+            project.mkdir()
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            (project / ".fixture").write_text("fixture\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(project), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(project), "-c", "user.name=CodeOps Test", "-c", "user.email=codeops@example.invalid", "commit", "-qm", "fixture"],
+                check=True,
+            )
+            portable = self.run_process(
+                [sys.executable, str(ROOT / "scripts/codeops_worktree.py"), "list", "--root", "."],
+                cwd=project,
+            )
+            retained = self.run_process([str(ROOT / "bin/codeops-worktree"), "list"], cwd=project)
+            self.assert_same_process(portable, retained)
+
+        payload = (ROOT / "tests/fixtures/hooks/session-start-spaces.json").read_text(encoding="utf-8")
+        environment = dict(os.environ, PLUGIN_ROOT=str(ROOT))
+        portable = self.run_process(
+            [sys.executable, str(ROOT / "scripts/codeops_hooks.py"), "--event", "SessionStart"],
+            cwd=ROOT,
+            input_text=payload,
+            environment=environment,
+        )
+        retained = self.run_process(
+            [str(ROOT / "scripts/hook_session_context.sh")],
+            cwd=ROOT,
+            input_text=payload,
+            environment=environment,
+        )
+        self.assert_same_process(portable, retained)
+
+    def test_agent_and_outcome_fixture_contracts_are_deterministic(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw) / "project & data"
+            project.mkdir()
+            agent_argv = [
+                sys.executable,
+                str(ROOT / "scripts/install_agents.py"),
+                "--project",
+                str(project),
+                "--roles",
+                "explorer",
+                "--dry-run",
+            ]
+            first = self.run_process(agent_argv, cwd=ROOT)
+            second = self.run_process(agent_argv, cwd=ROOT)
+            self.assert_same_process(first, second)
+
+            store = project / "empty outcomes.jsonl"
+            outcome_argv = [
+                sys.executable,
+                str(ROOT / "scripts/codeops_outcomes.py"),
+                "report",
+                "--root",
+                str(project),
+                "--store",
+                str(store),
+                "--json",
+            ]
+            first = self.run_process(outcome_argv, cwd=ROOT)
+            second = self.run_process(outcome_argv, cwd=ROOT)
+            self.assert_same_process(first, second)
+            self.assertEqual(json.loads(first.stdout)["events"], 0)
 
 
 if __name__ == "__main__":
