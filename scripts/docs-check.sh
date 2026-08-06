@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
+# Unix compatibility launcher; portable behavior lives in codeops_verify.py.
 set -euo pipefail
-
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT"
-
-python3 scripts/validate_markdown_links.py README.md docs plans
-
-if rg -n 'commands will be published|TODO|TBD|claude-codeops/' README.md docs; then
-  printf 'Documentation contains unfinished or stale release text.\n' >&2
-  exit 1
-fi
-
-printf 'Documentation checks passed.\n'
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+exec python3 "$SCRIPT_DIR/codeops_verify.py" docs --root "$SCRIPT_DIR/.." "$@"

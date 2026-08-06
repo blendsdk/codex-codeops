@@ -1002,6 +1002,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:All 12 Phase 3 specification cases passed natively on Windows; four retained verifier launchers are strict Python forwarders and were not executed locally."
+      ],
       "id": "TASK-3.2.11",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -1014,7 +1017,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Complete remaining four verification launchers and run all Phase-3 specification cases green",
       "type": "task",
       "validations": []
