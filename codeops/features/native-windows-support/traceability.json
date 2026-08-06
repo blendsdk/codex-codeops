@@ -1472,6 +1472,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:portable docs gate and pending-support/native-command wording audit passed"
+      ],
       "id": "TASK-4.2.10",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1492,7 +1495,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add native Windows developer commands and pre-certification documentation that accurately says support is pending evidence",
       "type": "task",
       "validations": []

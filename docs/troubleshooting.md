@@ -27,8 +27,9 @@ rows; it must not mutate authoritative graph state.
 Do not delete the journal, backup, or lock metadata. Create a recovery request with the recorded
 operation ID and an explicit `roll-forward` or `rollback` action, then run:
 
-```bash
-python3 /path/to/plugin/scripts/codeops_state.py transition-recover --root . \
+```powershell
+$python = & "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1" -ResolvePython
+& $python "$env:PLUGIN_ROOT\scripts\codeops_state.py" transition-recover --root . `
   --request recovery-request.json
 ```
 
@@ -37,8 +38,9 @@ completes.
 
 ## Generated agents are missing or stale
 
-```bash
-python3 /path/to/plugin/scripts/install_agents.py --project . --check
+```powershell
+$python = & "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1" -ResolvePython
+& $python "$env:PLUGIN_ROOT\scripts\install_agents.py" --project . --check
 ```
 
 Re-run `setup-routing` to preview and regenerate selected marked agents. Hand-authored TOML agents are preserved.
@@ -46,3 +48,16 @@ Re-run `setup-routing` to preview and regenerate selected marked agents. Hand-au
 ## Migration refuses to run
 
 Migration requires a Git repository and clean working tree because recoverability depends on Git history. Commit or stash unrelated work, review the dry-run again, then apply.
+
+## Native Windows pre-certification fails
+
+Run the native verifier from a PowerShell session in a fixed local NTFS checkout:
+
+```powershell
+& .\scripts\codeops-verify.ps1 all
+```
+
+Use neither WSL nor Git Bash. If the bootstrap cannot resolve Python, install Python 3.10 or newer
+and make `py -3` or `python` available. A successful developer run is useful diagnostic evidence,
+but Windows remains unsupported until the retained CI, CLI, and desktop certification records for
+the exact release candidate pass validation.

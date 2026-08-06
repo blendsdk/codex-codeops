@@ -81,8 +81,10 @@ codex plugin add codeops@codeops-marketplace
 
 These commands have been verified against the published repository. Start a new Codex thread after installation so skills and hooks are discovered.
 
-The tested host is Linux with Bash and Python 3. macOS is expected to be
-compatible but is not yet a release-tested claim; Windows is not currently supported.
+The tested host is Linux with Bash and Python 3. macOS is expected to be compatible but is not yet
+a release-tested claim. Native Windows 11 support is under implementation and remains unsupported
+until version-matched CI, CLI, and desktop certification evidence passes. Windows development uses
+PowerShell and native executables only—never WSL or Git Bash.
 
 Codex requires non-managed hooks to be reviewed before they run. Open `/hooks`, inspect the CodeOps SessionStart and edit-warning definitions, and trust them if they match this repository.
 
@@ -112,6 +114,18 @@ cd codex-codeops
 python -m pip install -r requirements-dev.txt
 ./scripts/validate-codex.sh
 ```
+
+Native Windows 11 pre-certification uses Python 3.10 or newer and the PowerShell-owned portable
+verification path:
+
+```powershell
+$python = & .\scripts\codeops-windows-preflight.ps1 -ResolvePython
+& $python -m pip install -r requirements-dev.txt
+& .\scripts\codeops-verify.ps1 all
+```
+
+These development commands do not establish a Windows support claim; that claim remains blocked
+until the exact release candidate has passing retained certification evidence.
 
 The sibling Claude CodeOps repository is the behavioral baseline during the port. Codex-specific improvements are accepted only when they preserve or strengthen ambiguity closure, verification, recovery, and project tracking.
 

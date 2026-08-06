@@ -1,7 +1,9 @@
 # Installation and trust
 
-The tested host is Linux with Bash and Python 3. macOS compatibility is
-expected but not yet release-tested. Windows is not currently supported.
+The tested host is Linux with Bash and Python 3. macOS compatibility is expected but not yet
+release-tested. Native Windows 11 support is under implementation and remains unsupported until
+the version-matched CI, CLI, and desktop evidence gate passes. The commands below are for
+development and pre-certification only; passing them does not establish a release support claim.
 
 ## Install from GitHub
 
@@ -61,3 +63,21 @@ python -m pip install -r requirements-dev.txt
 ```
 
 Do not hand-edit installed cache files.
+
+### Native Windows 11 development
+
+Use Windows PowerShell or PowerShell 7 with native Git for Windows. Do not use WSL, Git Bash, or a
+Bash launcher for CodeOps on Windows.
+
+```powershell
+git clone git@github.com:blendsdk/codex-codeops.git
+Set-Location codex-codeops
+$python = & .\scripts\codeops-windows-preflight.ps1 -ResolvePython
+& $python -m pip install -r requirements-dev.txt
+& .\scripts\codeops-verify.ps1 all
+```
+
+The bootstrap requires Python 3.10 or newer. The native mutation preflight additionally requires
+Windows 11, native Codex, Git for Windows, and a writable fixed local NTFS workspace. Native
+Windows remains a pending support target until retained certification evidence validates the
+exact release candidate.
