@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Mapping
@@ -76,6 +77,48 @@ RELATIONS = frozenset(
 
 CONTRACT_MATURITIES = ("provisional", "stable", "frozen")
 AGGREGATE_TYPES = frozenset({"requirement-set", "feature", "planning-group"})
+
+
+class AbsenceState(str, Enum):
+    """Proof state for deciding whether a recorded process owner is absent."""
+
+    ABSENT = "absent"
+    PRESENT = "present"
+    UNKNOWN = "unknown"
+
+
+@dataclass(frozen=True, slots=True)
+class LinuxProcessIdentity:
+    """Stable Linux process identity derived from procfs and the boot ID."""
+
+    pid: int
+    start_ticks: str
+    boot_id: str
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "schemaVersion": 1,
+            "backend": "linux-proc",
+            "pid": self.pid,
+            "startTicks": self.start_ticks,
+            "bootId": self.boot_id,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class WindowsProcessIdentity:
+    """Stable Windows process identity derived from its creation FILETIME."""
+
+    pid: int
+    creation_file_time: str
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "schemaVersion": 1,
+            "backend": "windows-filetime",
+            "pid": self.pid,
+            "creationFileTime": self.creation_file_time,
+        }
 
 
 @dataclass(frozen=True, slots=True)
