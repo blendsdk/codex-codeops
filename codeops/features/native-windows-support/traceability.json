@@ -1065,6 +1065,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Native collection guard imported every declared Windows/runtime module; static call-site checks found no Bash, Git Bash, or WSL delegation; 14 tests passed with three intentional Unix-only skips."
+      ],
       "id": "TASK-3.3.3",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -1077,7 +1080,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Assert every declared Windows/runtime test module is collected and no shipped Windows path contains Bash/WSL delegation",
       "type": "task",
       "validations": []

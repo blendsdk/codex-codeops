@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import ast
 from pathlib import Path
 import subprocess
 import sys
@@ -174,6 +175,67 @@ class PortableRenderingAndReportingTests(unittest.TestCase):
                 self.assertIn("set -euo pipefail", text)
                 self.assertIn('"$@"', text)
                 self.assertLessEqual(len(executable), 12)
+
+    def test_shipped_windows_paths_never_delegate_to_bash_or_wsl(self) -> None:
+        hooks = json.loads((ROOT / "hooks/hooks.json").read_text(encoding="utf-8"))
+        windows_commands: list[str] = []
+
+        def collect(value: object) -> None:
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    if key == "commandWindows" and isinstance(child, str):
+                        windows_commands.append(child)
+                    collect(child)
+            elif isinstance(value, list):
+                for child in value:
+                    collect(child)
+
+        collect(hooks)
+        self.assertTrue(windows_commands)
+        for command in windows_commands:
+            lowered = command.casefold()
+            self.assertNotIn("wsl", lowered)
+            self.assertNotIn("bash", lowered)
+            self.assertNotIn("git-bash", lowered)
+
+        forbidden = {"wsl", "wsl.exe", "bash", "bash.exe", "git-bash", "git-bash.exe"}
+        python_paths = (
+            ROOT / "scripts/codeops_hooks.py",
+            ROOT / "scripts/codeops_migrate.py",
+            ROOT / "scripts/codeops_roadmap.py",
+            ROOT / "scripts/codeops_worktree.py",
+            ROOT / "scripts/codeops_verify.py",
+            ROOT / "scripts/codeops_platform/subprocesses.py",
+        )
+        call_names = {"run", "popen", "run_command", "call", "check_call", "check_output"}
+        for path in python_paths:
+            with self.subTest(path=path.relative_to(ROOT)):
+                tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+                for node in ast.walk(tree):
+                    if not isinstance(node, ast.Call):
+                        continue
+                    function = node.func
+                    name = function.attr if isinstance(function, ast.Attribute) else function.id if isinstance(function, ast.Name) else ""
+                    if name.casefold() not in call_names:
+                        continue
+                    literals = {
+                        item.value.casefold()
+                        for item in ast.walk(node)
+                        if isinstance(item, ast.Constant) and isinstance(item.value, str)
+                    }
+                    self.assertTrue(forbidden.isdisjoint(literals), f"forbidden delegation in {path}")
+
+        for path in sorted((ROOT / "scripts").glob("*.ps1")):
+            with self.subTest(path=path.relative_to(ROOT)):
+                text = path.read_text(encoding="utf-8").casefold()
+                for line in text.splitlines():
+                    stripped = line.strip()
+                    if stripped.startswith("#"):
+                        continue
+                    self.assertNotRegex(
+                        stripped,
+                        r"(?:^|[;&|]\s*|start-process\s+)[\"']?(?:wsl(?:\.exe)?|bash(?:\.exe)?|git-bash(?:\.exe)?)\b",
+                    )
 
 
 @unittest.skipIf(os.name == "nt", "retained Unix launchers run only on the Ubuntu authority")

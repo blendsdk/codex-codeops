@@ -290,9 +290,14 @@ AR-11, AR-14
 
 **Reference**: [03-02 §Error Handling](03-02-portable-control-layer.md#error-handling)
 
+> **Temporary execution-order recovery:** GitHub Actions run `31128295160`, pinned to Task 3.3.2
+> implementation commit `a763b24`, remained queued during a hosted-runner incident. Independent
+> native Task 3.3.3 may checkpoint while 3.3.2 remains `[~]`; Phase 3 cannot close until the
+> retained-Unix characterization run passes.
+
 - [x] 3.3.1 Complete compact launcher extraction and add parser, output/exit, injection, containment, Git failure, and deterministic rendering implementation tests — `scripts/compact-check.sh`, `tests/conformance/test_portable_utilities_impl.py` ✅ (completed: 2026-08-06 23:33)
 - [~] 3.3.2 Run characterization comparisons proving retained Unix launchers match approved behavior on migration, roadmap, compact, worktree, hook, agent, and outcome fixtures — `tests/conformance/test_portable_utilities_impl.py` (implemented: 2026-08-06 23:37)
-- [ ] 3.3.3 Assert every declared Windows/runtime test module is collected and no shipped Windows path contains Bash/WSL delegation — `tests/conformance/test_state_test_collection.py`, `tests/conformance/test_portable_utilities_impl.py`
+- [x] 3.3.3 Assert every declared Windows/runtime test module is collected and no shipped Windows path contains Bash/WSL delegation — `tests/conformance/test_state_test_collection.py`, `tests/conformance/test_portable_utilities_impl.py` ✅ (completed: 2026-08-06 23:49)
 - [ ] 3.3.4 Run portable `all`, every legacy public launcher, and the confirmed five-command full verification gate — `scripts/codeops_verify.py`
 
 **Verify**: run all five commands confirmed in AR-14.

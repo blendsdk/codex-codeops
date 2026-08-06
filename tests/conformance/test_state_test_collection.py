@@ -5,7 +5,7 @@ import importlib
 import unittest
 
 
-DECLARED_MODULES = (
+STATE_SPEC_MODULES = (
     "tests.conformance.test_state_v1_compat_spec",
     "tests.conformance.test_state_v2_spec",
     "tests.conformance.test_state_v2_impl",
@@ -16,6 +16,22 @@ DECLARED_MODULES = (
     "tests.conformance.test_auto_design_spec",
     "tests.conformance.test_auto_design_impl",
 )
+
+WINDOWS_RUNTIME_MODULES = (
+    "tests.conformance.test_windows_preflight_spec",
+    "tests.conformance.test_windows_preflight_impl",
+    "tests.conformance.test_windows_state_spec",
+    "tests.conformance.test_windows_state_impl",
+    "tests.conformance.test_windows_state_native",
+    "tests.conformance.test_portable_utilities_spec",
+    "tests.conformance.test_portable_utilities_impl",
+    "tests.conformance.test_hooks",
+    "tests.conformance.test_agents",
+    "tests.conformance.test_outcomes",
+    "tests.conformance.test_worktree_snapshot",
+)
+
+DECLARED_MODULES = STATE_SPEC_MODULES + WINDOWS_RUNTIME_MODULES
 
 IMPLEMENTED_ST_CASES = set(range(1, 50))
 
@@ -38,7 +54,7 @@ class StateTestCollectionGuard(unittest.TestCase):
 
     def test_implemented_st_cases_have_exactly_one_specification_test(self) -> None:
         names = []
-        for module_name in DECLARED_MODULES:
+        for module_name in STATE_SPEC_MODULES:
             module = importlib.import_module(module_name)
             names.extend(
                 test._testMethodName
