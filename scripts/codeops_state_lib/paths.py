@@ -149,10 +149,10 @@ def _validate_component(component: str, *, windows: bool) -> None:
 def _relative_parts(value: str, *, windows: bool) -> tuple[str, ...]:
     if not isinstance(value, str) or not value:
         raise ValueError("durable path must be a nonempty string")
+    parsed = PureWindowsPath(value)
+    if parsed.is_absolute() or parsed.drive or parsed.root:
+        raise ValueError("durable path must be project-relative")
     if windows:
-        parsed = PureWindowsPath(value)
-        if parsed.is_absolute() or parsed.drive or parsed.root:
-            raise ValueError("durable path must be project-relative")
         normalized = value.replace("\\", "/")
     else:
         if "\\" in value:
@@ -162,7 +162,7 @@ def _relative_parts(value: str, *, windows: bool) -> tuple[str, ...]:
         raise ValueError("durable path must be project-relative")
     parts = tuple(normalized.split("/"))
     for component in parts:
-        _validate_component(component, windows=windows)
+        _validate_component(component, windows=True)
     return parts
 
 
@@ -191,7 +191,7 @@ def canonical_relative_path(
     if not parts:
         raise ValueError("durable path cannot name the project root")
     for component in parts:
-        _validate_component(component, windows=selected.is_windows)
+        _validate_component(component, windows=True)
     return "/".join(parts)
 
 
