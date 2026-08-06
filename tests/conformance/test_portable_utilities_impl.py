@@ -529,7 +529,7 @@ class PortableRenderingAndReportingTests(unittest.TestCase):
                 encoding="utf-8",
             )
             changed = synchronize(root, "2026-08-06")
-            rendered = changed.rendered[roadmap].decode("utf-8")
+            rendered = changed.rendered[roadmap.resolve()].decode("utf-8")
             self.assertIn("> **Progress**: 1 / 1 (100%)", rendered)
             self.assertIn("> **Last Updated**: 2026-08-06", rendered)
             roadmap.write_text(rendered, encoding="utf-8")

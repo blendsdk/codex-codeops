@@ -23,17 +23,17 @@ if (-not [string]::Equals(
     exit 1
 }
 
+$payload = [Console]::In.ReadToEnd()
+if ([string]::IsNullOrWhiteSpace($payload)) {
+    [Console]::Error.WriteLine('CodeOps hook input is invalid.')
+    exit 1
+}
+
 $bootstrap = Join-Path $PSScriptRoot 'codeops-windows-preflight.ps1'
 $hookEntry = Join-Path $PSScriptRoot 'codeops_hooks.py'
 $python = & $bootstrap -ResolvePython
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
-}
-
-$payload = [Console]::In.ReadToEnd()
-if ([string]::IsNullOrWhiteSpace($payload)) {
-    [Console]::Error.WriteLine('CodeOps hook input is invalid.')
-    exit 1
 }
 
 $payload | & $python $hookEntry --event $Event

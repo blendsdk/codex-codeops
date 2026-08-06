@@ -155,7 +155,7 @@ class MutationUtilityImplementationTests(unittest.TestCase):
             payload = json.loads(store.read_text(encoding="utf-8"))
         self.assertEqual(payload["event"], "task-verified")
         self.assertEqual(gate.call_args.kwargs["entrypoint_code"], "outcome-write")
-        self.assertIn(store, gate.call_args.args[1])
+        self.assertIn(store.resolve(), tuple(path.resolve() for path in gate.call_args.args[1]))
 
     def test_concurrent_outcome_emitters_do_not_lose_events(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -199,7 +199,7 @@ class MutationUtilityImplementationTests(unittest.TestCase):
             text = destination.read_text(encoding="utf-8")
         self.assertTrue(text.startswith(install_agents.MARKER))
         self.assertEqual(gate.call_args.kwargs["entrypoint_code"], "agent-install")
-        self.assertIn(destination, gate.call_args.args[1])
+        self.assertIn(destination.resolve(), tuple(path.resolve() for path in gate.call_args.args[1]))
 
     def test_multi_role_agent_failure_rolls_back_the_complete_set(self) -> None:
         from scripts import install_agents

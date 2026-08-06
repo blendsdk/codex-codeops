@@ -14,7 +14,7 @@ STATE = ROOT / "scripts/codeops_state.py"
 
 
 def read(path: str) -> str:
-    return (ROOT / path).read_text()
+    return (ROOT / path).read_text(encoding="utf-8")
 
 
 class TargetedWorkflowSpecification(unittest.TestCase):

@@ -29,14 +29,17 @@ class TargetedWorkflowImplementation(unittest.TestCase):
 
     def test_workflow_documents_have_no_legacy_feature_gate(self) -> None:
         for path in ("skills/make-plan/SKILL.md", "skills/exec-plan/SKILL.md"):
-            self.assertNotIn("readiness --root . --feature", (ROOT / path).read_text())
+            self.assertNotIn(
+                "readiness --root . --feature",
+                (ROOT / path).read_text(encoding="utf-8"),
+            )
 
     def test_public_document_links_resolve(self) -> None:
         for path in ("docs/concepts.md", "docs/tutorial.md", "docs/migration.md", "docs/troubleshooting.md"):
             self.assertTrue((ROOT / path).is_file())
 
     def test_roadmap_contract_names_explicit_aggregates(self) -> None:
-        text = (ROOT / "skills/roadmap/SKILL.md").read_text()
+        text = (ROOT / "skills/roadmap/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("--gate feature-acceptance", text)
         self.assertIn("--gate release", text)
 

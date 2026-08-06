@@ -189,7 +189,7 @@ class PortableWorktreeSpecification(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(payload["worktrees"]), 1)
-        self.assertEqual(Path(payload["worktrees"][0]["path"]), project)
+        self.assertEqual(Path(payload["worktrees"][0]["path"]).resolve(), project.resolve())
 
     def test_st_35_hostile_topic_branch_and_path_are_refused_without_git_mutation(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

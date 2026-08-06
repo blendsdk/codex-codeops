@@ -1779,6 +1779,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "implementationEvidence:Windows ARM CI findings fixed: setup-Python selection, long-path alias normalization, UTF-8, and hook stdin preservation"
+      ],
       "id": "TASK-5.2.5",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1791,7 +1794,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "implemented",
       "title": "Run Phase-5 specification/implementation cases green and obtain passing Ubuntu plus explicit native Windows 11 CI for the release-candidate commit",
       "type": "task",
       "validations": []

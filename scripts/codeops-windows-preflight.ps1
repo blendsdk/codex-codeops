@@ -6,7 +6,14 @@ Set-StrictMode -Version 3.0
 $ErrorActionPreference = 'Stop'
 
 function Find-CodeOpsPython {
-    $candidates = @(
+    $candidates = @()
+    if (-not [string]::IsNullOrWhiteSpace($env:pythonLocation)) {
+        $candidates += @{
+            Name = (Join-Path $env:pythonLocation 'python.exe')
+            Prefix = @()
+        }
+    }
+    $candidates += @(
         @{ Name = 'py'; Prefix = @('-3') },
         @{ Name = 'python'; Prefix = @() }
     )

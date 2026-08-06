@@ -62,7 +62,16 @@ class NativePathProbe:
             resolved = "\\\\" + resolved[8:]
         elif self.is_windows and resolved.startswith("\\\\?\\"):
             resolved = resolved[4:]
-        return Path(resolved)
+        candidate = Path(resolved)
+        if not self.is_windows:
+            return candidate
+        missing: list[str] = []
+        existing = candidate
+        while not existing.exists() and existing != existing.parent:
+            missing.append(existing.name)
+            existing = existing.parent
+        expanded = Path(self.long_name(existing))
+        return expanded.joinpath(*reversed(missing))
 
     def volume_info(self, path: Path) -> VolumeInfo:
         existing = path
@@ -249,7 +258,7 @@ def validate_transaction_paths(
             not volume.fixed_local or volume.filesystem.casefold() != "ntfs"
         ):
             raise OSError("durable state requires a fixed local NTFS volume")
-        for component in selected.existing_components(canonical_root, absolute):
+        for component in selected.existing_components(canonical_root, canonical_target):
             if selected.is_reparse_point(component):
                 raise OSError("durable path contains a reparse point")
         key = _collision_key(canonical_target, volume, selected)

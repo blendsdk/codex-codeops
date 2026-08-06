@@ -43,6 +43,7 @@ def run_git(root: Path, args: list[str], *, index_path: Path | None = None) -> s
 def snapshot_worktree(root: Path) -> str:
     """Write the complete non-ignored worktree to a Git tree without staging files."""
     probe = NativePathProbe()
+    root = probe.canonical(root)
     worktree_list = run_git(root, ["worktree", "list", "--porcelain"])
     first = next(
         (line.removeprefix("worktree ") for line in worktree_list.splitlines() if line.startswith("worktree ")),
@@ -61,8 +62,11 @@ def snapshot_worktree(root: Path) -> str:
     lock_path = Path(f"{index_path}.lock")
     if index_path.exists():
         raise SnapshotError("temporary snapshot index already exists")
-    boundary = main.parent.resolve()
-    targets = (common_dir, common_dir / "objects", index_path, lock_path)
+    boundary = probe.canonical(main.parent)
+    targets = tuple(
+        probe.canonical(path)
+        for path in (common_dir, common_dir / "objects", index_path, lock_path)
+    )
     try:
         root.relative_to(boundary)
         for target in targets:
