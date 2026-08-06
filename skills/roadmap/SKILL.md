@@ -31,16 +31,16 @@ mutation gate; direct roadmap writes retain their own authoritative registered g
 When a feature has `traceability.json`, treat the graph plus on-disk execution plans as the status evidence. Run this as a standalone command (never in an `&&` chain with roadmap reads):
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" status --root . --target <target> --json
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" status --root . --target <target> --json
 ```
 
 Resolve and query each canonical target independently; updating one row must never advance its
 siblings. Feature and release aggregation is explicit:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
   --gate feature-acceptance --target <feature-target>
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
   --gate release --target <release-target>
 ```
 

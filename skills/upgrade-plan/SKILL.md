@@ -32,11 +32,11 @@ If every graph is schema 2, traceability validates, and current semantic gates p
 upgrade needed. For schema 1, use the public preview, resolution, apply, and validate protocol:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" traceability-upgrade --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" traceability-upgrade --root . \
   --feature <feature> --preview <preview>
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" traceability-upgrade --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" traceability-upgrade --root . \
   --feature <feature> --preview <preview> --resolutions <resolutions> --apply
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" validate --root .
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" validate --root .
 ```
 
 The preview and closed-form resolutions are reviewable artifacts. Apply is atomic and may require
@@ -67,8 +67,8 @@ Use small recoverable edits. If interrupted, schema stamps and graph validation 
 Run:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" validate --root .
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" validate --root .
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root .
 ```
 
 Then verify document/task/requirement counts and user semantics are preserved; every migrated node has valid relationships; material ambiguities are resolved or explicitly approved deferrals; active content is approved; tests, tasks, implementation, and verification are traced; roadmap lifecycle state is unchanged except for approved drift repair; and the Git diff contains only the approved migration.
