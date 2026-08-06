@@ -628,6 +628,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:9 Windows state implementation hardening tests pass natively"
+      ],
       "id": "TASK-2.3.1",
       "revision": "sha256:6b0fdedf63e4da6bb25133a4448e5e9eeb5cf26a3bb0d6c807a08b5614bb2af9",
       "semanticSources": [
@@ -640,7 +643,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add Windows API failure/cleanup, foreign backend, NTFS alias/reparse grammar, exact retry classification/schedule, command-boundary gate, and every write-boundary fault-injection case",
       "type": "task",
       "validations": []
