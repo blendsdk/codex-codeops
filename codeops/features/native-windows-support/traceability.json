@@ -1232,6 +1232,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:UTF-8 skill validation passed for preflight, exec-plan, and upgrade-plan; static native prerequisite gate audit passed"
+      ],
       "id": "TASK-4.2.2",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1252,7 +1255,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Complete prerequisite integration for preflight, exec-plan, upgrade-plan, setup-codeops, and roadmap mutations",
       "type": "task",
       "validations": []

@@ -5,6 +5,13 @@ description: Upgrade an existing CodeOps requirements set, specification, plan, 
 
 # Upgrade CodeOps artifacts
 
+## Native prerequisite gate
+
+Before the first project mutation, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command.
+
 The current Codex artifact schema is `1`. Historical Claude CodeOps `3.x` stamps describe the producing skill release, not this schema. Treat them as legacy input requiring assessment, not as numeric predecessors of schema 1.
 
 ## Scope

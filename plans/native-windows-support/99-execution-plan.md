@@ -357,7 +357,7 @@ ST-12, ST-39, ST-40 with regression reuse of ST-35 and ST-36 · AR-3–AR-8, AR-
 [03-02 §Repository Verification](03-02-portable-control-layer.md#repository-verification)
 
 - [x] 4.2.1 Add the common prerequisite invocation contract to requirements, retro-requirements, planning, preflight, execution, and upgrade workflows — `skills/make-requirements/SKILL.md`, `skills/retro-requirements/SKILL.md`, `skills/make-plan/SKILL.md` ✅ (completed: 2026-08-07 00:21)
-- [ ] 4.2.2 Complete prerequisite integration for preflight, exec-plan, upgrade-plan, setup-codeops, and roadmap mutations — `skills/preflight/SKILL.md`, `skills/exec-plan/SKILL.md`, `skills/upgrade-plan/SKILL.md`
+- [x] 4.2.2 Complete prerequisite integration for preflight, exec-plan, upgrade-plan, setup-codeops, and roadmap mutations — `skills/preflight/SKILL.md`, `skills/exec-plan/SKILL.md`, `skills/upgrade-plan/SKILL.md` ✅ (completed: 2026-08-07 00:19)
 - [ ] 4.2.3 Complete prerequisite integration for setup-codeops, roadmap, and setup-routing mutations — `skills/setup-codeops/SKILL.md`, `skills/roadmap/SKILL.md`, `skills/setup-routing/SKILL.md`
 - [ ] 4.2.4 Complete prerequisite integration for techdocs, analyze-project, and clean-comments mutations — `skills/techdocs/SKILL.md`, `skills/analyze-project/SKILL.md`, `skills/clean-comments/SKILL.md`
 - [ ] 4.2.5 Complete prerequisite integration for git-commit and audit every remaining skill so no project-mutating path lacks the gate — `skills/git-commit/SKILL.md`, `tests/conformance/test_windows_workflows_spec.py`
