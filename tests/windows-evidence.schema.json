@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/blendsdk/codex-codeops/tests/windows-evidence.schema.json",
+  "title": "CodeOps native Windows certification evidence",
+  "oneOf": [
+    { "$ref": "#/$defs/cli" },
+    { "$ref": "#/$defs/desktop" }
+  ],
+  "$defs": {
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["github", "timestamp"],
+      "properties": {
+        "github": { "type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "common": {
+      "type": "object",
+      "required": ["schemaVersion", "pluginVersion", "commit", "candidateSha256", "reviewer", "kind"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "pluginVersion": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "candidateSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "reviewer": { "$ref": "#/$defs/reviewer" }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "record", "sha256"],
+      "properties": {
+        "id": { "enum": ["installation", "enablement", "session-preflight", "requirements", "planning", "preflight-audit", "execution-transition-recovery", "migration", "roadmap", "worktree", "agent-install-check", "outcomes", "verification"] },
+        "status": { "const": "pass" },
+        "record": { "type": "string", "pattern": "^[^\\\\/](?:.*[^\\\\/])?$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "cli": {
+      "allOf": [{ "$ref": "#/$defs/common" }],
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "pluginVersion", "commit", "candidateSha256", "reviewer", "kind", "host", "tools", "ci", "captureVersion", "assertions", "commandTrace", "scenarios"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "pluginVersion": { "type": "string" },
+        "commit": { "type": "string" }, "candidateSha256": { "type": "string" },
+        "reviewer": { "$ref": "#/$defs/reviewer" }, "kind": { "const": "cli" },
+        "host": {
+          "type": "object", "additionalProperties": false,
+          "required": ["edition", "build", "architecture", "native"],
+          "properties": { "edition": { "const": "Windows 11" }, "build": { "type": "integer", "minimum": 22000 }, "architecture": { "enum": ["AMD64", "ARM64"] }, "native": { "const": true } }
+        },
+        "tools": {
+          "type": "object", "additionalProperties": false, "required": ["python", "git", "codex"],
+          "properties": { "python": { "type": "string" }, "git": { "type": "string" }, "codex": { "type": "string" } }
+        },
+        "ci": {
+          "type": "object", "additionalProperties": false, "required": ["runId", "commit", "conclusion", "runner"],
+          "properties": { "runId": { "type": "string" }, "commit": { "type": "string" }, "conclusion": { "const": "success" }, "runner": { "const": "windows-11-arm" } }
+        },
+        "captureVersion": { "const": 1 },
+        "assertions": {
+          "type": "object", "additionalProperties": false, "required": ["wslInvoked", "gitBashInvoked"],
+          "properties": { "wslInvoked": { "const": false }, "gitBashInvoked": { "const": false } }
+        },
+        "commandTrace": {
+          "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+          "properties": { "path": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+        },
+        "scenarios": { "type": "array", "minItems": 13, "maxItems": 13, "items": { "$ref": "#/$defs/scenario" } }
+      }
+    },
+    "desktop": {
+      "allOf": [{ "$ref": "#/$defs/common" }],
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "pluginVersion", "commit", "candidateSha256", "reviewer", "kind", "tools", "assertions", "checklist"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "pluginVersion": { "type": "string" },
+        "commit": { "type": "string" }, "candidateSha256": { "type": "string" },
+        "reviewer": { "$ref": "#/$defs/reviewer" }, "kind": { "const": "desktop" },
+        "tools": { "type": "object", "additionalProperties": false, "required": ["codex"], "properties": { "codex": { "type": "string" } } },
+        "assertions": {
+          "type": "object", "additionalProperties": false, "required": ["nativeWindows", "wslInvoked", "gitBashInvoked"],
+          "properties": { "nativeWindows": { "const": true }, "wslInvoked": { "const": false }, "gitBashInvoked": { "const": false } }
+        },
+        "checklist": {
+          "type": "array", "minItems": 5, "maxItems": 5,
+          "items": { "type": "object", "additionalProperties": false, "required": ["id", "status"], "properties": { "id": { "enum": ["installation", "enablement", "hook-review", "preflight", "requirements-to-plan"] }, "status": { "const": "pass" } } }
+        }
+      }
+    }
+  }
+}
