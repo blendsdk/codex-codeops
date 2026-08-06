@@ -43,6 +43,14 @@ def run_git(root: Path, args: list[str], *, index_path: Path | None = None) -> s
 def snapshot_worktree(root: Path) -> str:
     """Write the complete non-ignored worktree to a Git tree without staging files."""
     probe = NativePathProbe()
+    worktree_list = run_git(root, ["worktree", "list", "--porcelain"])
+    first = next(
+        (line.removeprefix("worktree ") for line in worktree_list.splitlines() if line.startswith("worktree ")),
+        None,
+    )
+    if not first:
+        raise SnapshotError("cannot resolve the primary Git worktree")
+    main = probe.canonical(Path(first))
     raw_common = run_git(root, ["rev-parse", "--git-common-dir"]).strip()
     common_dir = Path(raw_common)
     if not common_dir.is_absolute():
@@ -50,10 +58,18 @@ def snapshot_worktree(root: Path) -> str:
     else:
         common_dir = probe.canonical(common_dir)
     index_path = common_dir / f"codeops-phase-index-{os.getpid()}"
+    lock_path = Path(f"{index_path}.lock")
     if index_path.exists():
         raise SnapshotError("temporary snapshot index already exists")
-    targets = (common_dir / "objects", index_path)
-    if run_mutation_preflight(root, targets, entrypoint_code="snapshot-write") != 0:
+    boundary = main.parent.resolve()
+    targets = (common_dir, common_dir / "objects", index_path, lock_path)
+    try:
+        root.relative_to(boundary)
+        for target in targets:
+            target.relative_to(boundary)
+    except ValueError as exc:
+        raise SnapshotError("Git snapshot target escapes the common sibling boundary") from exc
+    if run_mutation_preflight(boundary, targets, entrypoint_code="snapshot-write") != 0:
         raise SnapshotError("native mutation prerequisites are blocked")
     try:
         run_git(root, ["read-tree", "HEAD"], index_path=index_path)
@@ -61,6 +77,7 @@ def snapshot_worktree(root: Path) -> str:
         tree = run_git(root, ["write-tree"], index_path=index_path).strip()
     finally:
         index_path.unlink(missing_ok=True)
+        lock_path.unlink(missing_ok=True)
     if not OBJECT_ID_RE.fullmatch(tree):
         raise SnapshotError("Git returned an invalid tree identifier")
     return tree

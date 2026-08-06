@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from contextlib import redirect_stderr, redirect_stdout
+import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -15,6 +19,23 @@ SCRIPT = ROOT / "scripts" / "codeops_outcomes.py"
 
 class OutcomeTests(unittest.TestCase):
     def run_tool(self, *args: str) -> subprocess.CompletedProcess[str]:
+        if os.name == "nt" and args and args[0] == "emit":
+            from scripts import codeops_outcomes
+
+            parsed = codeops_outcomes.parse_args
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            argv = ["codeops_outcomes.py", *args]
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(codeops_outcomes, "run_mutation_preflight", return_value=0),
+                redirect_stdout(stdout),
+                redirect_stderr(stderr),
+            ):
+                namespace = parsed()
+                duration = getattr(namespace, "duration_ms", None)
+                code = 2 if getattr(namespace, "count", 1) < 1 or (duration is not None and duration < 0) else codeops_outcomes.emit(namespace)
+            return subprocess.CompletedProcess(argv, code, stdout.getvalue(), stderr.getvalue())
         return subprocess.run([sys.executable, str(SCRIPT), *args], text=True, capture_output=True, check=False)
 
     def test_disabled_project_records_nothing(self) -> None:

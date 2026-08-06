@@ -129,6 +129,6 @@ Resolution order is:
 3. project `[agents]` defaults in `.codex/config.toml`;
 4. the parent session's model and effort.
 
-Use `python3 "${PLUGIN_ROOT}/scripts/install_agents.py" --project . --roles ...` to create optional project agents. Generated TOML files carry a CodeOps marker. The installer owns only marked files and preserves every hand-authored file. Use `--check` to detect missing or stale generated agents and `--dry-run` to preview changes.
+Use `<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/install_agents.py" --project . --roles ...` to create optional project agents. Generated TOML files carry a CodeOps marker. The installer owns only marked files and preserves every hand-authored file. Use `--check` to detect missing or stale generated agents and `--dry-run` to preview changes.
 
 Dynamic packets are the correctness baseline. If a named agent is missing or a model pin is unavailable, spawn a generic subagent with the complete packet or run inline. Report the fallback and preserve required reviewer independence, sandbox intent, and every ambiguity/readiness/verification gate.

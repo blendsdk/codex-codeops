@@ -16,7 +16,7 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.codeops_platform.subprocesses import run_mutation_preflight
+from scripts.codeops_platform.subprocesses import exclusive_path_lock, run_mutation_preflight
 from scripts.codeops_state_lib.filesystem import NativeAtomicWriteOps, atomic_write_bytes
 from scripts.codeops_state_lib.paths import NativePathProbe
 
@@ -93,9 +93,10 @@ def emit(args: argparse.Namespace) -> int:
         print("Native mutation prerequisites are blocked.", file=sys.stderr)
         return 2
     store.parent.mkdir(parents=True, exist_ok=True)
-    existing = store.read_bytes() if store.is_file() else b""
     line = (json.dumps(event, separators=(",", ":"), sort_keys=True) + "\n").encode("utf-8")
-    atomic_write_bytes(store, existing + line, ops=NativeAtomicWriteOps(gate_root))
+    with exclusive_path_lock(store):
+        existing = store.read_bytes() if store.is_file() else b""
+        atomic_write_bytes(store, existing + line, ops=NativeAtomicWriteOps(gate_root))
     print("Outcome event recorded.")
     return 0
 

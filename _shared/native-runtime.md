@@ -34,9 +34,14 @@ complete exact target set and immediately before its first project mutation:
 <CODEOPS_PYTHON> <PLUGIN_ROOT>/scripts/codeops_windows_preflight.py --mode mutation --entrypoint-code skill-mutation --target <TARGET> [--target <TARGET> ...] --root <PROJECT_ROOT> --plugin-root <PLUGIN_ROOT> --plugin-data <PLUGIN_DATA> --session-id <SESSION_ID>
 ```
 
-Targets are absolute, unique, contained project paths passed as separate arguments. A missing
-target, unavailable interpreter, exit 1, or exit 2 stops the mutation. Read-only discovery does
-not claim mutation readiness. On Unix, skip this Windows-specific defense check.
+Targets are absolute, unique paths contained by the supplied mutation root and passed as separate
+arguments. Ordinarily the mutation root is `<PROJECT_ROOT>`. Git metadata mutation in a linked
+worktree is the one exception: resolve the primary worktree and Git common directory using Git
+argument arrays, use the primary worktree's parent as the common sibling mutation root, and
+declare both the intended project paths and the exact Git metadata files/directories that the
+operation can mutate. A missing target, unavailable interpreter, exit 1, or exit 2 stops the
+mutation. Read-only discovery does not claim mutation readiness. On Unix, skip this
+Windows-specific defense check.
 
 This skill-level call is defense in depth only. Every shipped direct mutating command remains the
 authoritative boundary and reruns its registered mutation gate immediately before its first write.

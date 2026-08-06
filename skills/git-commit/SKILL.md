@@ -13,6 +13,16 @@ Before staging or committing project changes, follow
 `<CODEOPS_PYTHON>` for every shipped Python command. Read-only inspection and verification do not
 invoke the mutation gate.
 
+For the Git mutation gate, do not assume `.git` is a directory inside the current checkout.
+Resolve the primary worktree with `git worktree list --porcelain` and the common directory with
+`git rev-parse --path-format=absolute --git-common-dir`; resolve absolute `index`, `index.lock`,
+`objects`, `refs`, `logs`, `HEAD`, and `COMMIT_EDITMSG` paths with
+`git rev-parse --path-format=absolute --git-path <name>`. Use the primary worktree's parent as the
+common sibling mutation root. Declare those unique Git metadata targets together with every
+project path selected for staging, then run `skill-mutation` before `git add`; rerun it immediately
+before `git commit` with the same closed Git metadata set. Refuse the operation if any target is
+outside that common sibling root.
+
 ## Authority
 
 A request to commit authorizes a local commit only. Push only when the user explicitly asks to push or has already granted continuing push authority for this repository. Never amend published history, force-push, reset, or bypass hooks without separate explicit authorization.

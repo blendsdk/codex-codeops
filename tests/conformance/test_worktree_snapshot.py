@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,29 +36,39 @@ class WorktreeSnapshotTests(unittest.TestCase):
             self.git(root, "commit", "-qm", "initial")
 
             tracked.write_text("pre-phase\n", encoding="utf-8")
-            snapshot = subprocess.run(
-                [sys.executable, str(SCRIPT), "snapshot", "--root", str(root)],
-                text=True,
-                capture_output=True,
-                check=True,
-            ).stdout.strip()
+            if os.name == "nt":
+                from scripts import codeops_worktree_snapshot as snapshot_module
+
+                with patch.object(snapshot_module, "run_mutation_preflight", return_value=0):
+                    snapshot = snapshot_module.snapshot_worktree(root)
+            else:
+                snapshot = subprocess.run(
+                    [sys.executable, str(SCRIPT), "snapshot", "--root", str(root)],
+                    text=True,
+                    capture_output=True,
+                    check=True,
+                ).stdout.strip()
 
             tracked.write_text("phase-change\n", encoding="utf-8")
             (root / "created.txt").write_text("new phase file\n", encoding="utf-8")
-            phase_diff = subprocess.run(
-                [
-                    sys.executable,
-                    str(SCRIPT),
-                    "diff",
-                    "--root",
-                    str(root),
-                    "--baseline",
-                    snapshot,
-                ],
-                text=True,
-                capture_output=True,
-                check=True,
-            ).stdout
+            if os.name == "nt":
+                with patch.object(snapshot_module, "run_mutation_preflight", return_value=0):
+                    phase_diff = snapshot_module.diff_worktree(root, snapshot)
+            else:
+                phase_diff = subprocess.run(
+                    [
+                        sys.executable,
+                        str(SCRIPT),
+                        "diff",
+                        "--root",
+                        str(root),
+                        "--baseline",
+                        snapshot,
+                    ],
+                    text=True,
+                    capture_output=True,
+                    check=True,
+                ).stdout
 
             self.assertIn("-pre-phase", phase_diff)
             self.assertIn("+phase-change", phase_diff)

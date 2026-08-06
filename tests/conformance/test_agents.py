@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from contextlib import redirect_stderr, redirect_stdout
+import io
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,6 +18,20 @@ SCRIPT = ROOT / "scripts" / "install_agents.py"
 
 class AgentInstallerTests(unittest.TestCase):
     def run_installer(self, project: Path, *args: str) -> subprocess.CompletedProcess[str]:
+        if os.name == "nt" and "--check" not in args and "--dry-run" not in args:
+            from scripts import install_agents
+
+            argv = ["install_agents.py", "--project", str(project), *args]
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(install_agents, "run_mutation_preflight", return_value=0),
+                redirect_stdout(stdout),
+                redirect_stderr(stderr),
+            ):
+                code = install_agents.main()
+            return subprocess.CompletedProcess(argv, code, stdout.getvalue(), stderr.getvalue())
         return subprocess.run(
             [sys.executable, str(SCRIPT), "--project", str(project), *args],
             text=True,

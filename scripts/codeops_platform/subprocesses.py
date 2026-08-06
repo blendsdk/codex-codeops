@@ -2,13 +2,71 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass
+import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
-from typing import Mapping, Sequence
+import tempfile
+from typing import Iterator, Mapping, Sequence
 
 from scripts.codeops_state_lib.filesystem import atomic_write_bytes
+
+
+COMMAND_EVIDENCE_ENV = "CODEOPS_COMMAND_EVIDENCE"
+
+
+@contextmanager
+def exclusive_path_lock(path: Path) -> Iterator[None]:
+    """Serialize writers by canonical destination using a process-owned OS lock."""
+
+    lock_dir = Path(tempfile.gettempdir()) / "codeops-path-locks"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    key = hashlib.sha256(str(path.resolve(strict=False)).encode("utf-8")).hexdigest()
+    handle = (lock_dir / f"{key}.lock").open("a+b")
+    try:
+        handle.seek(0, os.SEEK_END)
+        if handle.tell() == 0:
+            handle.write(b"0")
+            handle.flush()
+        handle.seek(0)
+        if os.name == "nt":
+            import msvcrt
+
+            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        yield
+    finally:
+        try:
+            handle.seek(0)
+            if os.name == "nt":
+                import msvcrt
+
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        finally:
+            handle.close()
+
+
+def _configured_evidence_sink(environment: Mapping[str, str] | None) -> Path | None:
+    """Resolve an explicitly inherited absolute command-evidence destination."""
+
+    source = environment if environment is not None else os.environ
+    raw = source.get(COMMAND_EVIDENCE_ENV)
+    if raw is None:
+        return None
+    sink = Path(raw)
+    if not sink.is_absolute() or sink.name in {"", ".", ".."}:
+        raise ValueError(f"{COMMAND_EVIDENCE_ENV} must be an absolute file path")
+    return sink.resolve(strict=False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,19 +113,26 @@ def run_command(
         completed.stdout,
         completed.stderr,
     )
-    if evidence_sink is not None:
-        records: list[dict[str, object]] = []
-        if evidence_sink.exists():
-            records = json.loads(evidence_sink.read_text(encoding="utf-8"))
-        records.append({
-            "argv": [_display_token(item) for item in argv],
-            "cwd": _display_token(str(cwd)),
-            "exitCode": completed.returncode,
-        })
-        atomic_write_bytes(
-            evidence_sink,
-            (json.dumps(records, indent=2, sort_keys=True) + "\n").encode("utf-8"),
-        )
+    selected_sink = evidence_sink or _configured_evidence_sink(environment)
+    if selected_sink is not None:
+        selected_sink = selected_sink.resolve(strict=False)
+        selected_sink.parent.mkdir(parents=True, exist_ok=True)
+        with exclusive_path_lock(selected_sink):
+            records: list[dict[str, object]] = []
+            if selected_sink.exists():
+                value = json.loads(selected_sink.read_text(encoding="utf-8"))
+                if not isinstance(value, list):
+                    raise ValueError("command evidence must be a JSON array")
+                records = value
+            records.append({
+                "argv": [_display_token(item) for item in argv],
+                "cwd": _display_token(str(cwd)),
+                "exitCode": completed.returncode,
+            })
+            atomic_write_bytes(
+                selected_sink,
+                (json.dumps(records, indent=2, sort_keys=True) + "\n").encode("utf-8"),
+            )
     return result
 
 
