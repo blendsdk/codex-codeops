@@ -57,7 +57,7 @@ non-ignored worktree—including staged, unstaged, and untracked files—into a 
 without changing the real index:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_worktree_snapshot.py" snapshot --root .
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_worktree_snapshot.py" snapshot --root .
 ```
 
 Write the returned SHA as `> **Phase baseline tree**: <sha>` in the phase header (for a mini-plan,
@@ -155,7 +155,7 @@ whole-task diff. Activation rules, packets, supersession, and caps are defined i
    Create the review diff with:
 
    ```bash
-   python3 "${PLUGIN_ROOT}/scripts/codeops_worktree_snapshot.py" diff \
+   <CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_worktree_snapshot.py" diff \
      --root . --baseline <phase-baseline-tree>
    ```
 

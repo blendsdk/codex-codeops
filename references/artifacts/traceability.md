@@ -38,7 +38,7 @@ Every workflow resolves a canonical graph target and supplies its matching gate:
 `feature-acceptance`, or `release`. For example:
 
 ```bash
-codeops_state.py readiness --root . --gate plan --target billing/RD-03
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . --gate plan --target billing/RD-03
 ```
 
 Target closure supplies dependencies and blocker paths as read context; it never authorizes
@@ -65,7 +65,7 @@ An exact transition request is a closed JSON object:
 }
 ```
 
-Submit it with `codeops_state.py transition --root . --request <request.json>`. Use the gate
+Submit it with `<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" transition --root . --request <request.json>`. Use the gate
 owned by the target type; the engine validates the projected portfolio before committing.
 
 Schema 1 remains readable. Upgrade it with `traceability-upgrade`: generate a preview, provide

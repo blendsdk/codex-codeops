@@ -1,7 +1,7 @@
 ---
 name: setup-codeops
 description: >-
-  Sets up the CodeOps nested codeops/ layout in the current git repo — scaffolds a fresh skeleton or auto-migrates an existing flat-layout repo (requirements/ + plans/) into it. Use when the user says "setup-codeops", "/setup-codeops", "set up codeops", "initialize codeops", "migrate to the nested layout", "convert my plans/requirements to codeops/", or "scaffold the codeops structure". Detects repo state and dispatches: a marker (codeops/.codeops.yml) already present → no-op status report; a flat layout → migration (deterministic preview via scripts/codeops-migrate.sh, one confirmation, then git mv); neither → minimal fresh scaffold. Supports --dry-run (preview only) and --yes (apply without the prompt). Migration is git-mv-only, refuses a dirty tree, rejects path-traversal slugs, and is idempotent. setup-codeops is the SOLE writer of the layout marker.
+  Sets up the CodeOps nested codeops/ layout in the current git repo — scaffolds a fresh skeleton or auto-migrates an existing flat-layout repo (requirements/ + plans/) into it. Use when the user says "setup-codeops", "/setup-codeops", "set up codeops", "initialize codeops", "migrate to the nested layout", "convert my plans/requirements to codeops/", or "scaffold the codeops structure". Detects repo state and dispatches: a marker (codeops/.codeops.yml) already present → no-op status report; a flat layout → migration (deterministic preview via scripts/codeops_migrate.py, one confirmation, then git mv); neither → minimal fresh scaffold. Supports --dry-run (preview only) and --yes (apply without the prompt). Migration is git-mv-only, refuses a dirty tree, rejects path-traversal slugs, and is idempotent. setup-codeops is the SOLE writer of the layout marker.
 ---
 
 # CodeOps Layout Setup (`setup-codeops`)
@@ -43,7 +43,7 @@ Run inside the repo and detect, in this order:
          change; this is the existing-project entry point for parallel-agents support.)
 2. Flat layout detected (requirements/  OR  plans/00-roadmap.md  OR  any plans/<dir>/)
        → MIGRATE. Follow migration.md: run the engine --dry-run, render the preview, take ONE
-         confirmation, then apply. The engine (scripts/codeops-migrate.sh) owns the algorithm.
+         confirmation, then apply. The engine (`scripts/codeops_migrate.py`) owns the algorithm.
 3. Neither
        → fresh SCAFFOLD. Follow scaffold.md: create the minimal codeops/ skeleton.
 ```
@@ -63,11 +63,11 @@ fresh scaffold should live in version control) and suggest `git init` first.
 
 All migration path arithmetic, the slug derivation, the hazard scan, the dirty-tree refusal, the
 path-traversal slug guard, idempotency, and the `git mv` apply live in the deterministic helper
-**`scripts/codeops-migrate.sh`** (see [migration.md](migration.md)). This skill **delegates** to it
+**`scripts/codeops_migrate.py`** (see [migration.md](migration.md)). This skill **delegates** to it
 so there is one source of truth and no prose-vs-script drift:
 
-- Preview: `scripts/codeops-migrate.sh --dry-run`
-- Apply:   `scripts/codeops-migrate.sh --yes`
+- Preview: `<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_migrate.py" preview --root .`
+- Apply:   `<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_migrate.py" apply --root .`
 
 Never re-derive the move map in prose — read it from the engine's output and present it.
 

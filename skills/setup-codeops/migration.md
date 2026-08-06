@@ -6,9 +6,9 @@
 
 ## Division of labour (PF-003 — do not blur this)
 
-- **`scripts/codeops-migrate.sh`** owns the *algorithm*: slug derivation + sanitization, the move
+- **`scripts/codeops_migrate.py`** owns the *algorithm*: slug derivation + sanitization, the move
   map, the hazard scan, the dirty-tree refusal, the path-traversal slug guard, idempotency, and
-  the `git mv` apply. It is deterministic and unit-tested (`scripts/migration-check.sh`).
+  the `git mv` apply. It is deterministic and exercised by the repository migration gate.
 - **This skill** owns the *UX*: run the engine in dry-run, render its preview, take **one**
   confirmation, then invoke the engine to apply, and report the result. **Never re-implement the
   path arithmetic in prose** — read the move map from the engine and present it.
@@ -17,7 +17,7 @@
 
 1. **Preview.** Run:
    ```
-   scripts/codeops-migrate.sh --dry-run
+   <CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_migrate.py" preview --root .
    ```
    The engine prints the `SLUG:` line (with its source), the `MOVE`/`CREATE` map, and any `WARN`
    lines. If it exits non-zero, surface its message and stop:
@@ -35,7 +35,7 @@
 
 4. **Apply.** On confirmation, run:
    ```
-   scripts/codeops-migrate.sh --yes
+   <CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_migrate.py" apply --root .
    ```
    The engine `git mv`s every mapping (history preserved; intra-`codeops` relative links stay
    valid because the whole tree shifts by one prefix) and writes the marker + seeded portfolio

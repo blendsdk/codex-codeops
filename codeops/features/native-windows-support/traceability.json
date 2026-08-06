@@ -1412,6 +1412,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:skill validators and ST-12 certified host-neutral interpreter specification passed across every declared surface"
+      ],
       "id": "TASK-4.2.8",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1432,7 +1435,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Replace remaining runtime command examples in execution, setup, and artifact references without changing their workflow semantics",
       "type": "task",
       "validations": []

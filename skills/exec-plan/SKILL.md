@@ -52,7 +52,7 @@ argument is the feature name; an optional flag selects the commit mode.
 When CodeOps traceability exists, run the readiness check before modifying implementation files:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
   --gate execution --target <plan-target>
 ```
 
@@ -61,7 +61,7 @@ request for `<task-target>` with its expected status/revision, requested status 
 `task-complete`, lifecycle evidence, and validation additions, then run:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" transition --root . \
+<CODEOPS_PYTHON> "${PLUGIN_ROOT}/scripts/codeops_state.py" transition --root . \
   --request <transition-request.json>
 ```
 
