@@ -1024,6 +1024,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Eight native implementation tests passed for closed parsing, exit/reporting behavior, argument injection, path containment, Git rollback, deterministic rendering, and launcher extraction."
+      ],
       "id": "TASK-3.3.1",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -1036,7 +1039,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Complete compact launcher extraction and add parser, output/exit, injection, containment, Git failure, and deterministic rendering implementation tests",
       "type": "task",
       "validations": []
