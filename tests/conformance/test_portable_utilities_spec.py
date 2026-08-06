@@ -10,12 +10,17 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "scripts" / "fixtures"
 MIGRATE = ROOT / "scripts" / "codeops_migrate.py"
 ROADMAP = ROOT / "scripts" / "codeops_roadmap.py"
+WORKTREE = ROOT / "scripts" / "codeops_worktree.py"
+HOOKS = ROOT / "scripts" / "codeops_hooks.py"
+OUTCOMES = ROOT / "scripts" / "codeops_outcomes.py"
+AGENTS = ROOT / "scripts" / "install_agents.py"
 
 
 def run_cli(script: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
@@ -30,6 +35,8 @@ def run_cli(script: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
 
 def initialize_git(root: Path) -> None:
     subprocess.run(["git", "init", "-q", str(root)], check=True)
+    if not any(path.name != ".git" for path in root.iterdir()):
+        (root / ".fixture").write_text("fixture\n", encoding="utf-8")
     subprocess.run(["git", "-C", str(root), "config", "user.name", "CodeOps Test"], check=True)
     subprocess.run(
         ["git", "-C", str(root), "config", "user.email", "codeops@example.invalid"],
@@ -135,6 +142,104 @@ class PortableRoadmapSpecification(unittest.TestCase):
             "codeops/features/widgets/00-roadmap.md",
         ])
         self.assertEqual(rendered, expected)
+
+
+class PortableWorktreeSpecification(unittest.TestCase):
+    def test_st_34_list_is_native_json_from_git_porcelain(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw) / "project with spaces"
+            project.mkdir()
+            initialize_git(project)
+            result = run_cli(WORKTREE, "list", "--root", str(project), "--json")
+            payload = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(payload["worktrees"]), 1)
+        self.assertEqual(Path(payload["worktrees"][0]["path"]), project)
+
+    def test_st_35_hostile_topic_branch_and_path_are_refused_without_git_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw) / "project"
+            project.mkdir()
+            initialize_git(project)
+            before = subprocess.run(
+                ["git", "-C", str(project), "show-ref"],
+                capture_output=True,
+                text=True,
+                check=False,
+            ).stdout
+            result = run_cli(
+                WORKTREE,
+                "new",
+                "../topic;whoami",
+                "--root",
+                str(project),
+                "--branch",
+                "feat/../../escape",
+                "--path",
+                str(project / ".." / "escape"),
+                "--dry-run",
+                "--json",
+            )
+            after = subprocess.run(
+                ["git", "-C", str(project), "show-ref"],
+                capture_output=True,
+                text=True,
+                check=False,
+            ).stdout
+
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(before, after)
+        self.assertNotIn("whoami", result.stdout)
+
+
+class ExistingPortableSurfaceSpecification(unittest.TestCase):
+    def test_st_36_hooks_outcomes_and_agents_accept_paths_as_data(self) -> None:
+        from scripts.codeops_hooks import NativeHookDependencies, run_hook
+
+        class PassingDependencies(NativeHookDependencies):
+            def run_preflight(self, mode: str, payload: dict[str, object]) -> int:
+                del mode, payload
+                return 0
+
+        fixture = json.loads(
+            (ROOT / "tests" / "fixtures" / "hooks" / "session-start-spaces.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        with mock.patch.dict("os.environ", {"PLUGIN_ROOT": str(ROOT)}):
+            hook = run_hook(fixture, PassingDependencies())
+        self.assertEqual(hook.exit_code, 0, hook.stderr)
+
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw) / "project & echo not-a-command"
+            project.mkdir()
+            store = project / "events.jsonl"
+            outcome = run_cli(
+                OUTCOMES,
+                "emit",
+                "--root",
+                str(project),
+                "--store",
+                str(store),
+                "--event",
+                "verification-run",
+                "--stage",
+                "verification",
+                "--result",
+                "pass",
+            )
+            agents = run_cli(
+                AGENTS,
+                "--project",
+                str(project),
+                "--roles",
+                "explorer",
+                "--dry-run",
+            )
+
+        self.assertEqual(outcome.returncode, 0, outcome.stderr)
+        self.assertEqual(agents.returncode, 0, agents.stderr)
 
 
 if __name__ == "__main__":

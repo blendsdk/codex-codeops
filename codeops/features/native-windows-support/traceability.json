@@ -716,6 +716,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Native worktree, hook, outcome, agent, and hostile data/path specification cases collected; existing surfaces passed and the planned worktree list entry remained red."
+      ],
       "id": "TASK-3.1.2",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -728,7 +731,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add native worktree, hook, outcome, agent, and hostile-argument/path specification cases",
       "type": "task",
       "validations": []
