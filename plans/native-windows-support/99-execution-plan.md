@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 20:43
-> **Progress**: 7/72 tasks (10%)
+> **Last Updated**: 2026-08-06 20:48
+> **Progress**: 8/72 tasks (11%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -74,7 +74,7 @@ infrastructure state, not verification evidence.
 - [x] 1.2.2 Implement a shared passive pre-dispatch WSL refusal plus native Windows version, Python, Git, Codex/sandbox, plugin/hook, workspace, and filesystem probes behind documented adapters; never invoke WSL to detect or test it — `scripts/codeops_platform/hosts.py`, `scripts/codeops_windows_lib/probes.py`, `scripts/codeops_windows_preflight.py` ✅ (completed: 2026-08-06 20:35)
 - [x] 1.2.3 Implement same-session attestation validation, containment, future-time rejection, seven-day orphan cleanup, refresh, and atomic storage — `scripts/codeops_windows_lib/attestation.py`, `scripts/codeops_windows_preflight.py` ✅ (completed: 2026-08-06 20:41)
 - [x] 1.2.4 Add the minimal PowerShell Python 3.10+ bootstrap and `-ResolvePython` output with `py -3`/`python` probes and no shell-evaluated input — `scripts/codeops-windows-preflight.ps1` ✅ (completed: 2026-08-06 20:43)
-- [ ] 1.2.5 Move hook behavior to the portable hook entry, add `commandWindows`, and retain thin Unix launchers — `scripts/codeops_hooks.py`, `hooks/hooks.json`, `scripts/hook_session_context.sh`
+- [x] 1.2.5 Move hook behavior to the portable hook entry, add `commandWindows`, and retain thin Unix launchers — `scripts/codeops_hooks.py`, `hooks/hooks.json`, `scripts/hook_session_context.sh` ✅ (completed: 2026-08-06 20:48)
 - [ ] 1.2.6 Complete marker-guard launcher extraction and run all Phase-1 specification cases green — `scripts/hook_marker_guard.sh`, `scripts/codeops_hooks.py`
 
 ### Step 1.3: Implementation Tests and Hardening

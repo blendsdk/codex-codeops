@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${PLUGIN_ROOT}/scripts/hook_session_context.sh\""
+            "command": "\"${PLUGIN_ROOT}/scripts/hook_session_context.sh\"",
+            "commandWindows": "pwsh -NoProfile -Command '& { $python = & \"${PLUGIN_ROOT}/scripts/codeops-windows-preflight.ps1\" -ResolvePython; & $python \"${PLUGIN_ROOT}/scripts/codeops_hooks.py\" --event SessionStart }'"
           }
         ]
       }
@@ -17,7 +18,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${PLUGIN_ROOT}/scripts/hook_marker_guard.sh\""
+            "command": "\"${PLUGIN_ROOT}/scripts/hook_marker_guard.sh\"",
+            "commandWindows": "pwsh -NoProfile -Command '& { $python = & \"${PLUGIN_ROOT}/scripts/codeops-windows-preflight.ps1\" -ResolvePython; & $python \"${PLUGIN_ROOT}/scripts/codeops_hooks.py\" --event PreToolUse }'"
           }
         ]
       }

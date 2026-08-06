@@ -4,8 +4,12 @@
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 from typing import Mapping, Protocol
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.codeops_windows_lib.models import (
     CheckResult,
@@ -28,7 +32,7 @@ _CHECK_CODES = (
     "hooks-available",
     "path-filesystem",
 )
-_REGISTERED_ENTRYPOINTS = frozenset({"state-transition"})
+_REGISTERED_ENTRYPOINTS = frozenset({"hook-pre-tool-use", "state-transition"})
 _SESSION_ID = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
 _SEVERITY = {
     Readiness.READY: 0,
