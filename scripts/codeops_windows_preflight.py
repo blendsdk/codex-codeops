@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import argparse
+import os
 import re
 import sys
 from pathlib import Path
@@ -93,6 +95,12 @@ def _validate_request(
     environment: Mapping[str, str],
 ) -> dict[str, object]:
     """Validate and normalize the complete closed request object."""
+    if not isinstance(mode, str):
+        raise PreflightInputError("preflight mode is malformed")
+    if entrypoint_code is not None and not isinstance(entrypoint_code, str):
+        raise PreflightInputError("entrypoint code is malformed")
+    if hook_event is not None and not isinstance(hook_event, str):
+        raise PreflightInputError("hook event is malformed")
     if mode not in {"session", "read", "mutation"}:
         raise PreflightInputError("unknown preflight mode")
     if hook_event not in {None, "SessionStart", "PreToolUse"}:
@@ -114,8 +122,10 @@ def _validate_request(
     ):
         raise PreflightInputError("targets must be an absolute Path tuple")
 
-    canonical_root = root.resolve(strict=False)
-    canonical_targets = tuple(target.resolve(strict=False) for target in targets)
+    lexical_root = root.absolute()
+    lexical_targets = tuple(target.absolute() for target in targets)
+    canonical_root = lexical_root.resolve(strict=False)
+    canonical_targets = tuple(target.resolve(strict=False) for target in lexical_targets)
     if mode in {"session", "read"}:
         if entrypoint_code is not None or canonical_targets:
             raise PreflightInputError("session and read modes do not accept mutation inputs")
@@ -140,6 +150,8 @@ def _validate_request(
         "entrypointCode": entrypoint_code,
         "hookEvent": hook_event,
         "targets": canonical_targets,
+        "lexicalRoot": lexical_root,
+        "lexicalTargets": lexical_targets,
         "root": canonical_root,
         "pluginRoot": plugin_root.resolve(strict=False),
         "pluginData": plugin_data.resolve(strict=False),
@@ -246,9 +258,83 @@ def run_preflight(
         raise PreflightInternalError("native prerequisite evaluation failed") from None
 
 
+class _ClosedArgumentParser(argparse.ArgumentParser):
+    """Reject parser failures without echoing caller-controlled values."""
+
+    def error(self, message: str) -> None:
+        del message
+        raise PreflightInputError("preflight arguments are invalid")
+
+
+def _parse_cli(argv: list[str]) -> dict[str, object]:
+    """Parse the closed non-abbreviated preflight command surface."""
+    singleton_flags = {
+        "--mode",
+        "--entrypoint-code",
+        "--hook-event",
+        "--root",
+        "--plugin-root",
+        "--plugin-data",
+        "--session-id",
+    }
+    observed: set[str] = set()
+    for token in argv:
+        flag = token.split("=", 1)[0]
+        if flag in singleton_flags:
+            if flag in observed:
+                raise PreflightInputError("preflight argument is duplicated")
+            observed.add(flag)
+
+    parser = _ClosedArgumentParser(add_help=False, allow_abbrev=False)
+    parser.add_argument("--mode", required=True)
+    parser.add_argument("--entrypoint-code")
+    parser.add_argument("--hook-event")
+    parser.add_argument("--target", action="append", default=[])
+    parser.add_argument("--root", required=True)
+    parser.add_argument("--plugin-root", required=True)
+    parser.add_argument("--plugin-data", required=True)
+    parser.add_argument("--session-id", required=True)
+    parsed = parser.parse_args(argv)
+    return {
+        "mode": parsed.mode,
+        "entrypoint_code": parsed.entrypoint_code,
+        "hook_event": parsed.hook_event,
+        "targets": tuple(Path(target) for target in parsed.target),
+        "root": Path(parsed.root),
+        "plugin_root": Path(parsed.plugin_root),
+        "plugin_data": Path(parsed.plugin_data),
+        "session_id": parsed.session_id,
+        "environment": dict(os.environ),
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run the production closed CLI and emit one result or sanitized diagnostic."""
+    try:
+        arguments = _parse_cli(list(sys.argv[1:] if argv is None else argv))
+        from scripts.codeops_windows_lib.probes import NativeProbeDependencies
+
+        result = run_preflight(
+            **arguments,
+            dependencies=NativeProbeDependencies(),
+        )
+    except PreflightInputError:
+        sys.stderr.write("CodeOps preflight input is invalid.\n")
+        return 1
+    except PreflightInternalError:
+        sys.stderr.write("CodeOps preflight evaluation failed.\n")
+        return 1
+    sys.stdout.write(result.to_json() + "\n")
+    return result.exit_code
+
+
 __all__ = [
     "PreflightDependencies",
     "PreflightInputError",
     "PreflightInternalError",
     "run_preflight",
 ]
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

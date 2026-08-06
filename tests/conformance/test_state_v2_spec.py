@@ -781,6 +781,7 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
         self.assertEqual(specifications.returncode, 1, specifications.stdout)
 
     def test_st_38_repository_discovery_excludes_fixtures(self) -> None:
+        live_graphs = tuple(ROOT.glob("codeops/features/*/traceability.json"))
         repository = subprocess.run(
             [sys.executable, str(SCRIPT), "status", "--root", str(ROOT), "--json"],
             text=True, capture_output=True, check=False,
@@ -793,7 +794,7 @@ class SchemaTwoSpecificationTests(unittest.TestCase):
             ],
             text=True, capture_output=True, check=False,
         )
-        self.assertEqual(json.loads(repository.stdout)["graphs"], 1)
+        self.assertEqual(json.loads(repository.stdout)["graphs"], len(live_graphs))
         self.assertEqual(json.loads(fixture.stdout)["graphs"], 2)
 
     def test_st_21_matching_dependency_snapshot_is_current(self) -> None:

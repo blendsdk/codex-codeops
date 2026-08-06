@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 20:54
-> **Progress**: 10/72 tasks (14%)
+> **Last Updated**: 2026-08-06 21:23
+> **Progress**: 11/72 tasks (15%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -42,10 +42,15 @@ in Phase 2; the broader umbrella issue closes only after Phase 5 evidence.
 > **Expected modification set**: `tests/conformance/test_windows_preflight_spec.py`,
 > `tests/fixtures/hooks/`, `scripts/codeops_windows_preflight.py`,
 > `scripts/codeops_windows_lib/`, `scripts/codeops_platform/hosts.py`,
-> `scripts/codeops-windows-preflight.ps1`, `scripts/codeops_hooks.py`, `hooks/hooks.json`,
+> `scripts/codeops-windows-preflight.ps1`, `scripts/codeops-windows-hook.ps1`,
+> `scripts/codeops_hooks.py`, `hooks/hooks.json`,
 > `scripts/hook_session_context.sh`, `scripts/hook_marker_guard.sh`,
-> `tests/conformance/test_windows_preflight_impl.py`, `tests/conformance/test_hooks.py`, this
+> `tests/conformance/test_windows_preflight_impl.py`, `tests/conformance/test_hooks.py`,
+> `tests/conformance/test_state_v2_spec.py`, `tests/conformance/test_state_v2_impl.py`, this
 > execution plan, and the feature traceability graph.
+> **Authorized necessary correction**: At 2026-08-06 21:00 the user approved updating the two
+> state-discovery assertions whose fixed one-graph expectation was invalidated by the already
+> approved native-Windows traceability graph. The correction changes no discovery behavior.
 > **Bootstrap tracking exception**: User-authorized under AR-15. Until Task 2.2.6 enables native
 > Windows traceability transitions, verified task marks and per-task commits advance while graph
 > task nodes remain pending. Reconcile them atomically after 2.2.6 and before 2.2.7.
@@ -82,7 +87,14 @@ infrastructure state, not verification evidence.
 **Reference**: [03-01 §Error Handling](03-01-runtime-preflight-and-hooks.md#error-handling)
 
 - [x] 1.3.1 Add adapter, closed matrix, cache-binding/retention, malformed-input, hostile-environment, command-injection, and NTFS/reparse implementation tests — `tests/conformance/test_windows_preflight_impl.py` ✅ (completed: 2026-08-06 20:54)
-- [ ] 1.3.2 Run Phase-1 spec/implementation suites, hook validation, and the confirmed five-command full verification gate — `tests/conformance/test_hooks.py`, `scripts/validate-codex.sh`
+- [x] 1.3.2 Run Phase-1 spec/implementation suites, hook validation, and the confirmed five-command full verification gate — `tests/conformance/test_hooks.py`, `scripts/validate-codex.sh` ✅ (completed: 2026-08-06 21:18)
+
+Native verification passed all 180 currently executable conformance tests, including 34 Phase-1
+preflight/hook tests, plus plugin, skill, Markdown-link, retained-scenario, compile, manifest, and
+diff validation. Only the three `/proc`-bound state transition/collection modules are excluded
+under AR-15 until Phase 2 installs their native process backend. The immutable Ubuntu five-gate
+baseline remains green; the portable current-tree five-gate rerun is owned again by Tasks 3.3.4
+and 4.3.2 after the native verifier exists.
 
 **Verify**:
 
@@ -93,6 +105,30 @@ infrastructure state, not verification evidence.
 ./scripts/roadmap-sync-check.sh
 ./scripts/compact-check.sh
 ```
+
+### Phase 1 Quality Review
+
+Strict independent review ran against baseline tree
+`5337b567cf44b83e00d125f82567ae33214d67ea`. Security findings supersede the reviewer's
+security lens. Auto-design selected every listed technical correction; no risk was waived.
+
+| Finding | Severity | Decision | State |
+|---|---|---|---|
+| RV-001 / SA-001: the public PowerShell preflight exits successfully because the Python module has no CLI | CRITICAL / MAJOR | Added a closed argument parser, production dependency construction, JSON rendering, and stable exits | Fixed; verified |
+| RV-002: `py -3` is probed but the returned launcher later runs without `-3` | MAJOR | Resolve and return the concrete supported `sys.executable` | Fixed; verified |
+| RV-003: hook readiness accepts unrelated Windows commands | MAJOR | Validate the exact event-specific Unix and Windows hook contract | Fixed; verified |
+| RV-004: the spaces test does not execute the registered Windows hook | MAJOR | Added installed-path native execution with spaces and hostile legal path characters | Fixed; verified |
+| SA-002: mutation target reparses are not checked | MAJOR | Preserve lexical targets and check every existing root-to-target component | Fixed; verified |
+| SA-003: inline `-Command` permits plugin-root interpolation injection | MAJOR | Use a checked-in `-File` launcher that reads `$env:PLUGIN_ROOT` and derives siblings from `$PSScriptRoot` | Fixed; verified |
+| RV-005: unhashable API values can escape as raw type errors | MINOR | Add explicit type guards and cover stable CLI exit 1 | Fixed; verified |
+| RV-003R: hook validation ignores matcher, type, cardinality, and extra hooks | MAJOR | Validate the complete exact two-event manifest object and add substitution cases | Fixed after re-review; verified directly |
+
+Traceability review evidence is deferred under AR-15 and reconciles with task state immediately
+after Task 2.2.6.
+
+No project techdocs opt-in exists, so the post-phase techdocs update is not applicable.
+The single permitted re-review cleared every other critical/major finding and identified RV-003R;
+that exact correction passed direct verification. Per the review cap, no third review was run.
 
 ## Phase 2: Windows State, Recovery, and Filesystem Safety
 

@@ -20,7 +20,8 @@ or sandbox capabilities.
 
 `codeops-windows-preflight.ps1` is a minimal bootstrap. It never evaluates project text and never
 constructs a shell command from input. It locates a functional interpreter by invoking `py -3`
-first and `python` second with an inline `sys.version_info >= (3, 10)` probe, then executes the authoritative
+first and `python` second with an inline `sys.version_info >= (3, 10)` probe, returns the concrete
+`sys.executable` proven by that probe, then executes the authoritative
 `codeops_windows_preflight.py` module using an argument array. Its `-ResolvePython` mode prints only
 the validated executable path for subsequent argument-array invocation (AR-3).
 
@@ -29,7 +30,8 @@ and can run in `session`, `read`, or `mutation` mode. Session mode performs the 
 mode accepts a valid session attestation or refreshes it. Mutation mode is invoked by each actual
 mutating command boundary and reruns every safety-affecting check immediately before its first
 write; path/filesystem validation repeats at every atomic write or recovery boundary (AR-5).
-Hook `commandWindows` fields use the PowerShell bootstrap; Unix `command` fields keep thin
+Hook `commandWindows` fields use a checked-in `-File` launcher which calls the PowerShell
+bootstrap; Unix `command` fields keep thin
 launchers and do not run the Windows-only checker (AR-2, AR-4).
 
 ## Implementation Details
@@ -90,6 +92,12 @@ def run_preflight(
 remains explicitly bound to `PLUGIN_DATA` without global state. The production command constructs the native implementation; tests
 provide an in-memory implementation. CLI input cannot select or configure this dependency object,
 and the evaluator never reads hidden test-mode environment variables (AR-16).
+
+The public CLI uses non-abbreviated `--mode`, `--entrypoint-code`, `--hook-event`, `--target`,
+`--root`, `--plugin-root`, `--plugin-data`, and `--session-id` flags. `--target` may repeat; every
+other flag is a singleton. Unknown, duplicate-singleton, missing, or malformed input exits 1 with
+a sanitized diagnostic before probes. A valid request emits exactly one compact schema-1 JSON
+result and exits 0 for READY/WARNING or 2 for BLOCKED (AR-19).
 
 JSON uses camelCase field names, schema version `1`, UTF-8, deterministic check order, and no
 machine-specific secret values. The aggregate status is the greatest severity. Exit 0 means
@@ -156,6 +164,9 @@ records are ignored and regenerated only after a successful full check (AR-5, AR
 ### Hook Integration
 
 `hooks/hooks.json` supplies both `command` and `commandWindows` for SessionStart and write guards.
+Windows commands invoke `codeops-windows-hook.ps1` with `-File` and an event value. The launcher
+reads `PLUGIN_ROOT` as environment data, proves it matches `$PSScriptRoot`, derives every sibling
+path locally, and forwards stdin as data; no plugin path is interpolated into `-Command` (AR-20).
 The SessionStart hook reads Codex JSON stdin, forwards only validated common fields, runs session
 preflight on Windows, and emits the existing session context only after the check contract is
 available. The PreToolUse hook performs mutation mode before applying the existing marker guard

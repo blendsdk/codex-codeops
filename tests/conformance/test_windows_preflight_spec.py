@@ -162,7 +162,10 @@ class NativePreflightSpecificationTests(unittest.TestCase):
                 env=environment,
             )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertTrue(result.stdout.strip().lower().endswith("python.cmd"))
+        self.assertEqual(
+            Path(result.stdout.strip()).resolve(),
+            Path(sys.executable).resolve(),
+        )
 
     @unittest.skipUnless(os.name == "nt", "PowerShell bootstrap is native-Windows only")
     def test_bootstrap_blocks_when_no_supported_python_exists(self) -> None:
@@ -184,6 +187,60 @@ class NativePreflightSpecificationTests(unittest.TestCase):
             )
         self.assertEqual(result.returncode, 2)
         self.assertIn("Python 3.10", result.stderr)
+
+    @unittest.skipUnless(os.name == "nt", "PowerShell bootstrap is native-Windows only")
+    def test_bootstrap_returns_the_interpreter_proven_by_py_3(self) -> None:
+        powershell = shutil.which("powershell.exe")
+        self.assertIsNotNone(powershell, "Windows PowerShell is required on Windows 11")
+        with tempfile.TemporaryDirectory() as raw:
+            commands = Path(raw)
+            (commands / "py.cmd").write_text(
+                (
+                    '@if not "%1"=="-3" exit /b 9\n'
+                    f'@"{sys.executable}" %2 %3\n'
+                ),
+                encoding="utf-8",
+            )
+            (commands / "python.cmd").write_text("@exit /b 1\n", encoding="utf-8")
+            environment = dict(os.environ)
+            environment["PATH"] = str(commands)
+            resolved = subprocess.run(
+                [powershell, "-NoProfile", "-File", str(BOOTSTRAP), "-ResolvePython"],
+                text=True,
+                capture_output=True,
+                check=False,
+                env=environment,
+            )
+            self.assertEqual(resolved.returncode, 0, resolved.stderr)
+            self.assertEqual(
+                Path(resolved.stdout.strip()).resolve(),
+                Path(sys.executable).resolve(),
+            )
+            executed = subprocess.run(
+                [resolved.stdout.strip(), "-c", "import sys; assert sys.version_info >= (3, 10)"],
+                check=False,
+            )
+        self.assertEqual(executed.returncode, 0)
+
+    @unittest.skipUnless(os.name == "nt", "PowerShell bootstrap is native-Windows only")
+    def test_launcher_rejects_unknown_cli_input_without_false_success(self) -> None:
+        powershell = shutil.which("powershell.exe")
+        self.assertIsNotNone(powershell, "Windows PowerShell is required on Windows 11")
+        result = subprocess.run(
+            [
+                powershell,
+                "-NoProfile",
+                "-File",
+                str(BOOTSTRAP),
+                "--definitely-invalid",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("invalid", result.stderr.casefold())
 
     def test_installed_wsl_does_not_change_native_readiness(self) -> None:
         _, models = contract()
@@ -330,14 +387,17 @@ class NativeHookSpecificationTests(unittest.TestCase):
                 self.assertIn("command", hook)
                 command = hook["commandWindows"]
                 self.assertIn("powershell.exe", command.lower())
-                self.assertIn("codeops-windows-preflight.ps1", command.lower())
+                self.assertIn("codeops-windows-hook.ps1", command.lower())
+                self.assertIn("-file", command.lower())
+                self.assertNotIn("-command", command.lower())
+                self.assertNotIn("${plugin_root}", command.lower())
                 self.assertNotIn("bash", command.lower())
                 self.assertNotIn("wsl", command.lower())
 
     def test_windows_hook_command_quotes_plugin_path_with_spaces(self) -> None:
         manifest = json.loads(HOOK_MANIFEST.read_text(encoding="utf-8"))
         command = manifest["hooks"]["SessionStart"][0]["hooks"][0]["commandWindows"]
-        self.assertIn('"${PLUGIN_ROOT}/scripts/codeops-windows-preflight.ps1"', command)
+        self.assertIn('"$env:PLUGIN_ROOT/scripts/codeops-windows-hook.ps1"', command)
         payload = self.payload("session-start-spaces.json")
         self.assertEqual(payload["cwd"], r"C:\Users\Example User\Project With Spaces")
 

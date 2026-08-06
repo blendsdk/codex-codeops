@@ -370,10 +370,12 @@ class SchemaTwoImplementationTests(unittest.TestCase):
 
     def test_repository_discovery_excludes_fixture_graphs(self) -> None:
         discovered = discover_graphs(ROOT)
-        self.assertEqual(len(discovered), 1)
         self.assertEqual(
-            discovered[0].relative_to(ROOT).as_posix(),
-            "codeops/features/dependency-aware-readiness/traceability.json",
+            {path.relative_to(ROOT).as_posix() for path in discovered},
+            {
+                "codeops/features/dependency-aware-readiness/traceability.json",
+                "codeops/features/native-windows-support/traceability.json",
+            },
         )
         fixture = ROOT / "tests" / "fixtures" / "state-v2-cross-feature"
         self.assertEqual(len(discover_graphs(fixture)), 2)

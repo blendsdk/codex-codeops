@@ -92,7 +92,24 @@ class WindowsPreflightImplementationTests(unittest.TestCase):
             json.dumps(
                 {
                     "hooks": {
-                        event: [{"hooks": [{"commandWindows": "powershell.exe safe.ps1"}]}]
+                        event: [
+                            {
+                                "hooks": [
+                                    {
+                                        "command": (
+                                            '"${PLUGIN_ROOT}/scripts/hook_session_context.sh"'
+                                            if event == "SessionStart"
+                                            else '"${PLUGIN_ROOT}/scripts/hook_marker_guard.sh"'
+                                        ),
+                                        "commandWindows": (
+                                            'powershell.exe -NoProfile -File '
+                                            '"$env:PLUGIN_ROOT/scripts/codeops-windows-hook.ps1" '
+                                            f'-Event {event}'
+                                        ),
+                                    }
+                                ]
+                            }
+                        ]
                         for event in ("SessionStart", "PreToolUse")
                     }
                 }
@@ -159,6 +176,9 @@ class WindowsPreflightImplementationTests(unittest.TestCase):
 
     def test_closed_matrix_rejects_types_paths_and_unknown_fields_before_probes(self) -> None:
         cases = (
+            {"mode": []},
+            {"hook_event": []},
+            {"entrypoint_code": []},
             {"targets": []},
             {"root": Path("relative")},
             {"environment": {"PATH": 7}},
@@ -262,6 +282,57 @@ class WindowsPreflightImplementationTests(unittest.TestCase):
         self.assertEqual(ready.status, Readiness.READY)
         self.assertEqual(blocked.status, Readiness.BLOCKED)
 
+    @unittest.skipUnless(os.name == "nt", "junction integration check is Windows-only")
+    def test_mutation_blocks_an_in_root_junction_target(self) -> None:
+        powershell = shutil.which("powershell.exe")
+        self.assertIsNotNone(powershell)
+        destination = self.root / "real"
+        junction = self.root / "linked"
+        destination.mkdir()
+        (destination / "target.txt").write_text("safe", encoding="utf-8")
+        junction_environment = dict(os.environ)
+        junction_environment["CODEOPS_JUNCTION_PATH"] = str(junction)
+        junction_environment["CODEOPS_JUNCTION_TARGET"] = str(destination)
+        created = subprocess.run(
+            [
+                powershell,
+                "-NoProfile",
+                "-Command",
+                (
+                    "New-Item -ItemType Junction -Path $env:CODEOPS_JUNCTION_PATH "
+                    "-Target $env:CODEOPS_JUNCTION_TARGET | Out-Null"
+                ),
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+            env=junction_environment,
+        )
+        self.assertEqual(created.returncode, 0, created.stderr)
+
+        native = NativeProbeDependencies()
+
+        class TargetAwareDependencies(ReadyDependencies):
+            def evaluate_check(
+                self,
+                code: str,
+                request: dict[str, object],
+            ) -> CheckResult:
+                if code == "path-filesystem":
+                    return native.evaluate_check(code, request)
+                return super().evaluate_check(code, request)
+
+        result = self.call(
+            TargetAwareDependencies(),
+            mode="mutation",
+            entrypoint_code="state-transition",
+            hook_event="PreToolUse",
+            targets=(junction / "target.txt",),
+        )
+        self.assertEqual(result.status, Readiness.BLOCKED)
+        path_check = next(check for check in result.checks if check.code == "path-filesystem")
+        self.assertEqual(path_check.status, Readiness.BLOCKED)
+
     def test_subprocess_adapter_uses_an_argument_array_without_a_shell(self) -> None:
         from scripts.codeops_windows_lib import probes
 
@@ -298,13 +369,134 @@ class WindowsPreflightImplementationTests(unittest.TestCase):
         self.assertIn(result.returncode, (0, 1, 2))
         self.assertFalse(marker.exists())
 
-    def test_hook_probe_rejects_shell_fallbacks(self) -> None:
+    @unittest.skipUnless(os.name == "nt", "native launcher integration is Windows-only")
+    def test_valid_launcher_emits_ordered_checks_and_attestation(self) -> None:
+        powershell = shutil.which("powershell.exe")
+        self.assertIsNotNone(powershell)
+        attestation_request = {
+            "mode": "read",
+            "entrypointCode": None,
+            "hookEvent": None,
+            "targets": (),
+            "root": self.root,
+            "pluginRoot": ROOT,
+            "pluginData": self.plugin_data,
+            "sessionId": "launcher-session",
+            "environment": {},
+        }
+        AttestationStore().store(
+            attestation_request,
+            self.result(session_id="launcher-session"),
+        )
+        result = subprocess.run(
+            [
+                powershell,
+                "-NoProfile",
+                "-File",
+                str(ROOT / "scripts" / "codeops-windows-preflight.ps1"),
+                "--mode",
+                "read",
+                "--root",
+                str(self.root),
+                "--plugin-root",
+                str(ROOT),
+                "--plugin-data",
+                str(self.plugin_data),
+                "--session-id",
+                "launcher-session",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        payload = json.loads(result.stdout)
+        self.assertEqual(tuple(check["code"] for check in payload["checks"]), CHECK_CODES)
+        attestation = (
+            self.plugin_data / "preflight" / "sessions" / "launcher-session.json"
+        )
+        self.assertTrue(attestation.is_file())
+
+    @unittest.skipUnless(os.name == "nt", "native hook integration is Windows-only")
+    def test_registered_hook_runs_from_a_hostile_legal_plugin_path(self) -> None:
+        powershell = shutil.which("powershell.exe")
+        self.assertIsNotNone(powershell)
+        plugin_root = self.base / "plugin $(New-Item injected.txt) ' with spaces"
+        (plugin_root / "scripts").mkdir(parents=True)
+        for name in ("codeops-windows-hook.ps1", "codeops-windows-preflight.ps1"):
+            shutil.copy2(ROOT / "scripts" / name, plugin_root / "scripts" / name)
+        (plugin_root / "scripts" / "codeops_hooks.py").write_text(
+            (
+                "import argparse, json, sys\n"
+                "p=argparse.ArgumentParser(); p.add_argument('--event', required=True)\n"
+                "a=p.parse_args(); payload=json.load(sys.stdin)\n"
+                "assert payload['hook_event_name'] == a.event\n"
+                "print('Coding standards')\n"
+            ),
+            encoding="utf-8",
+        )
+        shutil.copytree(ROOT / "hooks", plugin_root / "hooks")
+        plugin_data = self.base / "hostile plugin data"
+        plugin_data.mkdir()
+        manifest = json.loads(
+            (plugin_root / "hooks" / "hooks.json").read_text(encoding="utf-8")
+        )
+        command = manifest["hooks"]["SessionStart"][0]["hooks"][0]["commandWindows"]
+        payload = {
+            "session_id": "hostile-path-session",
+            "cwd": str(self.root),
+            "hook_event_name": "SessionStart",
+            "source": "startup",
+        }
+        environment = dict(os.environ)
+        environment["PLUGIN_ROOT"] = str(plugin_root)
+        environment["PLUGIN_DATA"] = str(plugin_data)
+        result = subprocess.run(
+            [powershell, "-NoProfile", "-Command", command],
+            input=json.dumps(payload),
+            text=True,
+            capture_output=True,
+            check=False,
+            cwd=self.base,
+            env=environment,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        self.assertIn("Coding standards", result.stdout)
+        self.assertFalse((self.base / "injected.txt").exists())
+
+    def test_hook_probe_rejects_an_unrelated_native_command(self) -> None:
         manifest = self.plugin_root / "hooks" / "hooks.json"
         payload = json.loads(manifest.read_text(encoding="utf-8"))
-        payload["hooks"]["PreToolUse"][0]["hooks"][0]["commandWindows"] = "wsl bash guard.sh"
+        payload["hooks"]["PreToolUse"][0]["hooks"][0][
+            "commandWindows"
+        ] = "powershell.exe safe.ps1"
         manifest.write_text(json.dumps(payload), encoding="utf-8")
         result = NativeProbeDependencies().evaluate_check("hooks-available", self.request())
         self.assertEqual(result.status, Readiness.BLOCKED)
+
+    def test_hook_probe_rejects_matcher_type_and_cardinality_substitution(self) -> None:
+        manifest = self.plugin_root / "hooks" / "hooks.json"
+        original = json.loads(manifest.read_text(encoding="utf-8"))
+        mutants: list[dict[str, object]] = []
+        for mutation in ("matcher", "type", "extra"):
+            payload = json.loads(json.dumps(original))
+            event = payload["hooks"]["PreToolUse"][0]
+            if mutation == "matcher":
+                event["matcher"] = "never"
+            elif mutation == "type":
+                event["hooks"][0]["type"] = "not-command"
+            else:
+                event["hooks"].append(dict(event["hooks"][0]))
+            mutants.append(payload)
+
+        for payload in mutants:
+            with self.subTest(payload=payload):
+                manifest.write_text(json.dumps(payload), encoding="utf-8")
+                result = NativeProbeDependencies().evaluate_check(
+                    "hooks-available",
+                    self.request(),
+                )
+                self.assertEqual(result.status, Readiness.BLOCKED)
 
 
 if __name__ == "__main__":

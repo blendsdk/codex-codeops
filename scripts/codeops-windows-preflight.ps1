@@ -22,11 +22,20 @@ function Find-CodeOpsPython {
             '-c',
             'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'
         )
-        & $command.Source @probeArguments 2>$null | Out-Null
-        if ($LASTEXITCODE -eq 0) {
-            return @{
-                Path = $command.Source
-                Prefix = @($candidate.Prefix)
+        $probeArguments[-1] = (
+            'import sys; print(sys.executable); ' +
+            'raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'
+        )
+        try {
+            $probeOutput = @(& $command.Source @probeArguments 2>$null)
+        }
+        catch {
+            continue
+        }
+        if ($LASTEXITCODE -eq 0 -and $probeOutput.Count -gt 0) {
+            $executable = [string]$probeOutput[-1]
+            if ([System.IO.Path]::IsPathRooted($executable) -and (Test-Path -LiteralPath $executable)) {
+                return @{ Path = [System.IO.Path]::GetFullPath($executable) }
             }
         }
     }
@@ -43,11 +52,10 @@ if ($null -eq $python) {
 }
 
 if ($ResolvePython) {
-    [Console]::Out.WriteLine($python.Path)
+    Write-Output $python.Path
     exit 0
 }
 
 $preflight = Join-Path $PSScriptRoot 'codeops_windows_preflight.py'
-$arguments = @($python.Prefix) + @($preflight) + @($args)
-& $python.Path @arguments
+& $python.Path $preflight @args
 exit $LASTEXITCODE

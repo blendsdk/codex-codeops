@@ -298,22 +298,46 @@ class NativeProbeDependencies:
         hooks = payload.get("hooks")
         if not isinstance(hooks, dict):
             return _result("hooks-available", Readiness.BLOCKED, "Hook manifest is malformed.")
-        for event in ("SessionStart", "PreToolUse"):
-            entries = hooks.get(event)
-            try:
-                command = entries[0]["hooks"][0]["commandWindows"]
-            except (KeyError, IndexError, TypeError):
-                return _result(
-                    "hooks-available",
-                    Readiness.BLOCKED,
-                    "Native Windows hook registration is incomplete.",
-                )
-            if not isinstance(command, str) or "wsl" in command.casefold() or "bash" in command.casefold():
-                return _result(
-                    "hooks-available",
-                    Readiness.BLOCKED,
-                    "Native Windows hook registration is unsafe.",
-                )
+        expected = {
+            "SessionStart": [
+                {
+                    "matcher": "startup|resume|clear|compact",
+                    "hooks": [
+                        {
+                            "type": "command",
+                            "command": '"${PLUGIN_ROOT}/scripts/hook_session_context.sh"',
+                            "commandWindows": (
+                                'powershell.exe -NoProfile -File '
+                                '"$env:PLUGIN_ROOT/scripts/codeops-windows-hook.ps1" '
+                                '-Event SessionStart'
+                            ),
+                        }
+                    ],
+                }
+            ],
+            "PreToolUse": [
+                {
+                    "matcher": "Edit|Write|apply_patch",
+                    "hooks": [
+                        {
+                            "type": "command",
+                            "command": '"${PLUGIN_ROOT}/scripts/hook_marker_guard.sh"',
+                            "commandWindows": (
+                                'powershell.exe -NoProfile -File '
+                                '"$env:PLUGIN_ROOT/scripts/codeops-windows-hook.ps1" '
+                                '-Event PreToolUse'
+                            ),
+                        }
+                    ],
+                }
+            ],
+        }
+        if hooks != expected:
+            return _result(
+                "hooks-available",
+                Readiness.BLOCKED,
+                "The portable hook registration does not match the trusted contract.",
+            )
         if hook_event in {"SessionStart", "PreToolUse"}:
             return _result("hooks-available", Readiness.READY, "Trusted hook proof is present.")
         return _result(
@@ -323,14 +347,17 @@ class NativeProbeDependencies:
         )
 
     def _path_filesystem(self, request: Mapping[str, object]) -> CheckResult:
-        root = request["root"]
-        if not isinstance(root, Path):
-            raise ValueError("validated workspace root is missing")
-        if _has_reparse_component(root):
+        root = request.get("lexicalRoot", request["root"])
+        targets = request.get("lexicalTargets", ())
+        if not isinstance(root, Path) or not isinstance(targets, tuple) or not all(
+            isinstance(target, Path) for target in targets
+        ):
+            raise ValueError("validated lexical paths are missing")
+        if any(_has_reparse_component(path) for path in (root, *targets)):
             return _result(
                 "path-filesystem",
                 Readiness.BLOCKED,
-                "The workspace root contains a reparse component.",
+                "The workspace or a mutation target contains a reparse component.",
                 "Use a direct local NTFS path without junctions or symbolic links.",
             )
         return _result(

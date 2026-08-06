@@ -1,7 +1,7 @@
 # Ambiguity Register: Native Windows Support
 
-> **Status**: ✅ GATE PASSED — all 18 items resolved
-> **Last Updated**: 2026-08-06 20:48 CEST
+> **Status**: ✅ GATE PASSED — all 20 items resolved
+> **Last Updated**: 2026-08-06 21:11 CEST
 
 | # | Category | Ambiguity / Gap | Options Presented | User Decision | Status |
 |---|---|---|---|---|---|
@@ -23,6 +23,8 @@
 | AR-16 | Test architecture (runtime) | How can specification tests control Windows host/probe/clock/attestation and hook-order outcomes without depending on implementation internals or a test-only CLI mode? | Required dependency protocols at Python orchestration boundaries / patch private functions / environment-variable simulation | Add required `PreflightDependencies` and `HookDependencies` protocols to the preflight and hook orchestrators; production CLIs construct native dependencies, while specification tests supply in-memory implementations. No test-mode branch or environment backdoor ships. | ✅ Resolved |
 | AR-17 | Hook proof (runtime) | How does the checker distinguish a trusted hook invocation from a direct command boundary without trusting mutable environment variables? | Closed `hook_event` input derived from validated hook JSON / hidden environment marker / infer trust from mode | Add explicit `hook_event` to the closed request. Session requires `SessionStart`; read accepts no hook proof; mutation accepts `PreToolUse` or no hook because the registered entrypoint remains authoritative. Unknown or mismatched events are malformed input. | ✅ Resolved |
 | AR-18 | Windows shell (runtime) | May native Windows hooks require separately installed PowerShell 7 when the plan declares no such prerequisite? | Built-in Windows PowerShell 5.1 / add and probe a PowerShell 7 prerequisite | Use `powershell.exe`, which is part of the Windows 11 boundary. Do not add an undeclared PowerShell 7 dependency. | ✅ Resolved |
+| AR-19 | Preflight CLI (runtime) | How does the PowerShell bootstrap transport the closed preflight request to Python? | Explicit allowlisted argument array / JSON stdin | Use explicit non-abbreviated flags with repeated `--target`; reject unknown or missing fields before probes, construct production dependencies internally, emit one closed JSON result, and preserve exits 0/1/2. | ✅ Resolved |
+| AR-20 | Windows hook launcher (runtime) | How can hooks execute from legal hostile plugin paths without evaluating path content? | Checked-in `-File` launcher using `$env:PLUGIN_ROOT` and `$PSScriptRoot` / inline `-Command` interpolation | Use a checked-in PowerShell `-File` launcher. The manifest contains no `${PLUGIN_ROOT}` substitution or inline script block; the launcher derives sibling scripts from `$PSScriptRoot` and forwards stdin as data. | ✅ Resolved |
 
 ## Resolution Notes
 
@@ -92,4 +94,35 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
 - **Strongest counterargument:** PowerShell 7 has newer language and process behavior, but the
   bootstrap intentionally uses only Windows PowerShell-compatible constructs.
 - **Confidence:** High; reopen only if Codex stops supporting `powershell.exe` hook commands.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
+
+## Runtime Decision AR-19 Provenance
+
+- **Authority:** AI — delegated by `--auto-design` in response to RV-001 / SA-001.
+- **Eligibility:** Internal transport for the already approved closed preflight request and exit
+  contract; no product behavior or compatibility boundary changes.
+- **Decision:** Use explicit, non-abbreviated argument-array flags and a repeated target flag.
+- **Evidence:** PowerShell already forwards an argument array; the Python callable already owns
+  the complete typed request; JSON stdin would compete with hook payload stdin.
+- **Rejected alternative:** JSON stdin is closed but would require multiplexing the hook payload
+  channel or another wrapper layer.
+- **Strongest counterargument:** Flags add parser surface, but they make every field independently
+  auditable and preserve shell-free invocation.
+- **Confidence / hardening:** High; unknown, duplicate-singleton, missing, and malformed values
+  fail with sanitized exit 1 before production probes.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
+
+## Runtime Decision AR-20 Provenance
+
+- **Authority:** AI — delegated by `--auto-design` in response to SA-003.
+- **Eligibility:** Internal launcher design inside the approved hook behavior.
+- **Decision:** Replace inline PowerShell with a checked-in `-File` launcher that consumes
+  `$env:PLUGIN_ROOT` only as data and derives sibling paths from `$PSScriptRoot`.
+- **Evidence:** The security auditor reproduced command execution from legal plugin-root `$()`
+  characters in the inline `-Command` form.
+- **Rejected alternative:** Escaping substituted paths remains shell-specific and fragile for
+  legal Windows characters.
+- **Strongest counterargument:** One additional launcher file must be shipped and validated.
+- **Confidence / hardening:** High; native tests execute it from paths containing spaces, `$()`,
+  and a single quote and assert no side effect.
 - **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
