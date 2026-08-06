@@ -4,10 +4,34 @@
 
 ## Open decisions
 
-None for the installable CLI beta. Surface expansion and the real-project 1.0
-pilot are release work, not unresolved semantics in the implemented beta.
+None. The native Windows support decisions passed the requirements ambiguity
+gate on 2026-08-06.
 
-## Resolved decisions
+## Resolved Windows support decisions
+
+| ID | Category | Ambiguity / gap | Options presented | User decision | Status |
+|---|---|---|---|---|---|
+| AR-015 | Scope | Which Codex surfaces must pass before CodeOps claims native Windows support? | Native CLI only / native CLI plus Windows desktop app | Fully certify the native CLI and smoke-test installation plus a representative workflow in the Windows desktop app. | ✅ Resolved |
+| AR-016 | Compatibility | Which Windows and Python versions form the initial supported matrix? | Windows 11 only / supported Windows 10 and Windows 11; Python 3.x without a minor or patch pin | Support Windows 11 initially. Require native Python major version 3 without an exact minor or patch version. | ✅ Resolved |
+| AR-017 | Behavior | How often must the Windows prerequisite gate run? | Every skill invocation / once per session plus recheck before mutation | Check once per session and recheck mutation-sensitive prerequisites immediately before project writes. | ✅ Resolved |
+| AR-018 | Filesystem | Are UNC and network workspaces supported in the first Windows release? | Local writable filesystems only / include certified UNC and network filesystems | Support local writable filesystems initially; UNC and network workspaces remain unsupported until separately certified. | ✅ Resolved |
+| AR-019 | Security | Does an operational but unelevated native Codex sandbox block CodeOps? | Warn and continue / block until elevated sandbox works | Warn and continue when the supported unelevated native Codex sandbox is operational. | ✅ Resolved |
+| AR-020 | Verification | What native-Windows evidence is required beyond GitHub Actions? | CI only / CI plus a real installed-plugin workflow on Windows 11 | Require Windows CI plus a real installed-plugin workflow on native Windows 11. | ✅ Resolved |
+| AR-021 | Runtime | May native-Windows CodeOps depend on Git Bash when it does not use WSL? | Native PowerShell/Python only / Git Bash may remain a runtime dependency | Use native PowerShell and Python; Git for Windows is required but Git Bash is not a runtime dependency. | ✅ Resolved |
+
+### Confirmed Windows constraints
+
+- WSL may be installed and enabled. Its presence is not a failure condition.
+- CodeOps must never invoke `wsl.exe`, launch a WSL distribution, translate paths through `/mnt`,
+  or depend on WSL for any workflow.
+- If CodeOps is actually executing inside WSL, it must stop before project mutation and direct the
+  user to launch Codex natively on Windows.
+- CodeOps must verify a supported native Python interpreter by executing a version probe before
+  project mutation. Missing or unsupported Python stops the workflow; CodeOps never installs it
+  automatically.
+- CodeOps must check its Windows-specific prerequisites before proceeding.
+
+## Earlier resolved decisions
 
 | ID | Resolution | Basis |
 |---|---|---|

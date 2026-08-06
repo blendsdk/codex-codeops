@@ -86,6 +86,48 @@ No feature shall be described as ported solely because its prompt text was copie
 
 The repository shall include a polished root `README.md` that explains the product promise, suitability for complex systems, recursive ambiguity-elimination workflow, project tracking, supported Codex surfaces, installation from this repository, verification, quick start, update/uninstall procedures, trust and permission implications, principal skills, example lifecycle, platform requirements, migration status, contribution/testing commands, and license. Every command shall be tested against the release artifact, and unreleased capabilities shall be labeled rather than presented as available.
 
+### RD-022 — Native Windows runtime
+
+CodeOps shall support every shipped core workflow on Windows 11 through native Codex, PowerShell,
+Git for Windows, and Python 3.x. It shall not require Git Bash or WSL. WSL may be installed and
+enabled without affecting readiness, but CodeOps shall never invoke `wsl.exe`, launch a WSL
+distribution, translate paths through `/mnt`, or delegate any operation to WSL. If CodeOps is
+actually executing inside WSL, it shall stop before project mutation and direct the user to launch
+Codex natively on Windows. These boundaries are user-approved in AR-015, AR-016, and AR-021.
+
+Before a Windows workflow proceeds, CodeOps shall run one authoritative prerequisite check once per
+session and recheck mutation-sensitive conditions immediately before project writes. The check
+shall execute a native interpreter probe and accept any functioning Python major version 3 without
+pinning its minor or patch version. Missing, nonfunctional, or non-Python-3 interpreters shall
+produce an actionable blocking result before project mutation and shall never trigger automatic
+installation. The same check shall validate the supported Windows version, native Codex execution
+and sandbox state, Git for Windows, the writable local workspace, plugin enablement, hook
+availability/trust, and required path/filesystem capabilities. Results shall be deterministic and
+classified as `READY`, `WARNING`, or `BLOCKED`; an operational unelevated Codex sandbox produces a
+warning rather than a block. These behaviors are user-approved in AR-016, AR-017, and AR-019.
+
+The deterministic control layer shall provide native Windows implementations for process-owner
+identity, stale-lock detection, PID-reuse protection, atomic graph writes, recovery, migration,
+roadmap synchronization and compaction, worktree snapshots, optional-agent installation, outcome
+storage, hooks, and every other shipped utility. Process/API uncertainty shall continue to fail
+closed. Durable paths shall use a host-independent canonical representation, and generated path
+components shall reject Windows device names and other platform-invalid forms before any write.
+Local writable filesystems are the initial supported boundary; UNC and network workspaces remain
+unsupported until separately certified, per AR-018.
+
+### RD-023 — Native Windows certification
+
+CodeOps shall not claim Windows support until automated Windows CI and retained real-host evidence
+prove the native runtime contract in RD-022. Windows CI shall exercise specification and
+implementation tests for prerequisites, hooks, state transitions, concurrent ownership,
+interrupted writes, stale-owner recovery, migration, roadmap derivation, path handling, hostile
+identifiers, and Linux-regression parity. At least one real Windows 11 installation shall prove
+plugin installation and enablement, hook review/trust, and representative requirements, planning,
+preflight, execution-state transition/recovery, migration, roadmap, and verification workflows.
+The Windows desktop app shall additionally pass installation and representative-workflow smoke
+testing. Documentation and release metadata may claim Windows support only after that evidence is
+retained and version-matched. This evidence boundary is user-approved in AR-015 and AR-020.
+
 ## Quality attributes
 
 | Attribute | Requirement |
