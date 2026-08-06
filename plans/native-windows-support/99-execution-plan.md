@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 20:22
-> **Progress**: 2/72 tasks (3%)
+> **Last Updated**: 2026-08-06 20:26
+> **Progress**: 3/72 tasks (4%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -57,7 +57,14 @@ AR-3–AR-7
 
 - [x] 1.1.1 [spec-author] Add bootstrap, closed mode/input matrix, status/exit, WSL, Python 3.10+, sandbox, and attestation specification cases — `tests/conformance/test_windows_preflight_spec.py` ✅ (completed: 2026-08-06 20:19)
 - [x] 1.1.2 [spec-author] Add dual-host hook-manifest, path-with-spaces, mutation-order, and missing-trust specification cases — `tests/conformance/test_windows_preflight_spec.py`, `tests/fixtures/hooks/` ✅ (completed: 2026-08-06 20:22)
-- [ ] 1.1.3 Run the new Phase-1 specification module, record expected red results, and prove every pre-existing conformance test remains green — `tests/conformance/test_windows_preflight_spec.py`
+- [x] 1.1.3 Run the new Phase-1 specification module, record expected red results, and prove every pre-existing conformance test remains green — `tests/conformance/test_windows_preflight_spec.py` ✅ (completed: 2026-08-06 20:26)
+
+Red evidence: native run recorded 15 expected failing specification cases at
+`%TEMP%/verify-red-phase-1.1.3.log`. Immutable baseline evidence: GitHub Actions run
+`31116047265` passed all five gates at `a3890b8`; the diff through this task changes only the new
+Windows plan/traceability/specification-test artifacts and no pre-existing implementation or
+conformance-test file. Rerun `31120294368` remained unassigned to a hosted runner and is treated as
+infrastructure state, not verification evidence.
 
 ### Step 1.2: Implementation
 
