@@ -1622,6 +1622,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:ST-46 certification CI specification collected and failed at the intended missing explicit Ubuntu/Windows 11 ARM job boundary"
+      ],
       "id": "TASK-5.1.1",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1634,7 +1637,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Add explicit Windows 11 runner, Python 3.10+, native-command, and prohibited-runtime specification cases",
       "type": "task",
       "validations": []

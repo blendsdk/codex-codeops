@@ -410,13 +410,23 @@ ambient UTF-8 variables. No Windows command used WSL, Git Bash, or Bash. Ubuntu 
 
 ## Phase 5: Windows Certification and Release Claim
 
-> **Phase baseline tree**: _(recorded by the exec-plan skill at phase start)_
+> **Phase baseline tree**: `db55e80264839d6d60e6a16b300339be4f711ddf`
+> **Scope mode**: strict
+> **Expected modification set**: `.github/workflows/ci.yml`,
+> `tests/conformance/test_windows_certification_spec.py`,
+> `tests/conformance/test_windows_certification_impl.py`, `tests/windows-evidence.schema.json`,
+> `tests/fixtures/windows-evidence/`, `tests/evidence/`, `scripts/capture_windows_evidence.py`,
+> `scripts/validate_windows_evidence.py`, `scripts/codeops_verify_lib/core.py`,
+> `scripts/validate_plugin.py`, `.codex-plugin/plugin.json`, `README.md`,
+> `docs/installation.md`, `docs/migration.md`, `docs/tutorial.md`, `docs/troubleshooting.md`,
+> `docs/concepts.md`, `CHANGELOG.md`, release documentation, this execution plan, and the feature
+> traceability graph.
 
 ### Step 5.1: Specification Tests
 
 **Reference**: [03-04](03-04-certification-and-release.md) · ST-46–ST-54 · AR-12–AR-14
 
-- [ ] 5.1.1 [spec-author] Add explicit Windows 11 runner, Python 3.10+, native-command, and prohibited-runtime specification cases — `tests/conformance/test_windows_certification_spec.py`
+- [x] 5.1.1 [spec-author] Add explicit Windows 11 runner, Python 3.10+, native-command, and prohibited-runtime specification cases — `tests/conformance/test_windows_certification_spec.py` ✅ (completed: 2026-08-07 01:12)
 - [ ] 5.1.2 [spec-author] Add capture/supporting-record hash binding, sanitization, evidence schema, completeness, failure, version binding, CLI/desktop provenance, and support-claim cases — `tests/conformance/test_windows_certification_spec.py`, `tests/fixtures/windows-evidence/`
 - [ ] 5.1.3 Run Phase-5 certification cases red while all functional Windows/Unix suites remain green — `tests/conformance/test_windows_certification_spec.py`
 
