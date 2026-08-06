@@ -244,14 +244,25 @@ no third review was run.
 
 ## Phase 3: Portable Utility Control Layer
 
-> **Phase baseline tree**: _(recorded by the exec-plan skill at phase start)_
+> **Phase baseline tree**: `c8a618afec4ac54390062bee70aeac7bea2000cd`
+> **Scope mode**: strict
+> **Expected modification set**: `tests/conformance/test_portable_utilities_spec.py`,
+> `tests/conformance/test_portable_utilities_impl.py`,
+> `tests/conformance/test_state_test_collection.py`, `scripts/codeops_platform/subprocesses.py`,
+> `scripts/codeops_migrate.py`, `scripts/codeops_migrate_lib/`, `scripts/codeops_roadmap.py`,
+> `scripts/codeops_roadmap_lib/`, `scripts/codeops_worktree.py`, `scripts/codeops_worktree_lib/`,
+> `scripts/codeops_verify.py`, `scripts/codeops_verify_lib/`, `scripts/codeops-migrate.sh`,
+> `scripts/codeops-roadmap-sync.sh`, `scripts/codeops-roadmap-compact.sh`,
+> `bin/codeops-worktree`, `scripts/validate-codex.sh`, `scripts/docs-check.sh`,
+> `scripts/migration-check.sh`, `scripts/roadmap-sync-check.sh`, `scripts/compact-check.sh`,
+> `scripts/codeops-verify.ps1`, this execution plan, and the feature traceability graph.
 
 ### Step 3.1: Specification Tests
 
 **Reference**: [03-02](03-02-portable-control-layer.md) · ST-31–ST-38 · AR-2, AR-8,
 AR-11, AR-14
 
-- [ ] 3.1.1 [spec-author] Add layout migration and roadmap sync/compact cross-host specification cases using existing fixtures and canonical outputs — `tests/conformance/test_portable_utilities_spec.py`
+- [x] 3.1.1 [spec-author] Add layout migration and roadmap sync/compact cross-host specification cases using existing fixtures and canonical outputs — `tests/conformance/test_portable_utilities_spec.py` ✅ (completed: 2026-08-06 22:50)
 - [ ] 3.1.2 [spec-author] Add native worktree, hook, outcome, agent, and hostile-argument/path specification cases — `tests/conformance/test_portable_utilities_spec.py`
 - [ ] 3.1.3 [spec-author] Add portable five-gate verifier and Unix compatibility-launcher specification cases — `tests/conformance/test_portable_utilities_spec.py`
 - [ ] 3.1.4 Run the Phase-3 specification module red while existing migration, roadmap, compact, worktree, agent, outcome, and hook suites remain green — `tests/conformance/test_portable_utilities_spec.py`
