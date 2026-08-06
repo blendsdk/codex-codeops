@@ -83,14 +83,67 @@ the backend owns only same-backend presence/absence decisions (AR-21).
 ### Atomic Write Contract
 
 ```python
-def atomic_write_bytes(path: Path, data: bytes) -> None:
+@dataclass(frozen=True, slots=True)
+class VolumeInfo:
+    identity: str
+    filesystem: str
+    fixed_local: bool
+
+@dataclass(frozen=True, slots=True)
+class PathCollisionKey:
+    volume_identity: str
+    parent_long_name: str
+    final_long_name: str
+    file_identity: tuple[int, int] | None
+
+class PathProbe(Protocol):
+    is_windows: bool
+    def canonical(self, path: Path) -> Path: ...
+    def volume_info(self, path: Path) -> VolumeInfo: ...
+    def existing_components(self, root: Path, target: Path) -> tuple[Path, ...]: ...
+    def is_reparse_point(self, path: Path) -> bool: ...
+    def long_name(self, path: Path) -> str: ...
+    def file_identity(self, path: Path) -> tuple[int, int] | None: ...
+
+class AtomicWriteOps(Protocol):
+    def write_temporary_sibling(self, path: Path, data: bytes) -> Path: ...
+    def revalidate(self, path: Path, temporary: Path) -> None: ...
+    def replace(self, temporary: Path, path: Path) -> None: ...
+    def sync_directory(self, parent: Path) -> None: ...
+    def sleep(self, delay: float) -> None: ...
+    def cleanup_temporary(self, temporary: Path) -> None: ...
+
+def atomic_write_bytes(
+    path: Path,
+    data: bytes,
+    *,
+    ops: AtomicWriteOps | None = None,
+) -> None:
     """Durably replace a contained local file or raise without discarding recovery evidence."""
 
-def canonical_relative_path(root: Path, path: Path) -> str:
+def canonical_relative_path(
+    root: Path,
+    path: Path,
+    *,
+    probe: PathProbe | None = None,
+) -> str:
     """Return a validated project-relative path serialized with forward slashes."""
 
-def resolve_durable_path(root: Path, value: str) -> Path:
+def resolve_durable_path(
+    root: Path,
+    value: str,
+    *,
+    probe: PathProbe | None = None,
+) -> Path:
     """Resolve a canonical or safely compatible legacy path within root."""
+
+def validate_transaction_paths(
+    root: Path,
+    paths: Sequence[Path],
+    *,
+    probe: PathProbe | None = None,
+) -> tuple[Path, ...]:
+    """Validate containment and Windows storage policy and reject colliding durable paths."""
 ```
 
 Writes create a same-directory temporary file, flush it, atomically replace the destination, and
@@ -102,6 +155,16 @@ images intact and raises a stable recoverable failure (AR-10).
 Generic `ACCESS_DENIED`, permission-policy failures, invalid paths, nonexistent required parents,
 validation failures, and unknown OS errors are never retried. No implementation falls back to
 delete-then-rename (AR-10).
+
+The optional protocol arguments are deterministic test seams, not alternate policy inputs. `None`
+selects the real host implementation. A supplied `PathProbe` still has to satisfy the complete
+closed policy above. `AtomicWriteOps.revalidate` owns the immediate storage/reparse check and is
+called after the temporary sibling is durable and immediately before every replacement attempt.
+The fixed retry delays are passed verbatim to `sleep`; `BaseException` interruptions are propagated
+after best-effort temporary cleanup, while the destination and external journal/recovery evidence
+remain untouched. `validate_transaction_paths` returns paths in input order and blocks the whole
+set before mutation if any containment, volume, reparse, grammar, long-name, or file-identity
+collision check fails (AR-22).
 
 ### Path Contract
 

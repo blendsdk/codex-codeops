@@ -1,0 +1,49 @@
+{
+  "canonical": [
+    {
+      "native": ["codeops", "features", "café", "traceability.json"],
+      "durable": "codeops/features/café/traceability.json"
+    },
+    {
+      "native": ["folder with spaces", "state.json"],
+      "durable": "folder with spaces/state.json"
+    }
+  ],
+  "legacy": [
+    {
+      "durable": "codeops\\features\\legacy\\traceability.json",
+      "native": ["codeops", "features", "legacy", "traceability.json"]
+    }
+  ],
+  "hostile": [
+    "",
+    ".",
+    "..",
+    "../escape.json",
+    "nested/../../escape.json",
+    "/absolute.json",
+    "C:\\absolute.json",
+    "C:relative.json",
+    "\\\\server\\share\\state.json",
+    "\\\\?\\C:\\device.json",
+    "\\\\.\\NUL",
+    "folder/stream:name",
+    "folder/question?.json",
+    "folder/star*.json",
+    "folder/angle<name>.json",
+    "folder/pipe|name.json",
+    "folder/control\u0001.json",
+    "folder/trailing-dot.",
+    "folder/trailing-space "
+  ],
+  "reserved": [
+    "con",
+    "PrN.txt",
+    "aux.JSON",
+    "Nul.log",
+    "com1",
+    "CoM9.ext",
+    "lpt1",
+    "LpT9.data"
+  ]
+}

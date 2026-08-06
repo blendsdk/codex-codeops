@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 21:29
-> **Progress**: 12/72 tasks (17%)
+> **Last Updated**: 2026-08-06 21:36
+> **Progress**: 13/72 tasks (18%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -150,12 +150,17 @@ that exact correction passed direct verification. Per the review cap, no third r
 ST-41–ST-45 · AR-9–AR-11
 
 - [x] 2.1.1 [spec-author] Add versioned Windows/legacy Linux owner, absence, PID-reuse, uncertainty, concurrency, and recovery specification cases — `tests/conformance/test_windows_state_spec.py` ✅ (completed: 2026-08-06 21:29)
-- [ ] 2.1.2 [spec-author] Add canonical/legacy/hostile path, reserved/alias/reparse cases, exact WinError 32/33 retry, generic-access refusal, interruption, and non-NTFS specification cases — `tests/conformance/test_windows_state_spec.py`, `tests/fixtures/windows-state/`
+- [x] 2.1.2 [spec-author] Add canonical/legacy/hostile path, reserved/alias/reparse cases, exact WinError 32/33 retry, generic-access refusal, interruption, and non-NTFS specification cases — `tests/conformance/test_windows_state_spec.py`, `tests/fixtures/windows-state/` ✅ (completed: 2026-08-06 21:36)
 - [ ] 2.1.3 Run new state specification cases red while the immutable Linux state and migration specification modules remain green — `tests/conformance/test_windows_state_spec.py`, `tests/conformance/test_state_migration_spec.py`
 
 Task 2.1.1 red evidence: native collection and syntax validation succeeded; all nine process-owner
 specification cases failed solely because the planned `scripts.codeops_state_lib.processes` module
 does not exist yet. Full output is retained at `%TEMP%/verify-red-task-2.1.1.log`.
+
+Task 2.1.2 red evidence: the 20-case combined module collected; its eleven filesystem cases failed
+solely because the planned `scripts.codeops_state_lib.paths` module does not exist, while the nine
+owner cases retain their expected missing-process-module failure. Python compilation and fixture
+JSON parsing passed. Full output is retained at `%TEMP%/verify-red-task-2.1.2.log`.
 
 ### Step 2.2: Implementation
 

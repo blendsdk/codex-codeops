@@ -143,3 +143,24 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
 - **Confidence / hardening:** High; specification tests own exact payloads, malformed inputs,
   backend mismatch, absence, PID reuse, and uncertainty before implementation.
 - **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
+
+## Runtime Decision AR-22 Provenance
+
+- **Authority:** AI — delegated by `--auto-design` after the Task 2.1.2 independent spec author
+  identified a specification-independence gap.
+- **Eligibility:** Internal adapter/interface design needed to test the already approved AR-10 and
+  AR-11 filesystem policy; it changes neither the supported storage boundary nor error semantics.
+- **Decision:** Expose narrow `PathProbe` and `AtomicWriteOps` protocols, optional keyword-only
+  injection on the three path/write functions, and a transaction-path validator that rejects the
+  complete set before mutation.
+- **Evidence:** Retry scheduling, immediate revalidation, NTFS/reparse refusal, and alias collision
+  behavior cannot be deterministically specified through the original three non-injectable
+  functions without tests guessing private implementation details.
+- **Rejected alternative:** Patching private helpers would make specification tests dependent on an
+  implementation that does not exist yet; encoding host policy flags directly would permit callers
+  to weaken production checks.
+- **Strongest counterargument:** The public module surface is larger, but its default path remains
+  the real host backend and the seams make security-boundary ordering auditable.
+- **Confidence / hardening:** High; specification tests own call order, exact delays, generic-error
+  refusal, interruption cleanup, whole-transaction collision rejection, and non-NTFS refusal.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
