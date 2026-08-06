@@ -142,13 +142,15 @@ that exact correction passed direct verification. Per the review cap, no third r
 > `tests/conformance/test_windows_state_native.py`,
 > `tests/conformance/test_state_migration_spec.py`,
 > `tests/conformance/test_state_migration_impl.py`,
+> `tests/conformance/windows_state_test_support.py`,
 > `tests/conformance/test_state_test_collection.py`, `tests/fixtures/windows-state/`,
 > `tests/evidence/windows-state-issue-2.json`,
 > `scripts/codeops_state.py`, `scripts/codeops_state_lib/models.py`,
 > `scripts/codeops_state_lib/processes.py`, `scripts/codeops_state_lib/processes_windows.py`,
 > `scripts/codeops_state_lib/paths.py`, `scripts/codeops_state_lib/filesystem.py`,
 > `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/migration.py`,
-> `scripts/codeops_state_lib/rendering.py`, this execution plan, and the feature traceability graph.
+> `scripts/codeops_state_lib/rendering.py`, `.github/workflows/ci.yml`, this execution plan, and
+> the feature traceability graph.
 > **Authorized necessary correction:** Task 2.2.6 may update
 > `scripts/codeops_windows_lib/probes.py` because native integration proved the Windows Store
 > `py.exe` alias cannot launch inside the restricted-token sandbox. The probe now uses the concrete
@@ -156,6 +158,9 @@ that exact correction passed direct verification. Per the review cap, no third r
 > **Authorized collection correction:** Task 2.3.3 may update the migration fixtures to construct
 > equivalent current-host owner records instead of importing `/proc` during Windows collection.
 > Linux retains its original procfs record and assertions.
+> **Authorized verification correction:** Task 2.3.3 may add the manual trigger to the existing
+> Ubuntu CI workflow so the exact five-command gate can be run against the current feature tree.
+> This does not change the gate commands, runner, permissions, or automatic triggers.
 
 ### Step 2.1: Specification Tests
 
@@ -200,7 +205,7 @@ not executed through an emulation layer on Windows under the no-WSL constraint.
 
 - [x] 2.3.1 Add Windows API failure/cleanup, foreign backend, NTFS alias/reparse grammar, exact retry classification/schedule, command-boundary gate, and every write-boundary fault-injection case — `tests/conformance/test_windows_state_impl.py` ✅ (completed: 2026-08-06 22:00)
 - [x] 2.3.2 Add native integration helpers for real concurrent owners, stale processes, PID reuse where controllable, interruption, and recovery; skip only with explicit non-Windows reason — `tests/conformance/test_windows_state_native.py` ✅ (completed: 2026-08-06 22:02)
-- [x] 2.3.3 Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence — `tests/evidence/windows-state-issue-2.json` ✅ (completed: 2026-08-06 22:10)
+- [~] 2.3.3 Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence — `tests/evidence/windows-state-issue-2.json` (implemented: 2026-08-06 22:10; verification reopened by quality review)
 
 **Verify**: run all five commands confirmed in AR-14.
 
@@ -211,6 +216,27 @@ Git Bash, or Bash. The unchanged shell-only migration/roadmap/compact logical ga
 successful Ubuntu baseline from run `31116047265`; their current-tree native equivalents remain
 owned by Phase 3 before the next full gate. Issue-#2 implementation evidence is retained in
 `tests/evidence/windows-state-issue-2.json`.
+
+### Phase 2 Quality Review
+
+The independent phase reviewer, security auditor, and recovery auditor reviewed the strict Phase-2
+tree. Auto-design selected a technical correction for every critical/major finding; no risk was
+waived. Task 2.3.3 remains implemented until current-tree Ubuntu CI proves the exact five-command
+gate and the single permitted re-review clears these corrections.
+
+| Finding | Severity | Decision | State |
+|---|---|---|---|
+| RV2-001: persisted and returned graph paths used host separators | MAJOR | Canonicalize every durable and public graph path to `/` | Fixed; direct verification passed |
+| RV2-002: migration/conformance subprocesses depended on ambient plugin authority | MAJOR | Install isolated native test authority and make the direct launcher establish its repository import root | Fixed; clean-shell verification passed |
+| RV2-003: the five-command gate claim used an older Ubuntu tree | MAJOR | Add a manual trigger to the unchanged Ubuntu workflow and require a current-tree run | Implemented; CI evidence pending |
+| P2-SEC-001 / RC-003: recovery mutated journal/locks before validating the complete path set | MAJOR | Validate journal identity, all graph/image paths, containment, reparse state, and NTFS alias collisions before takeover mutation | Fixed; fault-injection verification passed |
+| P2-SEC-002: direct state-module execution bypassed mutation preflight | MAJOR | Disable the internal module entry point; retain the public preflighted launcher as the sole CLI | Fixed; byte-identical refusal verification passed |
+| RC-001: `BaseException` after replacement deleted recovery evidence | CRITICAL | Preserve the published journal, locks, and images unless success or rollback is proven | Fixed for single- and multi-graph paths; interruption verification passed |
+| RC-002: completed recovery replay retained transaction debris | MAJOR | Make completed replay perform idempotent owned-artifact cleanup before returning | Fixed; replay verification passed |
+
+Native correction verification passed 44/44 focused migration/state tests in a shell without
+`PLUGIN_ROOT`, `PLUGIN_DATA`, or `PYTHONPATH`, and 250/250 repository conformance tests with the
+certified interpreter in UTF-8 mode. No verification command used WSL, Git Bash, or Bash.
 
 ## Phase 3: Portable Utility Control Layer
 

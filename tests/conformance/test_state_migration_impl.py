@@ -15,9 +15,13 @@ from unittest import mock
 from scripts.codeops_state_lib import migration, transitions
 from scripts.codeops_state_lib.models import StructuralProblem
 from scripts.codeops_state_lib.revisions import normalize_utf8
+from tests.conformance.windows_state_test_support import (
+    install_native_plugin_environment,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
+install_native_plugin_environment(ROOT)
 SCRIPT = ROOT / "scripts" / "codeops_state.py"
 ARTIFACT = b"# Artifact\n"
 REVISION = "sha256:" + hashlib.sha256(ARTIFACT).hexdigest()
@@ -191,13 +195,164 @@ class TransitionImplementationTests(unittest.TestCase):
                 "graphs": [record],
             }), encoding="utf-8")
             first = subprocess.run(self.command("transition-recover", root, request), capture_output=True, text=True)
+            # Model a crash after the durable completion marker but before cleanup.
+            (state / "op-1.before").write_bytes(before)
+            (state / "op-1.after").write_bytes(after)
+            (state / "op-1.lock").write_text(
+                json.dumps({"operationId": "op-1", "owner": ABSENT_OWNER, "nonce": "n-1"}),
+                encoding="utf-8",
+            )
+            for name in ("active.lock", "op-1.recovery.lock"):
+                (state / name).write_text(
+                    json.dumps({"operationId": "op-1", "owner": ABSENT_OWNER, "nonce": "n-1"}),
+                    encoding="utf-8",
+                )
+            (state / "op-1.journal.json").write_text(
+                json.dumps({
+                    "schema": 1,
+                    "operationId": "op-1",
+                    "lockNonce": "n-1",
+                    "owner": ABSENT_OWNER,
+                    "direction": "rollback",
+                    "graphs": [{
+                        **record,
+                        "beforeImage": "op-1.before",
+                        "afterImage": "op-1.after",
+                        "committed": True,
+                    }],
+                }),
+                encoding="utf-8",
+            )
             second = subprocess.run(self.command("transition-recover", root, request), capture_output=True, text=True)
             restored = graph_path.read_bytes()
+            debris = [
+                path.name
+                for path in state.iterdir()
+                if path.name != "op-1.completed.json"
+            ]
         self.assertEqual(first.returncode, 0, first.stdout)
         self.assertEqual(json.loads(first.stdout)["result"], "recovered")
         self.assertEqual(second.returncode, 0, second.stdout)
         self.assertEqual(json.loads(second.stdout)["result"], "already-recovered")
         self.assertEqual(restored, before)
+        self.assertEqual(debris, [])
+
+    def test_base_exception_after_graph_replace_retains_recovery_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, graph_path = self.make_root(raw)
+            before = graph_path.read_bytes()
+            request = self.write_transition(root, "interrupt-after-replace")
+            real_atomic_write = transitions._atomic_write
+
+            def interrupt_after_replace(path: Path, data: bytes) -> None:
+                real_atomic_write(path, data)
+                if path == graph_path:
+                    raise KeyboardInterrupt("injected after replacement")
+
+            with mock.patch.object(
+                transitions,
+                "_atomic_write",
+                side_effect=interrupt_after_replace,
+            ):
+                with self.assertRaises(KeyboardInterrupt):
+                    transitions.transition(root, request)
+
+            state = root / "codeops" / ".state-transactions"
+            retained = {path.name for path in state.iterdir()}
+            after = graph_path.read_bytes()
+
+        self.assertNotEqual(after, before)
+        self.assertIn("interrupt-after-replace.journal.json", retained)
+        self.assertIn("interrupt-after-replace.lock", retained)
+        self.assertIn("active.lock", retained)
+        self.assertTrue(any(name.endswith(".before") for name in retained))
+        self.assertTrue(any(name.endswith(".after") for name in retained))
+
+    def test_base_exception_during_atomic_graph_replacement_retains_recovery_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, graph_path = self.make_root(raw)
+            before = graph_path.read_bytes()
+            after = (json.dumps(graph("approved"), indent=2) + "\n").encode()
+            real_atomic_write = transitions._atomic_write
+
+            def interrupt_after_replace(path: Path, data: bytes) -> None:
+                real_atomic_write(path, data)
+                if path == graph_path:
+                    raise KeyboardInterrupt("injected after replacement")
+
+            with mock.patch.object(
+                transitions,
+                "_atomic_write",
+                side_effect=interrupt_after_replace,
+            ):
+                with self.assertRaises(KeyboardInterrupt):
+                    transitions.replace_graph_atomically(
+                        root,
+                        graph_path,
+                        after,
+                        "interrupt-atomic-replace",
+                    )
+
+            state = root / "codeops" / ".state-transactions"
+            retained = {path.name for path in state.iterdir()}
+
+        self.assertIn("interrupt-atomic-replace.journal.json", retained)
+        self.assertIn("interrupt-atomic-replace.lock", retained)
+        self.assertIn("active.lock", retained)
+        self.assertIn("interrupt-atomic-replace.0.before", retained)
+        self.assertIn("interrupt-atomic-replace.0.after", retained)
+
+    def test_base_exception_during_multi_graph_transition_retains_all_recovery_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, graph_path = self.make_root(raw)
+            other_path = root / "codeops" / "features" / "other" / "traceability.json"
+            other_path.parent.mkdir(parents=True)
+            other_graph = graph()
+            other_graph["feature"] = "other"
+            other_path.write_text(json.dumps(other_graph, indent=2) + "\n", encoding="utf-8")
+            other_after_graph = graph("approved")
+            other_after_graph["feature"] = "other"
+            other_after = (json.dumps(other_after_graph, indent=2) + "\n").encode()
+            request = self.write_transition(root, "interrupt-multi-replace")
+            real_project = transitions._project_portfolio
+            real_atomic_write = transitions._atomic_write
+
+            def project_two_graphs(*args: object, **kwargs: object):
+                projected, before, after, problems = real_project(*args, **kwargs)
+                before[other_path] = other_path.read_bytes()
+                after[other_path] = other_after
+                return projected, before, after, problems
+
+            def interrupt_after_second_replace(path: Path, data: bytes) -> None:
+                real_atomic_write(path, data)
+                if path == other_path:
+                    raise KeyboardInterrupt("injected after second replacement")
+
+            with (
+                mock.patch.object(
+                    transitions,
+                    "_project_portfolio",
+                    side_effect=project_two_graphs,
+                ),
+                mock.patch.object(
+                    transitions,
+                    "_atomic_write",
+                    side_effect=interrupt_after_second_replace,
+                ),
+            ):
+                with self.assertRaises(KeyboardInterrupt):
+                    transitions.transition(root, request)
+
+            state = root / "codeops" / ".state-transactions"
+            retained = {path.name for path in state.iterdir()}
+
+        self.assertIn("interrupt-multi-replace.journal.json", retained)
+        self.assertIn("interrupt-multi-replace.lock", retained)
+        self.assertIn("active.lock", retained)
+        self.assertIn("interrupt-multi-replace.0.before", retained)
+        self.assertIn("interrupt-multi-replace.0.after", retained)
+        self.assertIn("interrupt-multi-replace.1.before", retained)
+        self.assertIn("interrupt-multi-replace.1.after", retained)
 
     def test_st_46_interrupted_journal_rolls_forward(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -316,19 +471,100 @@ class TransitionImplementationTests(unittest.TestCase):
                 "expectedOwner": ABSENT_OWNER,
                 "graphs": [record],
             }), encoding="utf-8")
-            result = subprocess.run(self.command("transition-recover", root, request), capture_output=True, text=True)
-        self.assertEqual(result.returncode, 1)
-        if os.name == "nt":
-            self.assertEqual(result.stdout, "")
-            self.assertEqual(
-                result.stderr,
-                "CodeOps state mutation prerequisite evaluation failed.\n",
+            journal = state / "op-1.journal.json"
+            lock = state / "op-1.lock"
+            journal_before = journal.read_bytes()
+            lock_before = lock.read_bytes()
+            code, payload = transitions.recover(root, request)
+            journal_after = journal.read_bytes()
+            lock_after = lock.read_bytes()
+            recovery_locks_exist = any(
+                path.exists()
+                for path in (state / "active.lock", state / "op-1.recovery.lock")
             )
-        else:
-            self.assertEqual(
-                json.loads(result.stdout)["blockers"][0]["code"],
-                "unsafe-recovery-path",
+        self.assertEqual(code, 1)
+        self.assertEqual(payload["blockers"][0]["code"], "unsafe-recovery-path")
+        self.assertEqual(journal_after, journal_before)
+        self.assertEqual(lock_after, lock_before)
+        self.assertFalse(recovery_locks_exist)
+
+    @unittest.skipUnless(os.name == "nt", "NTFS alias recovery check is Windows-only")
+    def test_recovery_rejects_complete_set_with_case_aliases_before_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root, graph_path = self.make_root(raw)
+            state = root / "codeops" / ".state-transactions"
+            state.mkdir()
+            data = graph_path.read_bytes()
+            digest = "sha256:" + hashlib.sha256(data).hexdigest()
+            records = []
+            for index, value in enumerate(
+                (
+                    "codeops/features/sample/traceability.json",
+                    "CODEOPS/FEATURES/SAMPLE/TRACEABILITY.JSON",
+                )
+            ):
+                before_name = f"alias.{index}.before"
+                after_name = f"alias.{index}.after"
+                (state / before_name).write_bytes(data)
+                (state / after_name).write_bytes(data)
+                records.append(
+                    {
+                        "path": value,
+                        "beforeHash": digest,
+                        "afterHash": digest,
+                        "beforeImage": before_name,
+                        "afterImage": after_name,
+                        "committed": False,
+                    }
+                )
+            lock = state / "alias.lock"
+            lock.write_text(
+                json.dumps({"operationId": "alias", "owner": ABSENT_OWNER, "nonce": "n"}),
+                encoding="utf-8",
             )
+            journal = state / "alias.journal.json"
+            journal.write_text(
+                json.dumps(
+                    {
+                        "schema": 1,
+                        "operationId": "alias",
+                        "lockNonce": "n",
+                        "owner": ABSENT_OWNER,
+                        "direction": None,
+                        "graphs": records,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            request = root / "alias-recovery.json"
+            request.write_text(
+                json.dumps(
+                    {
+                        "schema": 1,
+                        "operationId": "alias",
+                        "direction": "roll-forward",
+                        "expectedLock": "n",
+                        "expectedOwner": ABSENT_OWNER,
+                        "graphs": [
+                            {
+                                key: item[key]
+                                for key in ("path", "beforeHash", "afterHash")
+                            }
+                            for item in records
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            journal_before = journal.read_bytes()
+
+            code, payload = transitions.recover(root, request)
+
+            self.assertEqual(code, 1)
+            self.assertEqual(payload["blockers"][0]["code"], "unsafe-recovery-path")
+            self.assertEqual(journal.read_bytes(), journal_before)
+            self.assertFalse((state / "active.lock").exists())
+            self.assertFalse((state / "alias.recovery.lock").exists())
 
     def test_cross_platform_normalization_is_stable(self) -> None:
         variants = (b"\xef\xbb\xbfline  \r\nnext\t\r\n", b"line\nnext\n")

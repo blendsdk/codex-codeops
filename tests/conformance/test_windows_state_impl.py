@@ -258,6 +258,44 @@ class StateCommandBoundaryImplementationTests(unittest.TestCase):
             )
             self.assertFalse((root / "codeops").exists())
 
+    def test_internal_v2_module_cannot_bypass_the_authoritative_dispatcher(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            request = root / "request.json"
+            request.write_text(
+                json.dumps({"schema": 1, "operationId": "bypass"}),
+                encoding="utf-8",
+            )
+            environment = dict(os.environ)
+            environment.pop("PLUGIN_ROOT", None)
+            environment.pop("PLUGIN_DATA", None)
+            environment["PYTHONPATH"] = str(ROOT)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "scripts.codeops_state_lib.v2",
+                    "transition",
+                    "--root",
+                    str(root),
+                    "--request",
+                    str(request),
+                    "--json",
+                ],
+                text=True,
+                capture_output=True,
+                check=False,
+                env=environment,
+                cwd=ROOT,
+            )
+
+            self.assertEqual(result.returncode, 1)
+            self.assertEqual(
+                result.stderr,
+                "Direct state-module execution is disabled; invoke scripts/codeops_state.py.\n",
+            )
+            self.assertFalse((root / "codeops").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

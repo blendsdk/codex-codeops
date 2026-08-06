@@ -12,7 +12,7 @@ from typing import Any
 
 from . import legacy
 from .discovery import discover_state
-from .filesystem import atomic_write_bytes
+from .filesystem import NativeAtomicWriteOps, atomic_write_bytes
 from .paths import canonical_relative_path, resolve_durable_path
 from .revisions import compute_revision
 from .schema import RELATION_MATRIX, parse_graph_v2, validate_portfolio_v2
@@ -223,7 +223,11 @@ def make_preview(root: Path, feature: str, preview_path: Path) -> tuple[int, dic
         }
     preview_path.parent.mkdir(parents=True, exist_ok=True)
     if not preview_path.exists():
-        atomic_write_bytes(preview_path, preview_bytes)
+        atomic_write_bytes(
+            preview_path,
+            preview_bytes,
+            ops=NativeAtomicWriteOps(root),
+        )
     return 0, {
         "result": "preview",
         "feature": feature,
@@ -495,7 +499,11 @@ def apply_upgrade(
         }
     temporary = source.with_name(f".{source.name}.upgrade-check.json")
     try:
-        atomic_write_bytes(temporary, after)
+        atomic_write_bytes(
+            temporary,
+            after,
+            ops=NativeAtomicWriteOps(root),
+        )
         parsed, parse_problems = parse_graph_v2(temporary, root)
     except OSError as exc:
         return 1, {

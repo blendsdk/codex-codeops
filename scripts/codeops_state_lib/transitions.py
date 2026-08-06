@@ -23,7 +23,11 @@ from .models import (
     SourceSelector,
     StructuralProblem,
 )
-from .paths import validate_transaction_paths
+from .paths import (
+    canonical_relative_path,
+    resolve_durable_path,
+    validate_transaction_paths,
+)
 from .processes import current_process_identity, native_process_backend, owner_absence
 from .rendering import problem_json
 from .revisions import compute_revision
@@ -928,7 +932,7 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
             "direction": None,
             "owner": owner,
             "graphs": [{
-                "path": str(path.relative_to(root)),
+                "path": canonical_relative_path(root, path),
                 "beforeHash": _hash(before[path]),
                 "afterHash": _hash(after[path]),
                 "beforeImage": image_pairs[path][0].name,
@@ -937,6 +941,7 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
             } for path in ordered_paths],
         }
         _write_json(journal, journal_value)
+        preserve_recovery = True
         committed_paths: list[Path] = []
         try:
             for index, path in enumerate(ordered_paths):
@@ -975,6 +980,7 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
                     raise ValueError("post-write evidence gate validation failed")
         except Exception as exc:
             if _rollback(committed_paths, before):
+                preserve_recovery = False
                 return _failure(
                     root,
                     "post-write-validation",
@@ -982,7 +988,6 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
                     target,
                     operation=operation,
                 )
-            preserve_recovery = True
             return _failure(
                 root,
                 "post-write-validation",
@@ -992,13 +997,14 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
                 exit_code=2,
                 operation=operation,
             )
+        preserve_recovery = False
         return 0, {
             "result": "committed",
             "operationId": operation,
             "target": target,
             "graphs": [
                 {
-                    "path": str(path.relative_to(root)),
+                    "path": canonical_relative_path(root, path),
                     "beforeHash": _hash(before[path]),
                     "afterHash": _hash(after[path]),
                 }
@@ -1178,7 +1184,7 @@ def replace_graph_atomically(
             "direction": None,
             "owner": owner,
             "graphs": [{
-                "path": str(path.relative_to(root)),
+                "path": canonical_relative_path(root, path),
                 "beforeHash": _hash(before),
                 "afterHash": _hash(after),
                 "beforeImage": before_image.name,
@@ -1197,6 +1203,7 @@ def replace_graph_atomically(
                 f"cannot publish transition journal: {exc}",
                 operation=operation,
             )
+        preserve = True
         try:
             _atomic_write(path, after)
             journal_value["graphs"][0]["committed"] = True
@@ -1206,12 +1213,12 @@ def replace_graph_atomically(
                 raise ValueError("post-write portfolio validation failed")
         except Exception as exc:
             if _rollback([path], {path: before}):
+                preserve = False
                 return _failure(
                     root,
                     "post-write-validation",
                     f"write was restored after failure: {exc}",
                 )
-            preserve = True
             return _failure(
                 root,
                 "post-write-validation",
@@ -1220,11 +1227,12 @@ def replace_graph_atomically(
                 exit_code=2,
                 operation=operation,
             )
+        preserve = False
         return 0, {
             "result": "committed",
             "operationId": operation,
             "graphs": [{
-                "path": str(path.relative_to(root)),
+                "path": canonical_relative_path(root, path),
                 "beforeHash": _hash(before),
                 "afterHash": _hash(after),
             }],
@@ -1346,6 +1354,158 @@ def _release_owned_lock(
         _unlink(root, path)
 
 
+def _prevalidate_recovery_set(
+    root: Path,
+    state: Path,
+    lock: Path,
+    journal: Path,
+    completed: Path,
+    request: dict[str, Any],
+) -> tuple[dict[str, Any] | None, str | None, str | None]:
+    """Validate the complete recovery namespace before any takeover mutation."""
+
+    operation = request["operationId"]
+    journal_value, journal_error = _read_json(journal)
+    if journal_value is None:
+        if not request["graphs"] and not journal.exists():
+            fixed = (
+                state,
+                lock,
+                journal,
+                completed,
+                state / "active.lock",
+                state / f"{operation}.recovery.lock",
+            )
+            try:
+                _validate_mutation_boundary(root, *fixed)
+            except (OSError, ValueError) as exc:
+                return None, "unsafe-recovery-path", str(exc)
+            return None, None, None
+        return None, "recovery-state-not-found", journal_error or "recovery journal is missing"
+    if (
+        journal_value.get("schema") != 1
+        or journal_value.get("operationId") != operation
+        or journal_value.get("lockNonce") != request["expectedLock"]
+        or journal_value.get("owner") != request["expectedOwner"]
+        or journal_value.get("direction") not in {None, request["direction"]}
+    ):
+        return None, "recovery-journal-mismatch", "recovery journal identity is invalid"
+    journal_graphs = journal_value.get("graphs")
+    if not isinstance(journal_graphs, list) or request["graphs"] != [
+        {
+            "path": item.get("path"),
+            "beforeHash": item.get("beforeHash"),
+            "afterHash": item.get("afterHash"),
+        }
+        for item in journal_graphs
+        if isinstance(item, dict)
+    ]:
+        return None, "recovery-hash-mismatch", "recovery graph hashes do not match the journal"
+    valid_hash = re.compile(r"^sha256:[0-9a-f]{64}$")
+    graph_paths: list[Path] = []
+    image_paths: list[Path] = []
+    for item in journal_graphs:
+        if (
+            not isinstance(item, dict)
+            or not isinstance(item.get("committed"), bool)
+            or valid_hash.fullmatch(str(item.get("beforeHash"))) is None
+            or valid_hash.fullmatch(str(item.get("afterHash"))) is None
+        ):
+            return None, "invalid-recovery-journal", "recovery graph record is invalid"
+        try:
+            graph_paths.append(resolve_durable_path(root, item.get("path")))
+        except (OSError, TypeError, ValueError):
+            return None, "unsafe-recovery-path", "journal graph path is unsafe"
+        for key in ("beforeImage", "afterImage"):
+            image = item.get(key)
+            if not isinstance(image, str) or Path(image).name != image:
+                return None, "unsafe-recovery-path", "journal recovery image path is unsafe"
+            image_paths.append(state / image)
+    fixed_paths = (
+        state,
+        lock,
+        journal,
+        completed,
+        state / "active.lock",
+        state / f"{operation}.recovery.lock",
+    )
+    try:
+        _validate_mutation_boundary(
+            root,
+            *fixed_paths,
+            *graph_paths,
+            *image_paths,
+        )
+    except (OSError, ValueError) as exc:
+        return None, "unsafe-recovery-path", str(exc)
+    return journal_value, None, None
+
+
+def _cleanup_completed_recovery(
+    root: Path,
+    state: Path,
+    lock: Path,
+    journal: Path,
+    completed: Path,
+    request: dict[str, Any],
+) -> tuple[str | None, str | None]:
+    """Finish idempotent cleanup after a durable completion marker was published."""
+
+    operation = request["operationId"]
+    nonce = request["expectedLock"]
+    if journal.exists():
+        journal_value, code, message = _prevalidate_recovery_set(
+            root,
+            state,
+            lock,
+            journal,
+            completed,
+            request,
+        )
+        if code is not None:
+            return code, message
+    else:
+        journal_value = None
+        try:
+            _validate_mutation_boundary(
+                root,
+                state,
+                lock,
+                journal,
+                completed,
+                state / "active.lock",
+                state / f"{operation}.recovery.lock",
+            )
+        except (OSError, ValueError) as exc:
+            return "unsafe-recovery-path", str(exc)
+    owned_cleanup: list[Path] = []
+    lock_value, _ = _read_json(lock)
+    if (
+        lock_value is not None
+        and lock_value.get("operationId") == operation
+        and lock_value.get("nonce") == nonce
+        and lock_value.get("owner") == request["expectedOwner"]
+    ):
+        owned_cleanup.append(lock)
+    for candidate in (state / "active.lock", state / f"{operation}.recovery.lock"):
+        value, _ = _read_json(candidate)
+        if (
+            value is not None
+            and value.get("operationId") == operation
+            and value.get("nonce") == nonce
+        ):
+            owned_cleanup.append(candidate)
+    if journal_value is not None:
+        owned_cleanup.append(journal)
+        for item in journal_value["graphs"]:
+            owned_cleanup.extend(
+                (state / item["beforeImage"], state / item["afterImage"])
+            )
+    for path in owned_cleanup:
+        _unlink(root, path)
+    return None, None
+
+
 def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
     request, error = _read_json(request_path)
     if request is None:
@@ -1370,6 +1530,23 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
             completed_value.get("direction") == direction
             and completed_value.get("graphs") == request["graphs"]
         ):
+            cleanup_code, cleanup_message = _cleanup_completed_recovery(
+                root,
+                state,
+                lock,
+                journal,
+                completed,
+                request,
+            )
+            if cleanup_code is not None:
+                return _failure(
+                    root,
+                    cleanup_code,
+                    cleanup_message or "completed recovery cleanup is unsafe",
+                    result="recovery-required",
+                    exit_code=2,
+                    operation=operation,
+                )
             return 0, {
                 "result": "already-recovered",
                 "operationId": operation,
@@ -1411,6 +1588,21 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
             "owner-absence-unproven",
             "recorded process absence cannot be proven",
             result="refused",
+            operation=operation,
+        )
+    _, path_code, path_message = _prevalidate_recovery_set(
+        root,
+        state,
+        lock,
+        journal,
+        completed,
+        request,
+    )
+    if path_code is not None:
+        return _failure(
+            root,
+            path_code,
+            path_message or "recovery path set is invalid",
             operation=operation,
         )
     active_lock = state / "active.lock"

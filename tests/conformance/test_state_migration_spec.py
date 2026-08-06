@@ -13,9 +13,13 @@ from pathlib import Path
 from typing import Any
 
 from scripts.codeops_state_lib.processes import native_process_backend
+from tests.conformance.windows_state_test_support import (
+    install_native_plugin_environment,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
+install_native_plugin_environment(ROOT)
 SCRIPT = ROOT / "scripts" / "codeops_state.py"
 REVISION = "sha256:" + hashlib.sha256(b"# Artifact\n").hexdigest()
 
@@ -150,6 +154,10 @@ class TransitionSpecificationTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, payload)
         self.assertEqual(payload["result"], "committed")
         self.assertEqual(payload["target"], "sample/RD-001")
+        self.assertEqual(
+            payload["graphs"][0]["path"],
+            "codeops/features/sample/traceability.json",
+        )
         self.assertEqual(after["nodes"][0]["status"], "approved")
 
     def test_st_43_illegal_jump_is_byte_identical(self) -> None:

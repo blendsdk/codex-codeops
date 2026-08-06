@@ -511,4 +511,8 @@ def run(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(run(sys.argv[1:]))
+    print(
+        "Direct state-module execution is disabled; invoke scripts/codeops_state.py.",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)

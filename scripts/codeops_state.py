@@ -8,6 +8,10 @@ import os
 import sys
 from pathlib import Path
 
+SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
 from codeops_state_lib import legacy
 from codeops_state_lib.v2 import has_schema_two, run as run_v2
 
