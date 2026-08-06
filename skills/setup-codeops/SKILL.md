@@ -8,6 +8,14 @@ description: >-
 
 > **CodeOps Artifact Schema**: 1
 
+## Native prerequisite gate
+
+Before the first project mutation, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command. The migration command retains its own
+authoritative registered gate.
+
 Set up the CodeOps **nested `codeops/` layout** for the git repo the user is currently in. Run as
 `/codeops:setup-codeops` or the typeable alias `/setup-codeops`. This is the one skill that
 **creates and owns the layout marker** `codeops/.codeops.yml`; every other skill only reads it.

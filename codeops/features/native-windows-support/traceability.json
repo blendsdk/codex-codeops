@@ -1262,6 +1262,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:UTF-8 skill validation and static native prerequisite gate audit passed for setup-codeops, roadmap, and setup-routing"
+      ],
       "id": "TASK-4.2.3",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1282,7 +1285,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Complete prerequisite integration for setup-codeops, roadmap, and setup-routing mutations",
       "type": "task",
       "validations": []

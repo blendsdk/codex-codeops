@@ -18,6 +18,14 @@ description: >-
 
 > **CodeOps Artifact Schema**: 1
 
+## Native prerequisite gate
+
+Before the first roadmap mutation, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command. Read-only roadmap actions do not invoke the
+mutation gate; direct roadmap writes retain their own authoritative registered gate.
+
 ## Codex derived-status rule
 
 When a feature has `traceability.json`, treat the graph plus on-disk execution plans as the status evidence. Run this as a standalone command (never in an `&&` chain with roadmap reads):

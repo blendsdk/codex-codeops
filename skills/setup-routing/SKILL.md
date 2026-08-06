@@ -5,6 +5,13 @@ description: Configure risk- and capability-based Codex subagent routing for a p
 
 # Configure CodeOps routing for Codex
 
+## Native prerequisite gate
+
+Before the first project mutation, follow
+[../../_shared/native-runtime.md](../../_shared/native-runtime.md). This mutating skill uses the
+`skill-mutation` defense-in-depth procedure after its complete exact target set is known. Use
+`<CODEOPS_PYTHON>` for every shipped Python command.
+
 Routing is an optimization and isolation mechanism, not a source of correctness. Requirements, ambiguity, readiness, verification, and review gates remain identical whether work runs inline, through a named custom agent, or through a dynamically prompted generic subagent.
 
 ## Inputs
