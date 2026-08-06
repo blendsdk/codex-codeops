@@ -349,7 +349,7 @@ ST-12, ST-39, ST-40 with regression reuse of ST-35 and ST-36 · AR-3–AR-8, AR-
 
 - [x] 4.1.1 [spec-author] Add ST-12 command-contract cases proving direct CLIs own mutation gates, every mutating skill invokes defense-in-depth preflight, and every workflow uses Python 3.10+ through the certified interpreter — `tests/conformance/test_windows_workflows_spec.py` ✅ (completed: 2026-08-07 00:09)
 - [x] 4.1.2 [spec-author] Add installed-plugin path-with-spaces lifecycle, no-WSL/Git-Bash command-capture, outcomes, agents, and native full-verification specification cases — `tests/conformance/test_windows_workflows_spec.py` ✅ (completed: 2026-08-07 00:12)
-- [ ] 4.1.3 Run Phase-4 workflow specification cases red while all earlier Windows and Unix suites remain green — `tests/conformance/test_windows_workflows_spec.py`
+- [x] 4.1.3 Run Phase-4 workflow specification cases red while all earlier Windows and Unix suites remain green — `tests/conformance/test_windows_workflows_spec.py` ✅ (completed: 2026-08-07 00:17)
 
 ### Step 4.2: Implementation
 

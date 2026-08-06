@@ -1172,6 +1172,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Phase 4 workflow specifications failed only at five intended missing-integration assertions; all 292 earlier tests passed with four explicit platform/aggregate skips."
+      ],
       "id": "TASK-4.1.3",
       "revision": "sha256:c68d902107e21acb3d719625da35c655144f252a36d59069a409d29f207780b7",
       "semanticSources": [
@@ -1192,7 +1195,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Run Phase-4 workflow specification cases red while all earlier Windows and Unix suites remain green",
       "type": "task",
       "validations": []
