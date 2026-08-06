@@ -14,6 +14,7 @@ if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
 from scripts.codeops_migrate_lib.model import build_preview
+from scripts.codeops_migrate_lib.apply import apply_preview
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -28,14 +29,20 @@ def _parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
-    if args.command == "apply":
-        print("Migration apply is not available yet.", file=sys.stderr)
-        return 1
     try:
         preview = build_preview(args.root)
     except (OSError, UnicodeError, ValueError) as exc:
         print(f"codeops-migrate: {exc}", file=sys.stderr)
         return 1
+    if args.command == "apply":
+        code, payload = apply_preview(args.root, preview)
+        if args.json:
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        elif code == 0:
+            print(f"codeops-migrate: {payload['result']}")
+        else:
+            print(f"codeops-migrate: {payload['error']}", file=sys.stderr)
+        return code
     payload = preview.to_json()
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))

@@ -34,7 +34,13 @@ _CHECK_CODES = (
     "hooks-available",
     "path-filesystem",
 )
-_REGISTERED_ENTRYPOINTS = frozenset({"hook-pre-tool-use", "state-transition"})
+_REGISTERED_ENTRYPOINTS = frozenset({
+    "hook-pre-tool-use",
+    "layout-migration",
+    "roadmap-write",
+    "state-transition",
+    "worktree-mutation",
+})
 _SESSION_ID = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
 _SEVERITY = {
     Readiness.READY: 0,

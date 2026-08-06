@@ -67,3 +67,38 @@ def run_command(
             (json.dumps(records, indent=2, sort_keys=True) + "\n").encode("utf-8"),
         )
     return result
+
+
+def run_mutation_preflight(
+    root: Path,
+    targets: Sequence[Path],
+    *,
+    entrypoint_code: str,
+) -> int:
+    """Run the registered Windows mutation gate immediately before mutation."""
+
+    import os
+
+    if os.name != "nt":
+        return 0
+    plugin_root = os.environ.get("PLUGIN_ROOT")
+    plugin_data = os.environ.get("PLUGIN_DATA")
+    if not plugin_root or not plugin_data:
+        return 1
+    from scripts.codeops_windows_lib.models import Readiness
+    from scripts.codeops_windows_lib.probes import NativeProbeDependencies
+    from scripts.codeops_windows_preflight import run_preflight
+
+    result = run_preflight(
+        mode="mutation",
+        entrypoint_code=entrypoint_code,
+        hook_event=None,
+        targets=tuple(targets),
+        root=root,
+        plugin_root=Path(plugin_root).resolve(strict=False),
+        plugin_data=Path(plugin_data).resolve(strict=False),
+        session_id=f"direct-{entrypoint_code}-{os.getpid()}",
+        environment=dict(os.environ),
+        dependencies=NativeProbeDependencies(),
+    )
+    return 0 if result.status is not Readiness.BLOCKED else result.exit_code

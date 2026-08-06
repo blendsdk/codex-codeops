@@ -84,6 +84,32 @@ class PortableMigrationSpecification(unittest.TestCase):
         self.assertIn("plans/legacy", "\n".join(payload["warnings"]))
         self.assertEqual(before, after)
 
+    def test_migration_apply_moves_with_git_and_publishes_marker_last(self) -> None:
+        with tempfile.TemporaryDirectory() as raw, tempfile.TemporaryDirectory() as plugin_raw:
+            project = Path(raw) / "billing-platform"
+            shutil.copytree(FIXTURES / "flat-repo", project)
+            initialize_git(project)
+            with mock.patch.dict(
+                "os.environ",
+                {"PLUGIN_ROOT": str(ROOT), "PLUGIN_DATA": plugin_raw},
+            ):
+                first = run_cli(MIGRATE, "apply", "--root", str(project), "--json")
+                second = run_cli(MIGRATE, "apply", "--root", str(project), "--json")
+            self.assertTrue(first.stdout, first.stderr)
+            self.assertTrue(second.stdout, second.stderr)
+            first_payload = json.loads(first.stdout)
+            second_payload = json.loads(second.stdout)
+
+            self.assertEqual(first.returncode, 0, first.stderr)
+            self.assertEqual(first_payload["result"], "applied")
+            self.assertTrue((project / "codeops" / ".codeops.yml").is_file())
+            self.assertTrue(
+                (project / "codeops" / "features" / "billing-platform" / "requirements").is_dir()
+            )
+            self.assertFalse((project / "requirements").exists())
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(second_payload["result"], "already-migrated")
+
 
 class PortableRoadmapSpecification(unittest.TestCase):
     def test_st_32_nested_sync_preserves_annotations_and_reports_no_drift(self) -> None:
