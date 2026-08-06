@@ -6,12 +6,13 @@ from pathlib import Path
 from typing import Any
 
 from .models import StructuralProblem
+from .paths import canonical_relative_path
 
 
 def problem_json(problem: StructuralProblem, root: Path) -> dict[str, Any]:
     try:
-        source = str(problem.source.relative_to(root))
-    except ValueError:
+        source = canonical_relative_path(root, problem.source)
+    except (OSError, ValueError):
         source = str(problem.source)
     return {
         "code": problem.code,

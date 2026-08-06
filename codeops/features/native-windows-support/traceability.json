@@ -606,6 +606,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Phase-2 state specifications pass and migration regressions retain only the immutable Linux procfs case"
+      ],
       "id": "TASK-2.2.7",
       "revision": "sha256:6b0fdedf63e4da6bb25133a4448e5e9eeb5cf26a3bb0d6c807a08b5614bb2af9",
       "semanticSources": [
@@ -618,7 +621,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Integrate canonical paths and shared writes into graph migration and rendering, then run Phase-2 specification cases green",
       "type": "task",
       "validations": []

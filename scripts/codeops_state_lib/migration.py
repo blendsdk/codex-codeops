@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import re
 import uuid
 from dataclasses import replace
@@ -13,10 +12,12 @@ from typing import Any
 
 from . import legacy
 from .discovery import discover_state
+from .filesystem import atomic_write_bytes
+from .paths import canonical_relative_path, resolve_durable_path
 from .revisions import compute_revision
 from .schema import RELATION_MATRIX, parse_graph_v2, validate_portfolio_v2
 from .models import SemanticSource, SourceSelector
-from .transitions import _atomic_write, _hash, replace_graph_atomically
+from .transitions import _hash, replace_graph_atomically
 
 
 PREVIEW_KIND = "codeops-traceability-upgrade-preview"
@@ -101,8 +102,9 @@ def _build_preview(
             "id": f"source:{node_id}",
             "kind": "source-selector",
             "node": node_id,
-            "path": str(
-                (source.parent / node["path"]).resolve().relative_to(root.resolve())
+            "path": canonical_relative_path(
+                root,
+                resolve_durable_path(source.parent, node["path"]),
             ),
             "choices": ["whole-file", "heading"],
         })
@@ -129,11 +131,11 @@ def _build_preview(
         "kind": PREVIEW_KIND,
         "feature": feature,
         "source": {
-            "path": str(logical.relative_to(root)),
+            "path": canonical_relative_path(root, logical),
             "hash": _hash(source.read_bytes()),
             "schema": 1,
         },
-        "destination": str(logical.relative_to(root)),
+        "destination": canonical_relative_path(root, logical),
         "preservedNodes": [
             {
                 key: node[key]
@@ -203,7 +205,7 @@ def make_preview(root: Path, feature: str, preview_path: Path) -> tuple[int, dic
                 return 0, {
                     "result": "already-upgraded",
                     "feature": feature,
-                    "destination": str(existing.relative_to(root)),
+                    "destination": canonical_relative_path(root, existing),
                     "blockers": [],
                 }
         return 1, {
@@ -221,17 +223,11 @@ def make_preview(root: Path, feature: str, preview_path: Path) -> tuple[int, dic
         }
     preview_path.parent.mkdir(parents=True, exist_ok=True)
     if not preview_path.exists():
-        descriptor = os.open(
-            preview_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
-        )
-        with os.fdopen(descriptor, "wb") as handle:
-            handle.write(preview_bytes)
-            handle.flush()
-            os.fsync(handle.fileno())
+        atomic_write_bytes(preview_path, preview_bytes)
     return 0, {
         "result": "preview",
         "feature": feature,
-        "preview": str(preview_path.relative_to(root)),
+        "preview": canonical_relative_path(root, preview_path),
         "previewHash": preview["previewHash"],
         "unresolved": preview["unresolved"],
         "blockers": preview["blockers"],
@@ -489,7 +485,7 @@ def apply_upgrade(
                 "result": "no-change",
                 "feature": feature,
                 "destination": preview["destination"],
-                "backup": str(backup.relative_to(root)),
+                "backup": canonical_relative_path(root, backup),
                 "destinationHash": _hash(after),
                 "blockers": [],
             }
@@ -499,7 +495,7 @@ def apply_upgrade(
         }
     temporary = source.with_name(f".{source.name}.upgrade-check.json")
     try:
-        _atomic_write(temporary, after)
+        atomic_write_bytes(temporary, after)
         parsed, parse_problems = parse_graph_v2(temporary, root)
     except OSError as exc:
         return 1, {
@@ -540,6 +536,6 @@ def apply_upgrade(
         "result": "committed",
         "feature": feature,
         "destination": preview["destination"],
-        "backup": str(backup.relative_to(root)),
+        "backup": canonical_relative_path(root, backup),
     })
     return 0, result

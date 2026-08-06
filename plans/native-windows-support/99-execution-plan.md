@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 21:53
-> **Progress**: 20/72 tasks (28%)
+> **Last Updated**: 2026-08-06 21:58
+> **Progress**: 21/72 tasks (29%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -186,7 +186,7 @@ not executed through an emulation layer on Windows under the no-WSL constraint.
 - [x] 2.2.4 Implement canonical durable paths, safe legacy reads, NTFS/case/8.3 collision keys, every-existing-component root-to-target reparse rejection, containment, and invalid-component rejection — `scripts/codeops_state_lib/paths.py` ✅ (completed: 2026-08-06 21:44)
 - [x] 2.2.5 Implement shared same-directory atomic writes with the fixed WinError 32/33 retry schedule, immediate filesystem revalidation, and no delete fallback — `scripts/codeops_state_lib/filesystem.py` ✅ (completed: 2026-08-06 21:45)
 - [x] 2.2.6 Integrate the registered mutation preflight and process/filesystem adapters into the direct state CLI, transition, journal, lock, rollback, replacement, and recovery boundaries — `scripts/codeops_state.py`, `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/filesystem.py` ✅ (completed: 2026-08-06 21:53)
-- [ ] 2.2.7 Integrate canonical paths and shared writes into graph migration and rendering, then run Phase-2 specification cases green — `scripts/codeops_state_lib/migration.py`, `scripts/codeops_state_lib/rendering.py`
+- [x] 2.2.7 Integrate canonical paths and shared writes into graph migration and rendering, then run Phase-2 specification cases green — `scripts/codeops_state_lib/migration.py`, `scripts/codeops_state_lib/rendering.py` ✅ (completed: 2026-08-06 21:58)
 
 ### Step 2.3: Implementation Tests and Hardening
 
