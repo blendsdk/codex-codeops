@@ -1,0 +1,2513 @@
+{
+  "schema": 2,
+  "feature": "native-windows-support",
+  "updated": "2026-08-06T16:32:33.644Z",
+  "nodes": [
+    {
+      "id": "RD-022",
+      "type": "requirement",
+      "title": "Native Windows runtime",
+      "status": "approved",
+      "semanticSources": [
+        {
+          "path": "plans/codex-port/01-requirements.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2d413a339a3f5d50389ec11876a33750188a92f99c33b35ddabfadf7fcc4dd29",
+      "edges": [
+        {
+          "relation": "specified-by",
+          "target": "native-windows-support/SPEC-NATIVE-WINDOWS"
+        }
+      ],
+      "validations": [
+        {
+          "upstream": "native-windows-support/SPEC-NATIVE-WINDOWS",
+          "relation": "specified-by",
+          "revision": "sha256:86bb0d9c2dd5f39f57384508ef70f9598f1d4d1acc87504af006a1764e8389bf",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        }
+      ]
+    },
+    {
+      "id": "RD-023",
+      "type": "requirement",
+      "title": "Native Windows certification",
+      "status": "approved",
+      "semanticSources": [
+        {
+          "path": "plans/codex-port/01-requirements.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2d413a339a3f5d50389ec11876a33750188a92f99c33b35ddabfadf7fcc4dd29",
+      "edges": [
+        {
+          "relation": "specified-by",
+          "target": "native-windows-support/SPEC-NATIVE-WINDOWS"
+        }
+      ],
+      "validations": [
+        {
+          "upstream": "native-windows-support/SPEC-NATIVE-WINDOWS",
+          "relation": "specified-by",
+          "revision": "sha256:86bb0d9c2dd5f39f57384508ef70f9598f1d4d1acc87504af006a1764e8389bf",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        }
+      ]
+    },
+    {
+      "id": "SPEC-NATIVE-WINDOWS",
+      "type": "specification",
+      "title": "Native Windows component specifications",
+      "status": "approved",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:86bb0d9c2dd5f39f57384508ef70f9598f1d4d1acc87504af006a1764e8389bf",
+      "edges": [
+        {
+          "relation": "accepted-by",
+          "target": "native-windows-support/CRIT-NATIVE-WINDOWS"
+        }
+      ],
+      "validations": [
+        {
+          "upstream": "native-windows-support/CRIT-NATIVE-WINDOWS",
+          "relation": "accepted-by",
+          "revision": "sha256:f0da27df0b982d96614a29eb1314a38f3a4289fde82c85bcbb5459e732ae22df",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        }
+      ]
+    },
+    {
+      "id": "CRIT-NATIVE-WINDOWS",
+      "type": "criterion",
+      "title": "Native Windows acceptance inventory ST-1 through ST-54",
+      "status": "approved",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/07-testing-strategy.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:f0da27df0b982d96614a29eb1314a38f3a4289fde82c85bcbb5459e732ae22df",
+      "edges": [
+        {
+          "relation": "tested-by",
+          "target": "native-windows-support/TEST-NATIVE-WINDOWS"
+        }
+      ],
+      "validations": []
+    },
+    {
+      "id": "TEST-NATIVE-WINDOWS",
+      "type": "test",
+      "title": "Native Windows specification and certification suites",
+      "status": "planned",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/07-testing-strategy.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:f0da27df0b982d96614a29eb1314a38f3a4289fde82c85bcbb5459e732ae22df",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.1.1",
+      "type": "task",
+      "title": "Add bootstrap, closed mode/input matrix, status/exit, WSL, Python 3.10+, sandbox, and attestation specification cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.1.2",
+      "type": "task",
+      "title": "Add dual-host hook-manifest, path-with-spaces, mutation-order, and missing-trust specification cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.1.3",
+      "type": "task",
+      "title": "Run the new Phase-1 specification module, record expected red results, and prove every pre-existing conformance test remains green",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.2.1",
+      "type": "task",
+      "title": "Implement closed readiness/check result models, ordered rendering, mode/entrypoint/complete-target-set inputs, exit classes, and sanitized diagnostics",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.2.2",
+      "type": "task",
+      "title": "Implement a shared passive pre-dispatch WSL refusal plus native Windows version, Python, Git, Codex/sandbox, plugin/hook, workspace, and filesystem probes behind documented adapters; never invoke WSL to detect or test it",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.2.3",
+      "type": "task",
+      "title": "Implement same-session attestation validation, containment, future-time rejection, seven-day orphan cleanup, refresh, and atomic storage",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.2.4",
+      "type": "task",
+      "title": "Add the minimal PowerShell Python 3.10+ bootstrap and `-ResolvePython` output with `py -3`/`python` probes and no shell-evaluated input",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.2.5",
+      "type": "task",
+      "title": "Move hook behavior to the portable hook entry, add `commandWindows`, and retain thin Unix launchers",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.2.6",
+      "type": "task",
+      "title": "Complete marker-guard launcher extraction and run all Phase-1 specification cases green",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.3.1",
+      "type": "task",
+      "title": "Add adapter, closed matrix, cache-binding/retention, malformed-input, hostile-environment, command-injection, and NTFS/reparse implementation tests",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-1.3.2",
+      "type": "task",
+      "title": "Run Phase-1 spec/implementation suites, hook validation, and the confirmed five-command full verification gate",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.1.1",
+      "type": "task",
+      "title": "Add versioned Windows/legacy Linux owner, absence, PID-reuse, uncertainty, concurrency, and recovery specification cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.1.2",
+      "type": "task",
+      "title": "Add canonical/legacy/hostile path, reserved/alias/reparse cases, exact WinError 32/33 retry, generic-access refusal, interruption, and non-NTFS specification cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.1.3",
+      "type": "task",
+      "title": "Run new state specification cases red while the immutable Linux state and migration specification modules remain green",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.2.1",
+      "type": "task",
+      "title": "Add closed versioned Linux/Windows process identity models, backend protocol, and exact legacy-Linux record parser",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.2.2",
+      "type": "task",
+      "title": "Move current `/proc` behavior behind the Linux backend without changing its absence decisions",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.2.3",
+      "type": "task",
+      "title": "Implement least-privilege Windows PID/creation-FILETIME probing with guaranteed handle cleanup and fail-closed uncertainty",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.2.4",
+      "type": "task",
+      "title": "Implement canonical durable paths, safe legacy reads, NTFS/case/8.3 collision keys, every-existing-component root-to-target reparse rejection, containment, and invalid-component rejection",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.2.5",
+      "type": "task",
+      "title": "Implement shared same-directory atomic writes with the fixed WinError 32/33 retry schedule, immediate filesystem revalidation, and no delete fallback",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.2.6",
+      "type": "task",
+      "title": "Integrate the registered mutation preflight and process/filesystem adapters into the direct state CLI, transition, journal, lock, rollback, replacement, and recovery boundaries",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.2.7",
+      "type": "task",
+      "title": "Integrate canonical paths and shared writes into graph migration and rendering, then run Phase-2 specification cases green",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.3.1",
+      "type": "task",
+      "title": "Add Windows API failure/cleanup, foreign backend, NTFS alias/reparse grammar, exact retry classification/schedule, command-boundary gate, and every write-boundary fault-injection case",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.3.2",
+      "type": "task",
+      "title": "Add native integration helpers for real concurrent owners, stale processes, PID reuse where controllable, interruption, and recovery; skip only with explicit non-Windows reason",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-2.3.3",
+      "type": "task",
+      "title": "Run all Windows/Linux state suites and the confirmed five-command full verification gate; retain issue-#2 closure evidence",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-03-state-and-filesystem-safety.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.1.1",
+      "type": "task",
+      "title": "Add layout migration and roadmap sync/compact cross-host specification cases using existing fixtures and canonical outputs",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.1.2",
+      "type": "task",
+      "title": "Add native worktree, hook, outcome, agent, and hostile-argument/path specification cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.1.3",
+      "type": "task",
+      "title": "Add portable five-gate verifier and Unix compatibility-launcher specification cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.1.4",
+      "type": "task",
+      "title": "Run the Phase-3 specification module red while existing migration, roadmap, compact, worktree, agent, outcome, and hook suites remain green",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.1",
+      "type": "task",
+      "title": "Add the shared argument-array subprocess/evidence adapter, then extract layout discovery, preview, path mapping, and validation into the Python migration command",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.2",
+      "type": "task",
+      "title": "Implement mutation-gated authorized migration apply, clean-tree proof, native Git moves, marker-last commit state, idempotence, and recovery-safe failures",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.3",
+      "type": "task",
+      "title": "Extract roadmap layout parsing, derived stage/status calculation, and deterministic rendering to Python",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.4",
+      "type": "task",
+      "title": "Implement roadmap sync/compact check/write modes with command-boundary mutation gates and shared atomic writes",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.5",
+      "type": "task",
+      "title": "Implement Python worktree parsing, topic/name validation, repository/default-branch discovery, and list behavior",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.6",
+      "type": "task",
+      "title": "Implement mutation-gated worktree new/remove plus dry-run/launch using the shared native Git/Codex subprocess adapter",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.7",
+      "type": "task",
+      "title": "Implement the portable validation/docs logical gates and deterministic aggregate reporter",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.8",
+      "type": "task",
+      "title": "Implement portable migration/roadmap/compact logical gates by reusing Python commands and fixtures",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.9",
+      "type": "task",
+      "title": "Convert migration and roadmap shell files to thin strict argument-forwarding Unix launchers",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.10",
+      "type": "task",
+      "title": "Convert the worktree binary and five verification shell files to thin Unix launchers; add native PowerShell verification launcher",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.2.11",
+      "type": "task",
+      "title": "Complete remaining four verification launchers and run all Phase-3 specification cases green",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.3.1",
+      "type": "task",
+      "title": "Complete compact launcher extraction and add parser, output/exit, injection, containment, Git failure, and deterministic rendering implementation tests",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.3.2",
+      "type": "task",
+      "title": "Run characterization comparisons proving retained Unix launchers match approved behavior on migration, roadmap, compact, worktree, hook, agent, and outcome fixtures",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.3.3",
+      "type": "task",
+      "title": "Assert every declared Windows/runtime test module is collected and no shipped Windows path contains Bash/WSL delegation",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-3.3.4",
+      "type": "task",
+      "title": "Run portable `all`, every legacy public launcher, and the confirmed five-command full verification gate",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.1.1",
+      "type": "task",
+      "title": "Add ST-12 command-contract cases proving direct CLIs own mutation gates, every mutating skill invokes defense-in-depth preflight, and every workflow uses Python 3.10+ through the certified interpreter",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.1.2",
+      "type": "task",
+      "title": "Add installed-plugin path-with-spaces lifecycle, no-WSL/Git-Bash command-capture, outcomes, agents, and native full-verification specification cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.1.3",
+      "type": "task",
+      "title": "Run Phase-4 workflow specification cases red while all earlier Windows and Unix suites remain green",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.1",
+      "type": "task",
+      "title": "Add the common prerequisite invocation contract to requirements, retro-requirements, planning, preflight, execution, and upgrade workflows",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.2",
+      "type": "task",
+      "title": "Complete prerequisite integration for preflight, exec-plan, upgrade-plan, setup-codeops, and roadmap mutations",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.3",
+      "type": "task",
+      "title": "Complete prerequisite integration for setup-codeops, roadmap, and setup-routing mutations",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.4",
+      "type": "task",
+      "title": "Complete prerequisite integration for techdocs, analyze-project, and clean-comments mutations",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.5",
+      "type": "task",
+      "title": "Complete prerequisite integration for git-commit and audit every remaining skill so no project-mutating path lacks the gate",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.6",
+      "type": "task",
+      "title": "Replace hardcoded `python3` runtime examples with the host-neutral interpreter contract in requirements, planning, and preflight skills",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.7",
+      "type": "task",
+      "title": "Replace hardcoded `python3` runtime examples with the host-neutral interpreter contract in roadmap, routing, and upgrade skills",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.8",
+      "type": "task",
+      "title": "Replace remaining runtime command examples in execution, setup, and artifact references without changing their workflow semantics",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.9",
+      "type": "task",
+      "title": "Integrate registered mutation gates plus shared canonical paths/atomic writes into outcomes, worktree snapshots, and optional-agent installation",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.10",
+      "type": "task",
+      "title": "Add native Windows developer commands and pre-certification documentation that accurately says support is pending evidence",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.11",
+      "type": "task",
+      "title": "Update migration/tutorial/concepts documentation for native command selection, WSL-installed versus WSL-running behavior, Python 3.10+, and fixed-local-NTFS constraints",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.2.12",
+      "type": "task",
+      "title": "Run all Phase-4 specification cases green without changing their expectations",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.3.1",
+      "type": "task",
+      "title": "Add skill command-surface, installed-path, command-capture, outcome/agent/snapshot, docs wording, and interpreter-policy implementation tests",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-4.3.2",
+      "type": "task",
+      "title": "Run all Windows workflow suites and the confirmed five-command full verification gate",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-01-runtime-preflight-and-hooks.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        },
+        {
+          "path": "plans/native-windows-support/03-02-portable-control-layer.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.1.1",
+      "type": "task",
+      "title": "Add explicit Windows 11 runner, Python 3.10+, native-command, and prohibited-runtime specification cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.1.2",
+      "type": "task",
+      "title": "Add capture/supporting-record hash binding, sanitization, evidence schema, completeness, failure, version binding, CLI/desktop provenance, and support-claim cases",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.1.3",
+      "type": "task",
+      "title": "Run Phase-5 certification cases red while all functional Windows/Unix suites remain green",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.2.1",
+      "type": "task",
+      "title": "Add Ubuntu and explicit `windows-11-arm` CI jobs with one Python 3.10+ each and native Windows bootstrap/test/verification commands",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.2.2",
+      "type": "task",
+      "title": "Add the closed Windows evidence schema, compact capture runner, and deterministic supporting-record/version/commit/scenario/native-runtime validator",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.2.3",
+      "type": "task",
+      "title": "Add synthetic valid/invalid CLI/desktop/supporting-record fixtures, the declared implementation-boundary suite, and portable/full evidence validation",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.2.4",
+      "type": "task",
+      "title": "Add documentation/release-claim guards that require matching CI, CLI, and desktop evidence before support wording",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.2.5",
+      "type": "task",
+      "title": "Run Phase-5 specification/implementation cases green and obtain passing Ubuntu plus explicit native Windows 11 CI for the release-candidate commit",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.3.1",
+      "type": "task",
+      "title": "Run the capture command against the packed candidate on a real native Windows 11 Codex CLI host and retain the version-matched manifest, command trace, and sanitized hash-bound scenario records",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.3.2",
+      "type": "task",
+      "title": "Execute Windows desktop installation, hook review, preflight, and representative requirements-to-plan smoke on the same candidate and retain evidence",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.3.3",
+      "type": "task",
+      "title": "Validate CI/CLI/desktop evidence together, update README/docs/changelog/release metadata to the proven support boundary, and select the SemVer change under repository policy",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "TASK-5.3.4",
+      "type": "task",
+      "title": "Run the installed release artifact on native Windows and Ubuntu, run all five logical gates, complete independent quality review/audit, then close GitHub issues #2 and #3 only if their acceptance criteria are met",
+      "status": "pending",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/03-04-certification-and-release.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+      "edges": [],
+      "validations": []
+    },
+    {
+      "id": "PLAN-NATIVE-WINDOWS",
+      "type": "plan",
+      "title": "Native Windows support execution plan",
+      "status": "approved",
+      "semanticSources": [
+        {
+          "path": "plans/native-windows-support/00-index.md",
+          "selector": {
+            "kind": "whole-file"
+          },
+          "normalization": "utf8-lf-trim-trailing-v1",
+          "digest": "sha256"
+        }
+      ],
+      "revision": "sha256:f2cf30a587cfc12eca1d9407fb8ccca3e2e79138bb1f98764f1c2e4e521cd18a",
+      "edges": [
+        {
+          "relation": "depends-on",
+          "target": "native-windows-support/RD-022"
+        },
+        {
+          "relation": "depends-on",
+          "target": "native-windows-support/RD-023"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.1.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.1.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.1.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.2.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.2.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.2.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.2.4"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.2.5"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.2.6"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.3.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-1.3.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.1.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.1.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.1.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.2.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.2.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.2.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.2.4"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.2.5"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.2.6"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.2.7"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.3.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.3.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-2.3.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.1.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.1.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.1.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.1.4"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.4"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.5"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.6"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.7"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.8"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.9"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.10"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.2.11"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.3.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.3.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.3.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-3.3.4"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.1.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.1.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.1.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.4"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.5"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.6"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.7"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.8"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.9"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.10"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.11"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.2.12"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.3.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-4.3.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.1.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.1.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.1.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.2.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.2.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.2.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.2.4"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.2.5"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.3.1"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.3.2"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.3.3"
+        },
+        {
+          "relation": "implemented-by",
+          "target": "native-windows-support/TASK-5.3.4"
+        }
+      ],
+      "validations": [
+        {
+          "upstream": "native-windows-support/RD-022",
+          "relation": "depends-on",
+          "revision": "sha256:2d413a339a3f5d50389ec11876a33750188a92f99c33b35ddabfadf7fcc4dd29",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/RD-023",
+          "relation": "depends-on",
+          "revision": "sha256:2d413a339a3f5d50389ec11876a33750188a92f99c33b35ddabfadf7fcc4dd29",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.1.1",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.1.2",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.1.3",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.2.1",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.2.2",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.2.3",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.2.4",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.2.5",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.2.6",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.3.1",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-1.3.2",
+          "relation": "implemented-by",
+          "revision": "sha256:4d357a452c3fb58530af46932cd30269624aa3d885e7582a777d1988c4593d79",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.1.1",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.1.2",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.1.3",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.2.1",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.2.2",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.2.3",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.2.4",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.2.5",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.2.6",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.2.7",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.3.1",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.3.2",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-2.3.3",
+          "relation": "implemented-by",
+          "revision": "sha256:8359db8a686744d32bf040ceb891c5c48b944d7922fd8c6fa56e7e1bac141863",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.1.1",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.1.2",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.1.3",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.1.4",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.1",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.2",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.3",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.4",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.5",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.6",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.7",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.8",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.9",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.10",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.2.11",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.3.1",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.3.2",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.3.3",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-3.3.4",
+          "relation": "implemented-by",
+          "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.1.1",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.1.2",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.1.3",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.1",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.2",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.3",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.4",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.5",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.6",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.7",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.8",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.9",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.10",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.11",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.2.12",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.3.1",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-4.3.2",
+          "relation": "implemented-by",
+          "revision": "sha256:aaf2b1ccff3bf7bac898c1705886b98ff9d2ebabaefd8c62e2ca68767c918924",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.1.1",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.1.2",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.1.3",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.2.1",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.2.2",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.2.3",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.2.4",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.2.5",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.3.1",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.3.2",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.3.3",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        },
+        {
+          "upstream": "native-windows-support/TASK-5.3.4",
+          "relation": "implemented-by",
+          "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
+          "gate": "execution",
+          "validatedAt": "2026-08-06T16:32:33.644Z"
+        }
+      ],
+      "evidence": [
+        "plans/native-windows-support/99-execution-plan.md",
+        "plans/native-windows-support/00-preflight-report.md"
+      ]
+    }
+  ]
+}

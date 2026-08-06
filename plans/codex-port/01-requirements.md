@@ -89,7 +89,7 @@ The repository shall include a polished root `README.md` that explains the produ
 ### RD-022 — Native Windows runtime
 
 CodeOps shall support every shipped core workflow on Windows 11 through native Codex, PowerShell,
-Git for Windows, and Python 3.x. It shall not require Git Bash or WSL. WSL may be installed and
+Git for Windows, and Python 3.10 or newer. It shall not require Git Bash or WSL. WSL may be installed and
 enabled without affecting readiness, but CodeOps shall never invoke `wsl.exe`, launch a WSL
 distribution, translate paths through `/mnt`, or delegate any operation to WSL. If CodeOps is
 actually executing inside WSL, it shall stop before project mutation and direct the user to launch
@@ -97,8 +97,8 @@ Codex natively on Windows. These boundaries are user-approved in AR-015, AR-016,
 
 Before a Windows workflow proceeds, CodeOps shall run one authoritative prerequisite check once per
 session and recheck mutation-sensitive conditions immediately before project writes. The check
-shall execute a native interpreter probe and accept any functioning Python major version 3 without
-pinning its minor or patch version. Missing, nonfunctional, or non-Python-3 interpreters shall
+shall execute a native interpreter probe and accept Python 3.10 or newer without pinning a patch
+version. Missing, nonfunctional, or older interpreters shall
 produce an actionable blocking result before project mutation and shall never trigger automatic
 installation. The same check shall validate the supported Windows version, native Codex execution
 and sandbox state, Git for Windows, the writable local workspace, plugin enablement, hook
@@ -112,8 +112,12 @@ roadmap synchronization and compaction, worktree snapshots, optional-agent insta
 storage, hooks, and every other shipped utility. Process/API uncertainty shall continue to fail
 closed. Durable paths shall use a host-independent canonical representation, and generated path
 components shall reject Windows device names and other platform-invalid forms before any write.
-Local writable filesystems are the initial supported boundary; UNC and network workspaces remain
-unsupported until separately certified, per AR-018.
+Fixed local NTFS workspaces where every existing component from the workspace root through each
+mutation target is reparse-free are the initial supported boundary. The current local developer
+account and processes it deliberately launches are trusted;
+CodeOps still rejects path escapes, unsafe aliases, and filesystem collisions before mutation.
+Removable, reparse-backed, UNC, and network workspaces remain unsupported until separately
+certified, per AR-018.
 
 ### RD-023 — Native Windows certification
 

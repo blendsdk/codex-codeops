@@ -37,7 +37,8 @@ Windows tests and retained real-host evidence satisfy RD-023.
 
 ```powershell
 pwsh -NoProfile -File "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1"
-python "$env:PLUGIN_ROOT\scripts\codeops_state.py" status --root .
+$python = pwsh -NoProfile -File "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1" -ResolvePython
+& $python "$env:PLUGIN_ROOT\scripts\codeops_state.py" status --root .
 ```
 
 The launcher selection and result contract are owned by

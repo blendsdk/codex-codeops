@@ -28,7 +28,7 @@ still enter through Bash. CI currently exercises Ubuntu only.
 | `bin/codeops-worktree` | Worktree CLI | Provide a native Python command and retain Unix compatibility launcher |
 | `scripts/*-check.sh` | Repository verification | Expose one portable Python verification dispatcher and native launchers |
 | `skills/**/SKILL.md` | Runtime command guidance | Replace `python3` assumptions with the certified interpreter contract |
-| `.github/workflows/ci.yml` | Automated validation | Add native Windows job using one current Python 3.x |
+| `.github/workflows/ci.yml` | Automated validation | Add explicit native Windows 11 job using Python 3.10+ |
 | `README.md`, `docs/` | Platform contract | Replace unsupported claim only after certification evidence exists |
 
 ### Code Analysis
@@ -95,10 +95,10 @@ updating the support claim (AR-12, AR-13).
 ### External Dependencies
 
 - Native Windows 11.
-- A functional Python 3.x interpreter.
+- A functional Python 3.10+ interpreter.
 - Git for Windows and native Codex.
 - PowerShell available as the Windows bootstrap host.
-- GitHub Actions native Windows runners for automated certification.
+- The explicit GitHub Actions Windows 11 runner for automated certification.
 
 ## Risks and Concerns
 
