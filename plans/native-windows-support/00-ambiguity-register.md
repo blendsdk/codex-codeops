@@ -164,3 +164,19 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
 - **Confidence / hardening:** High; specification tests own call order, exact delays, generic-error
   refusal, interruption cleanup, whole-transaction collision rejection, and non-NTFS refusal.
 - **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
+
+## Runtime Decision AR-23 Provenance
+
+- **Authority:** AI — delegated by `--auto-design` during Task 2.2.6 native integration.
+- **Eligibility:** Internal executable selection inside the approved sandbox readiness probe; no
+  prerequisite or support-boundary behavior changes.
+- **Decision:** Execute the sandbox smoke through the concrete certified `sys.executable` instead
+  of the Windows Store `py.exe` app-execution alias.
+- **Evidence:** Native reproduction returned `CreateProcessAsUserW` access denied for the alias and
+  exit 0 for the concrete interpreter under the same Codex restricted-token sandbox.
+- **Rejected alternative:** Treating the access failure as an environmental block would make every
+  registered direct mutation unusable despite a functioning sandbox and certified interpreter.
+- **Strongest counterargument:** The probe no longer independently exercises launcher discovery;
+  that discovery is already owned by the preceding Python check.
+- **Confidence / hardening:** High; production probe and complete mutation preflight pass natively.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.

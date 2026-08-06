@@ -60,7 +60,7 @@ class NativeAtomicWriteOps:
         return temporary
 
     def revalidate(self, path: Path, temporary: Path) -> None:
-        validate_transaction_paths(self.root or path.parent, (path, temporary))
+        validate_transaction_paths(self.root or _workspace_root(path), (path, temporary))
 
     def replace(self, temporary: Path, path: Path) -> None:
         os.replace(temporary, path)
@@ -81,6 +81,15 @@ class NativeAtomicWriteOps:
 
     def cleanup_temporary(self, temporary: Path) -> None:
         temporary.unlink(missing_ok=True)
+
+
+def _workspace_root(path: Path) -> Path:
+    """Infer the project root from a state path, falling back to its parent."""
+
+    for parent in path.parents:
+        if parent.name == "codeops":
+            return parent.parent
+    return path.parent
 
 
 def atomic_write_bytes(

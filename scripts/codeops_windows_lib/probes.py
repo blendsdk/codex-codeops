@@ -247,12 +247,8 @@ class NativeProbeDependencies:
         executable = shutil.which("codex")
         if executable is None:
             return _result("sandbox", Readiness.BLOCKED, "Native Codex sandbox is unavailable.")
-        interpreter = "py" if shutil.which("py") is not None else "python"
-        interpreter_arguments = (
-            ("-3", "-c", "pass") if interpreter == "py" else ("-c", "pass")
-        )
         result = _run(
-            (executable, "sandbox", "--", interpreter, *interpreter_arguments),
+            (executable, "sandbox", "--", sys.executable, "-c", "pass"),
             timeout=30.0,
         )
         if result.returncode != 0:

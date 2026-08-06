@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 21:45
-> **Progress**: 19/72 tasks (26%)
+> **Last Updated**: 2026-08-06 21:53
+> **Progress**: 20/72 tasks (28%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -54,6 +54,9 @@ in Phase 2; the broader umbrella issue closes only after Phase 5 evidence.
 > **Bootstrap tracking exception**: User-authorized under AR-15. Until Task 2.2.6 enables native
 > Windows traceability transitions, verified task marks and per-task commits advance while graph
 > task nodes remain pending. Reconcile them atomically after 2.2.6 and before 2.2.7.
+> **Bootstrap reconciliation completed:** 2026-08-06 21:53. All 20 verified tasks through 2.2.6
+> advanced through implemented to verified using 40 native atomic transitions after one complete
+> semantic-revision refresh. State validation reports zero problems; 52 future tasks remain pending.
 
 ### Step 1.1: Specification Tests
 
@@ -143,6 +146,10 @@ that exact correction passed direct verification. Per the review cap, no third r
 > `scripts/codeops_state_lib/paths.py`, `scripts/codeops_state_lib/filesystem.py`,
 > `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/migration.py`,
 > `scripts/codeops_state_lib/rendering.py`, this execution plan, and the feature traceability graph.
+> **Authorized necessary correction:** Task 2.2.6 may update
+> `scripts/codeops_windows_lib/probes.py` because native integration proved the Windows Store
+> `py.exe` alias cannot launch inside the restricted-token sandbox. The probe now uses the concrete
+> already-certified `sys.executable`; prerequisite policy and acceptance behavior are unchanged.
 
 ### Step 2.1: Specification Tests
 
@@ -178,7 +185,7 @@ not executed through an emulation layer on Windows under the no-WSL constraint.
 - [x] 2.2.3 Implement least-privilege Windows PID/creation-FILETIME probing with guaranteed handle cleanup and fail-closed uncertainty — `scripts/codeops_state_lib/processes_windows.py`, `scripts/codeops_state_lib/processes.py` ✅ (completed: 2026-08-06 21:42)
 - [x] 2.2.4 Implement canonical durable paths, safe legacy reads, NTFS/case/8.3 collision keys, every-existing-component root-to-target reparse rejection, containment, and invalid-component rejection — `scripts/codeops_state_lib/paths.py` ✅ (completed: 2026-08-06 21:44)
 - [x] 2.2.5 Implement shared same-directory atomic writes with the fixed WinError 32/33 retry schedule, immediate filesystem revalidation, and no delete fallback — `scripts/codeops_state_lib/filesystem.py` ✅ (completed: 2026-08-06 21:45)
-- [ ] 2.2.6 Integrate the registered mutation preflight and process/filesystem adapters into the direct state CLI, transition, journal, lock, rollback, replacement, and recovery boundaries — `scripts/codeops_state.py`, `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/filesystem.py`
+- [x] 2.2.6 Integrate the registered mutation preflight and process/filesystem adapters into the direct state CLI, transition, journal, lock, rollback, replacement, and recovery boundaries — `scripts/codeops_state.py`, `scripts/codeops_state_lib/transitions.py`, `scripts/codeops_state_lib/filesystem.py` ✅ (completed: 2026-08-06 21:53)
 - [ ] 2.2.7 Integrate canonical paths and shared writes into graph migration and rendering, then run Phase-2 specification cases green — `scripts/codeops_state_lib/migration.py`, `scripts/codeops_state_lib/rendering.py`
 
 ### Step 2.3: Implementation Tests and Hardening

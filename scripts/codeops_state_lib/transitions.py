@@ -14,6 +14,7 @@ from typing import Any
 
 from .discovery import discover_state
 from .gates import compatibility_problem, evaluate_target
+from .filesystem import atomic_write_bytes
 from .models import (
     AbsenceState,
     Graph,
@@ -22,7 +23,8 @@ from .models import (
     SourceSelector,
     StructuralProblem,
 )
-from .processes import LinuxProcBackend, current_process_identity, owner_absence
+from .paths import validate_transaction_paths
+from .processes import current_process_identity, native_process_backend, owner_absence
 from .rendering import problem_json
 from .revisions import compute_revision
 from .schema import parse_graph_v2, validate_portfolio_v2
@@ -254,28 +256,7 @@ def _evidence_problem(node: Node, requested: str, request: dict[str, Any]) -> st
 
 
 def _atomic_write(path: Path, data: bytes) -> None:
-    descriptor, temporary = tempfile.mkstemp(
-        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
-    )
-    try:
-        with os.fdopen(descriptor, "wb") as handle:
-            handle.write(data)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-        try:
-            directory = os.open(path.parent, os.O_RDONLY)
-            try:
-                os.fsync(directory)
-            finally:
-                os.close(directory)
-        except OSError:
-            pass
-    finally:
-        try:
-            Path(temporary).unlink()
-        except FileNotFoundError:
-            pass
+    atomic_write_bytes(path, data)
 
 
 def _write_json(path: Path, value: dict[str, Any]) -> None:
@@ -296,27 +277,37 @@ def _sync_directory(path: Path) -> None:
         pass
 
 
-_LINUX_PROCESS_BACKEND = LinuxProcBackend()
+_PROCESS_BACKEND = native_process_backend()
 
 
 def _process_identity(pid: int) -> dict[str, Any] | None:
-    identity = current_process_identity(_LINUX_PROCESS_BACKEND, pid)
+    identity = current_process_identity(_PROCESS_BACKEND, pid)
     if identity is None:
         return None
-    return {
-        "pid": identity.pid,
-        "startTicks": identity.start_ticks,
-        "bootId": identity.boot_id,
-    }
+    return identity.to_payload()
 
 
 def _owner_is_absent(owner: Any) -> bool | None:
-    absence = owner_absence(owner, _LINUX_PROCESS_BACKEND)
+    absence = owner_absence(owner, _PROCESS_BACKEND)
     if absence is AbsenceState.ABSENT:
         return True
     if absence is AbsenceState.PRESENT:
         return False
     return None
+
+
+def _validate_mutation_boundary(root: Path, *paths: Path) -> None:
+    validate_transaction_paths(root, paths)
+
+
+def _unlink(root: Path, path: Path, *, missing_ok: bool = True) -> None:
+    _validate_mutation_boundary(root, path)
+    path.unlink(missing_ok=missing_ok)
+
+
+def _replace_entry(root: Path, source: Path, target: Path) -> None:
+    _validate_mutation_boundary(root, source, target)
+    os.replace(source, target)
 
 
 def _failure(
@@ -643,9 +634,19 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
         return _failure(root, "invalid-request", error or "invalid request", target)
 
     state, lock, journal, before_path, after_path = _state_paths(root, operation)
-    state.mkdir(parents=True, exist_ok=True)
     active_lock = state / "active.lock"
     completed = state / f"{operation}.completed.json"
+    _validate_mutation_boundary(
+        root,
+        state,
+        lock,
+        journal,
+        before_path,
+        after_path,
+        active_lock,
+        completed,
+    )
+    state.mkdir(parents=True, exist_ok=True)
     if completed.exists():
         return _failure(
             root,
@@ -692,7 +693,7 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
         )
     except FileExistsError:
         os.close(descriptor)
-        lock.unlink()
+        _unlink(root, lock, missing_ok=False)
         return _failure(
             root,
             "transition-locked",
@@ -905,6 +906,15 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
 
         ordered_paths = sorted(after, key=lambda path: str(path.relative_to(root)))
         image_pairs: dict[Path, tuple[Path, Path]] = {}
+        image_paths = tuple(
+            image
+            for index in range(len(ordered_paths))
+            for image in (
+                state / f"{operation}.{index}.before",
+                state / f"{operation}.{index}.after",
+            )
+        )
+        _validate_mutation_boundary(root, journal, *ordered_paths, *image_paths)
         for index, path in enumerate(ordered_paths):
             before_image = state / f"{operation}.{index}.before"
             after_image = state / f"{operation}.{index}.after"
@@ -1011,7 +1021,7 @@ def transition(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
                 *recovery_images,
             ):
                 try:
-                    path.unlink()
+                    _unlink(root, path, missing_ok=False)
                 except FileNotFoundError:
                     pass
 
@@ -1038,8 +1048,12 @@ def replace_graph_atomically(
     if SAFE_OPERATION.fullmatch(operation) is None:
         return _failure(root, "invalid-operation", "operationId is not path-safe")
     state, lock, journal, _, _ = _state_paths(root, operation)
-    state.mkdir(parents=True, exist_ok=True)
     active = state / "active.lock"
+    initial_targets = [state, lock, journal, active, path]
+    if backup is not None:
+        initial_targets.append(backup)
+    _validate_mutation_boundary(root, *initial_targets)
+    state.mkdir(parents=True, exist_ok=True)
     if (state / f"{operation}.completed.json").exists():
         return _failure(root, "operation-id-reused", "completed operationId cannot be reused")
     owner = _process_identity(os.getpid())
@@ -1054,7 +1068,7 @@ def replace_graph_atomically(
         active_descriptor = os.open(active, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     except FileExistsError:
         os.close(lock_descriptor)
-        lock.unlink(missing_ok=True)
+        _unlink(root, lock)
         return _failure(root, "transition-locked", "another writer owns the active lock")
     record = {
         "schema": 1,
@@ -1078,8 +1092,8 @@ def replace_graph_atomically(
                 os.close(descriptor)
             except OSError:
                 pass
-        lock.unlink(missing_ok=True)
-        active.unlink(missing_ok=True)
+        _unlink(root, lock)
+        _unlink(root, active)
         return _failure(
             root,
             "transaction-preparation",
@@ -1087,8 +1101,8 @@ def replace_graph_atomically(
             operation=operation,
         )
     if expected_hash is not None and _hash(before) != expected_hash:
-        lock.unlink(missing_ok=True)
-        active.unlink(missing_ok=True)
+        _unlink(root, lock)
+        _unlink(root, active)
         return _failure(
             root,
             "compare-and-swap",
@@ -1130,7 +1144,7 @@ def replace_graph_atomically(
                     _sync_directory(backup.parent)
                     verified_backup = backup.read_bytes()
                 except OSError as exc:
-                    backup.unlink(missing_ok=True)
+                    _unlink(root, backup)
                     return _failure(
                         root,
                         "backup-write",
@@ -1138,7 +1152,7 @@ def replace_graph_atomically(
                         operation=operation,
                     )
                 if verified_backup != before:
-                    backup.unlink(missing_ok=True)
+                    _unlink(root, backup)
                     return _failure(
                         root,
                         "backup-write",
@@ -1150,7 +1164,7 @@ def replace_graph_atomically(
             _atomic_write(after_image, after)
         except OSError as exc:
             if backup_created and backup is not None:
-                backup.unlink(missing_ok=True)
+                _unlink(root, backup)
             return _failure(
                 root,
                 "transaction-preparation",
@@ -1176,7 +1190,7 @@ def replace_graph_atomically(
             _write_json(journal, journal_value)
         except OSError as exc:
             if backup_created and backup is not None:
-                backup.unlink(missing_ok=True)
+                _unlink(root, backup)
             return _failure(
                 root,
                 "transaction-preparation",
@@ -1220,14 +1234,16 @@ def replace_graph_atomically(
     finally:
         if not preserve:
             for cleanup in (journal, before_image, after_image, lock, active):
-                cleanup.unlink(missing_ok=True)
+                _unlink(root, cleanup)
 
 
 def _exclusive_recovery_lock(
+    root: Path,
     path: Path,
     operation: str,
     nonce: str,
 ) -> tuple[dict[str, Any] | None, str | None]:
+    _validate_mutation_boundary(root, path)
     owner = _process_identity(os.getpid())
     if owner is None:
         return None, "recovery process identity is unavailable"
@@ -1245,7 +1261,7 @@ def _exclusive_recovery_lock(
             return None, "existing recovery owner absence is unproven"
         stale = path.with_name(f"{path.name}.stale-{uuid.uuid4().hex}")
         try:
-            os.replace(path, stale)
+            _replace_entry(root, path, stale)
             descriptor = os.open(
                 path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
             )
@@ -1269,12 +1285,14 @@ def _exclusive_recovery_lock(
 
 
 def _claim_active_lock(
+    root: Path,
     path: Path,
     operation: str,
     nonce: str,
     prior_owner: dict[str, Any],
     recovery_owner: dict[str, Any],
 ) -> tuple[Path | None, str | None]:
+    _validate_mutation_boundary(root, path)
     stale_claim: Path | None = None
     existing, _ = _read_json(path)
     if existing is not None:
@@ -1286,7 +1304,7 @@ def _claim_active_lock(
             return None, "active writer lock belongs to another operation"
         stale_claim = path.with_name(f"{path.name}.stale-{uuid.uuid4().hex}")
         try:
-            os.replace(path, stale_claim)
+            _replace_entry(root, path, stale_claim)
         except OSError as exc:
             return None, f"cannot quarantine stale active lock: {exc}"
     try:
@@ -1312,6 +1330,7 @@ def _claim_active_lock(
 
 
 def _release_owned_lock(
+    root: Path,
     path: Path,
     operation: str,
     nonce: str,
@@ -1324,7 +1343,7 @@ def _release_owned_lock(
         and value.get("nonce") == nonce
         and value.get("owner") == owner
     ):
-        path.unlink(missing_ok=True)
+        _unlink(root, path)
 
 
 def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
@@ -1421,7 +1440,7 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
         prior_active_owner = active_value["owner"]
     recovery_lock = state / f"{operation}.recovery.lock"
     recovery_owner, recovery_error = _exclusive_recovery_lock(
-        recovery_lock, operation, request["expectedLock"]
+        root, recovery_lock, operation, request["expectedLock"]
     )
     if recovery_owner is None:
         return _failure(
@@ -1431,6 +1450,7 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
             operation=operation,
         )
     stale_active, active_error = _claim_active_lock(
+        root,
         active_lock,
         operation,
         request["expectedLock"],
@@ -1439,6 +1459,7 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
     )
     if active_error is not None:
         _release_owned_lock(
+            root,
             recovery_lock,
             operation,
             request["expectedLock"],
@@ -1453,19 +1474,21 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
 
     def release_claim() -> None:
         _release_owned_lock(
+            root,
             active_lock,
             operation,
             request["expectedLock"],
             recovery_owner,
         )
         _release_owned_lock(
+            root,
             recovery_lock,
             operation,
             request["expectedLock"],
             recovery_owner,
         )
         if stale_active is not None:
-            stale_active.unlink(missing_ok=True)
+            _unlink(root, stale_active)
 
     journal_value, journal_error = _read_json(journal)
     if journal_value is None:
@@ -1477,7 +1500,7 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
                 "graphs": [],
             }
             _write_json(completed, completed_payload)
-            lock.unlink(missing_ok=True)
+            _unlink(root, lock)
             release_claim()
             return 0, {
                 "result": "recovered",
@@ -1689,7 +1712,7 @@ def recover(root: Path, request_path: Path) -> tuple[int, dict[str, Any]]:
         *image_paths,
     ):
         try:
-            path.unlink()
+            _unlink(root, path, missing_ok=False)
         except FileNotFoundError:
             pass
     return 0, {
