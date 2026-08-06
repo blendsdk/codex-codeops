@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-06 20:51
-> **Progress**: 9/72 tasks (13%)
+> **Last Updated**: 2026-08-06 20:54
+> **Progress**: 10/72 tasks (14%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -81,7 +81,7 @@ infrastructure state, not verification evidence.
 
 **Reference**: [03-01 §Error Handling](03-01-runtime-preflight-and-hooks.md#error-handling)
 
-- [ ] 1.3.1 Add adapter, closed matrix, cache-binding/retention, malformed-input, hostile-environment, command-injection, and NTFS/reparse implementation tests — `tests/conformance/test_windows_preflight_impl.py`
+- [x] 1.3.1 Add adapter, closed matrix, cache-binding/retention, malformed-input, hostile-environment, command-injection, and NTFS/reparse implementation tests — `tests/conformance/test_windows_preflight_impl.py` ✅ (completed: 2026-08-06 20:54)
 - [ ] 1.3.2 Run Phase-1 spec/implementation suites, hook validation, and the confirmed five-command full verification gate — `tests/conformance/test_hooks.py`, `scripts/validate-codex.sh`
 
 **Verify**:
