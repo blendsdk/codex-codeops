@@ -1,0 +1,95 @@
+"""Deterministic portable validation and documentation gates."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+import os
+from pathlib import Path
+import sys
+from typing import Callable, Mapping
+
+from scripts.codeops_platform.subprocesses import run_command
+
+
+CHECK_NAMES = ("validate", "docs", "migration", "roadmap", "compact")
+
+
+@dataclass(frozen=True, slots=True)
+class CheckResult:
+    name: str
+    exit_code: int
+    stdout: str = ""
+    stderr: str = ""
+
+    def to_json(self) -> dict[str, object]:
+        return {
+            "name": self.name,
+            "exitCode": self.exit_code,
+            "stdout": self.stdout,
+            "stderr": self.stderr,
+        }
+
+
+def _python(root: Path, *arguments: str, environment: Mapping[str, str] | None = None) -> CheckResult:
+    result = run_command((sys.executable, *arguments), cwd=root, environment=environment)
+    return CheckResult("", result.exit_code, result.stdout, result.stderr)
+
+
+def validate(root: Path) -> CheckResult:
+    """Run plugin, skill, link, and conformance validation natively."""
+
+    commands: list[tuple[str, ...]] = [
+        ("scripts/validate_plugin.py", "."),
+        *(
+            ("scripts/validate_skill.py", str(path.relative_to(root)))
+            for path in sorted((root / "skills").iterdir())
+            if path.is_dir()
+        ),
+        (
+            "scripts/validate_markdown_links.py",
+            "skills", "_shared", "standards", "references", "docs", "plans", "README.md", "AGENTS.md",
+        ),
+    ]
+    stdout: list[str] = []
+    stderr: list[str] = []
+    failures = 0
+    for command in commands:
+        result = _python(root, *command)
+        stdout.append(result.stdout)
+        stderr.append(result.stderr)
+        failures += result.exit_code != 0
+    environment = dict(os.environ)
+    environment["CODEOPS_VERIFY_CHILD"] = "1"
+    environment.setdefault("PYTHONUTF8", "1")
+    tests = _python(
+        root,
+        "-m", "unittest", "discover", "-s", "tests/conformance", "-p", "test_*.py",
+        environment=environment,
+    )
+    stdout.append(tests.stdout)
+    stderr.append(tests.stderr)
+    failures += tests.exit_code != 0
+    return CheckResult("validate", 1 if failures else 0, "".join(stdout), "".join(stderr))
+
+
+def docs(root: Path) -> CheckResult:
+    """Validate documentation links and reject unfinished release text."""
+
+    result = _python(root, "scripts/validate_markdown_links.py", "README.md", "docs", "plans")
+    stale: list[str] = []
+    pattern = ("commands will be published", "TODO", "TBD", "claude-codeops/")
+    for base in (root / "README.md", root / "docs"):
+        paths = (base,) if base.is_file() else sorted(base.rglob("*.md"))
+        for path in paths:
+            text = path.read_text(encoding="utf-8")
+            for token in pattern:
+                if token in text:
+                    stale.append(f"{path.relative_to(root).as_posix()}: {token}")
+    stderr = result.stderr + ("\n".join(stale) + "\n" if stale else "")
+    return CheckResult("docs", 1 if result.exit_code or stale else 0, result.stdout, stderr)
+
+
+def run_checks(root: Path, checks: Mapping[str, Callable[[Path], CheckResult]]) -> tuple[CheckResult, ...]:
+    """Run all named checks in public order without stopping after a failure."""
+
+    return tuple(checks[name](root) for name in CHECK_NAMES)

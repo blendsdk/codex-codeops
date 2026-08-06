@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -347,6 +348,10 @@ class PortableVerificationSpecification(unittest.TestCase):
             ["validate", "docs", "migration", "roadmap", "compact"],
         )
 
+    @unittest.skipIf(
+        os.environ.get("CODEOPS_VERIFY_CHILD") == "1",
+        "aggregate verifier does not recursively invoke itself",
+    )
     def test_st_38_aggregate_reports_each_gate_in_deterministic_order(self) -> None:
         result = run_cli(VERIFY, "all", "--root", str(ROOT), "--json")
         payload = json.loads(result.stdout)

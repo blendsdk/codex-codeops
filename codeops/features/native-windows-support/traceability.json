@@ -914,6 +914,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "verificationEvidence:Closed five-gate list specification and portable documentation gate passed; validation owns plugin, skills, links, and guarded conformance discovery with deterministic non-short-circuit aggregation."
+      ],
       "id": "TASK-3.2.7",
       "revision": "sha256:2c590f73b9f7a280c13b6355d26282ffcf6e97bd08f05d8ec6e1663f2bee3da2",
       "semanticSources": [
@@ -926,7 +929,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Implement the portable validation/docs logical gates and deterministic aggregate reporter",
       "type": "task",
       "validations": []
