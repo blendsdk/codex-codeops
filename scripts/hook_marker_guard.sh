@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-input="$(cat)"
-case "$input" in
-  *"codeops/.codeops.yml"*)
-    printf '%s\n' \
-      'CodeOps warning: codeops/.codeops.yml is the layout marker and is owned by setup-codeops; edit it only through the setup/migration workflow.' \
-      >&2
-    ;;
-esac
-exit 0
+: "${PLUGIN_ROOT:?Codex must provide PLUGIN_ROOT}"
+exec python3 "$PLUGIN_ROOT/scripts/codeops_hooks.py" --event PreToolUse

@@ -142,8 +142,8 @@ class NativePreflightSpecificationTests(unittest.TestCase):
 
     @unittest.skipUnless(os.name == "nt", "PowerShell bootstrap is native-Windows only")
     def test_bootstrap_falls_back_to_python_3_10_or_newer(self) -> None:
-        pwsh = shutil.which("pwsh")
-        self.assertIsNotNone(pwsh, "pwsh is required on the certified Windows host")
+        powershell = shutil.which("powershell.exe")
+        self.assertIsNotNone(powershell, "Windows PowerShell is required on Windows 11")
         self.assertTrue(BOOTSTRAP.is_file())
         with tempfile.TemporaryDirectory() as raw:
             commands = Path(raw)
@@ -155,7 +155,7 @@ class NativePreflightSpecificationTests(unittest.TestCase):
             environment = dict(os.environ)
             environment["PATH"] = str(commands)
             result = subprocess.run(
-                [pwsh, "-NoProfile", "-File", str(BOOTSTRAP), "-ResolvePython"],
+                [powershell, "-NoProfile", "-File", str(BOOTSTRAP), "-ResolvePython"],
                 text=True,
                 capture_output=True,
                 check=False,
@@ -166,8 +166,8 @@ class NativePreflightSpecificationTests(unittest.TestCase):
 
     @unittest.skipUnless(os.name == "nt", "PowerShell bootstrap is native-Windows only")
     def test_bootstrap_blocks_when_no_supported_python_exists(self) -> None:
-        pwsh = shutil.which("pwsh")
-        self.assertIsNotNone(pwsh, "pwsh is required on the certified Windows host")
+        powershell = shutil.which("powershell.exe")
+        self.assertIsNotNone(powershell, "Windows PowerShell is required on Windows 11")
         self.assertTrue(BOOTSTRAP.is_file())
         with tempfile.TemporaryDirectory() as raw:
             commands = Path(raw)
@@ -176,7 +176,7 @@ class NativePreflightSpecificationTests(unittest.TestCase):
             environment = dict(os.environ)
             environment["PATH"] = str(commands)
             result = subprocess.run(
-                [pwsh, "-NoProfile", "-File", str(BOOTSTRAP), "-ResolvePython"],
+                [powershell, "-NoProfile", "-File", str(BOOTSTRAP), "-ResolvePython"],
                 text=True,
                 capture_output=True,
                 check=False,
@@ -329,7 +329,7 @@ class NativeHookSpecificationTests(unittest.TestCase):
                 hook = manifest["hooks"][event][0]["hooks"][0]
                 self.assertIn("command", hook)
                 command = hook["commandWindows"]
-                self.assertIn("pwsh", command.lower())
+                self.assertIn("powershell.exe", command.lower())
                 self.assertIn("codeops-windows-preflight.ps1", command.lower())
                 self.assertNotIn("bash", command.lower())
                 self.assertNotIn("wsl", command.lower())

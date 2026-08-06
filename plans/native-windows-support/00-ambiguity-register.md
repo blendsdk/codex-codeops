@@ -1,7 +1,7 @@
 # Ambiguity Register: Native Windows Support
 
-> **Status**: ✅ GATE PASSED — all 17 items resolved
-> **Last Updated**: 2026-08-06 20:31 CEST
+> **Status**: ✅ GATE PASSED — all 18 items resolved
+> **Last Updated**: 2026-08-06 20:48 CEST
 
 | # | Category | Ambiguity / Gap | Options Presented | User Decision | Status |
 |---|---|---|---|---|---|
@@ -22,6 +22,7 @@
 | AR-15 | Execution bootstrap (runtime) | How is task progress tracked before the plan's own Windows process-identity work makes atomic traceability transitions available? | Pause all implementation / use an explicit temporary Markdown-first bootstrap and reconcile immediately after native transition integration | User authorized implementation to proceed without WSL. Keep the execution-plan marks current, commit only verified tasks, leave graph task nodes pending, and atomically reconcile every deferred task transition immediately after Task 2.2.6 makes native transitions available; do not proceed to Task 2.2.7 until reconciliation passes. | ✅ Resolved |
 | AR-16 | Test architecture (runtime) | How can specification tests control Windows host/probe/clock/attestation and hook-order outcomes without depending on implementation internals or a test-only CLI mode? | Required dependency protocols at Python orchestration boundaries / patch private functions / environment-variable simulation | Add required `PreflightDependencies` and `HookDependencies` protocols to the preflight and hook orchestrators; production CLIs construct native dependencies, while specification tests supply in-memory implementations. No test-mode branch or environment backdoor ships. | ✅ Resolved |
 | AR-17 | Hook proof (runtime) | How does the checker distinguish a trusted hook invocation from a direct command boundary without trusting mutable environment variables? | Closed `hook_event` input derived from validated hook JSON / hidden environment marker / infer trust from mode | Add explicit `hook_event` to the closed request. Session requires `SessionStart`; read accepts no hook proof; mutation accepts `PreToolUse` or no hook because the registered entrypoint remains authoritative. Unknown or mismatched events are malformed input. | ✅ Resolved |
+| AR-18 | Windows shell (runtime) | May native Windows hooks require separately installed PowerShell 7 when the plan declares no such prerequisite? | Built-in Windows PowerShell 5.1 / add and probe a PowerShell 7 prerequisite | Use `powershell.exe`, which is part of the Windows 11 boundary. Do not add an undeclared PowerShell 7 dependency. | ✅ Resolved |
 
 ## Resolution Notes
 
@@ -75,4 +76,20 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
   hooks from direct commands.
 - **Strongest counterargument:** The additional field slightly enlarges every preflight call.
 - **Confidence:** High; reopen if the Codex hook contract stops providing event identity.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
+
+## Runtime Decision AR-18 Provenance
+
+- **Authority:** AI — delegated by `--auto-design` and constrained by the user's Windows 11-only
+  direction.
+- **Eligibility:** Native launcher selection within the approved Windows 11 compatibility boundary.
+- **Decision:** Use inbox `powershell.exe` for hooks and examples; keep the bootstrap compatible
+  with Windows PowerShell 5.1.
+- **Evidence:** The execution host is Windows 11 with `powershell.exe` available and no `pwsh`;
+  neither the requirements nor prerequisite checks declare PowerShell 7.
+- **Rejected alternative:** Adding PowerShell 7 would introduce an unplanned install and probe
+  requirement without improving the thin bootstrap contract.
+- **Strongest counterargument:** PowerShell 7 has newer language and process behavior, but the
+  bootstrap intentionally uses only Windows PowerShell-compatible constructs.
+- **Confidence:** High; reopen only if Codex stops supporting `powershell.exe` hook commands.
 - **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.

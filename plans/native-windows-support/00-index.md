@@ -36,8 +36,8 @@ Windows tests and retained real-host evidence satisfy RD-023.
 ### Expected Windows entry
 
 ```powershell
-pwsh -NoProfile -File "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1"
-$python = pwsh -NoProfile -File "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1" -ResolvePython
+powershell.exe -NoProfile -File "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1"
+$python = powershell.exe -NoProfile -File "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1" -ResolvePython
 & $python "$env:PLUGIN_ROOT\scripts\codeops_state.py" status --root .
 ```
 
