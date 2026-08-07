@@ -1802,6 +1802,10 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "implementationEvidence:Native Windows 11 CLI capture retained for packed 0.5.0 candidate 87978a3 and exact green CI run 31134570817",
+        "verificationEvidence:Evidence validator passed all 13 required scenarios, hashes, native host assertions, candidate SHA, commit, version, reviewer, and CI bindings"
+      ],
       "id": "TASK-5.3.1",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1814,7 +1818,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Run the capture command against the packed candidate on a real native Windows 11 Codex CLI host and retain the version-matched manifest, command trace, and sanitized hash-bound scenario records",
       "type": "task",
       "validations": []

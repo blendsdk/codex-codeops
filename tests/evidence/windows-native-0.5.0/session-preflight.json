@@ -1,0 +1,8 @@
+{
+  "commandClass": "native-python",
+  "result": "pass",
+  "scenarioId": "session-preflight",
+  "schemaVersion": 1,
+  "summary": "native command completed successfully",
+  "timestamp": "2026-08-07T00:28:24Z"
+}

@@ -1,0 +1,117 @@
+{
+  "assertions": {
+    "gitBashInvoked": false,
+    "wslInvoked": false
+  },
+  "candidateSha256": "d4b469cd522caf734e5f274857b5e89cff03e1013204c5c7ddf72280d3446ada",
+  "captureVersion": 1,
+  "ci": {
+    "commit": "87978a39861686491156b1f847d6bf843069b9da",
+    "conclusion": "success",
+    "runId": "31134570817",
+    "runner": "windows-11-arm"
+  },
+  "commandTrace": {
+    "path": "windows-native-0.5.0/commands.json",
+    "sha256": "39fd84e44956aebd1c47e849a00856cb0936dd2c00e53ee3c0d021200ba0a9e3"
+  },
+  "commit": "87978a39861686491156b1f847d6bf843069b9da",
+  "host": {
+    "architecture": "AMD64",
+    "build": 26100,
+    "edition": "Windows 11",
+    "native": true
+  },
+  "kind": "cli",
+  "pluginVersion": "0.5.0",
+  "reviewer": {
+    "github": "blendsdk",
+    "timestamp": "2026-08-07T00:28:24Z"
+  },
+  "scenarios": [
+    {
+      "id": "installation",
+      "record": "windows-native-0.5.0/installation.json",
+      "sha256": "207d5df0ed517dd910626082c1cc682cb415b1148fff182950ed9ca939a16cf8",
+      "status": "pass"
+    },
+    {
+      "id": "enablement",
+      "record": "windows-native-0.5.0/enablement.json",
+      "sha256": "bf2700c901f27990e395b20492b7dce3185e6afe468e2b6ed299504375f6c00a",
+      "status": "pass"
+    },
+    {
+      "id": "session-preflight",
+      "record": "windows-native-0.5.0/session-preflight.json",
+      "sha256": "9835ddc66c401f878f72d82e465fa663e0dc1149c03191e0a4da82055150ac49",
+      "status": "pass"
+    },
+    {
+      "id": "requirements",
+      "record": "windows-native-0.5.0/requirements.json",
+      "sha256": "720bdf8aa744b23e215b9b66d0a66be7f3c2906661ac1a2fcb745a9699020676",
+      "status": "pass"
+    },
+    {
+      "id": "planning",
+      "record": "windows-native-0.5.0/planning.json",
+      "sha256": "239e3389d704a40d5fd1373c71afb6ab897daba2a4697211d9b1502e2fe6d5d4",
+      "status": "pass"
+    },
+    {
+      "id": "preflight-audit",
+      "record": "windows-native-0.5.0/preflight-audit.json",
+      "sha256": "a3c28dd7ff81da5362ea84eb6613bb36b55d6ec64e0c96bdcabe18a519d810eb",
+      "status": "pass"
+    },
+    {
+      "id": "execution-transition-recovery",
+      "record": "windows-native-0.5.0/execution-transition-recovery.json",
+      "sha256": "f4d622380225e3a81a39c63f4eb6b23bef149051abeae598b30f9a42d5c200c8",
+      "status": "pass"
+    },
+    {
+      "id": "migration",
+      "record": "windows-native-0.5.0/migration.json",
+      "sha256": "c86b691381a0611e776874f7b069b8d4a7cd460cce65f51e90cd2e0cca19b65c",
+      "status": "pass"
+    },
+    {
+      "id": "roadmap",
+      "record": "windows-native-0.5.0/roadmap.json",
+      "sha256": "59ab8a0d2ec458312eb90c40f61578b4dedf2f543092433a16c4f72cd19d7e4d",
+      "status": "pass"
+    },
+    {
+      "id": "worktree",
+      "record": "windows-native-0.5.0/worktree.json",
+      "sha256": "4540c13c6dbd8b82f5656d586227112c61d084d3cd50de72cd96c08d14672eee",
+      "status": "pass"
+    },
+    {
+      "id": "agent-install-check",
+      "record": "windows-native-0.5.0/agent-install-check.json",
+      "sha256": "ccb43878e5d79418f9a47dd48f33d4e1f705b6d85550ed6252ce548fcf74b87f",
+      "status": "pass"
+    },
+    {
+      "id": "outcomes",
+      "record": "windows-native-0.5.0/outcomes.json",
+      "sha256": "331c68ba12b2e3c081b2f24d623bdc83ca36dd377694ff9836beb099ecac587c",
+      "status": "pass"
+    },
+    {
+      "id": "verification",
+      "record": "windows-native-0.5.0/verification.json",
+      "sha256": "46fe45fb3a0775fce8f946bfe05b19f901c6e7708aca345e22dfff0f31b47a27",
+      "status": "pass"
+    }
+  ],
+  "schemaVersion": 1,
+  "tools": {
+    "codex": "codex-cli 0.146.0",
+    "git": "git version 2.50.0.windows.1",
+    "python": "3.14.6"
+  }
+}

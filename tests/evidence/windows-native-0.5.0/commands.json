@@ -1,0 +1,133 @@
+[
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_windows_workflows_impl"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "installation"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_windows_workflows_spec"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "enablement"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_windows_preflight_impl"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "session-preflight"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_targeted_workflows_spec"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "requirements"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_targeted_workflows_spec"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "planning"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_windows_preflight_spec"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "preflight-audit"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_state_migration_impl"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "execution-transition-recovery"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_state_migration_spec"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "migration"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_portable_utilities_impl"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "roadmap"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_windows_workflows_impl"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "worktree"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_windows_workflows_impl"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "agent-install-check"
+  },
+  {
+    "arguments": [
+      "-m",
+      "unittest",
+      "tests.conformance.test_windows_workflows_impl"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "outcomes"
+  },
+  {
+    "arguments": [
+      "<PLUGIN_ROOT>\\scripts\\codeops_verify.py",
+      "all",
+      "--root",
+      "<PLUGIN_ROOT>"
+    ],
+    "executable": "C:\\Users\\gbaba\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "exitClass": "success",
+    "scenarioId": "verification"
+  }
+]
