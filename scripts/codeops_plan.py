@@ -16,8 +16,9 @@ from pathlib import Path
 
 
 IMPLEMENTS_RE = re.compile(r"^>\s*\*\*Implements\*\*:\s*(.+?)\s*$", re.MULTILINE)
-RD_RE = re.compile(
-    r"(?<![A-Za-z0-9_-])(?:[A-Za-z0-9][A-Za-z0-9_-]*/)?RD-(?:[A-Za-z0-9]+-)*\d+"
+TARGET_RE = re.compile(
+    r"(?<![A-Za-z0-9_-])(?:[A-Za-z0-9][A-Za-z0-9_-]*/)?"
+    r"(?:RD-(?:[A-Za-z0-9]+-)*\d+|T-\d+|REQ-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)"
     r"(?![A-Za-z0-9_-])"
 )
 TASK_RE = re.compile(r"^-\s*\[([ xX~!])\]\s+(.+?)\s*$", re.MULTILINE)
@@ -51,11 +52,11 @@ class PlanStatus:
 
 
 def parse_implements(index_text: str) -> tuple[str, ...]:
-    """Return the ordered, de-duplicated RD identifiers declared by a plan."""
+    """Return ordered, de-duplicated requirement or tracker targets for a plan."""
     match = IMPLEMENTS_RE.search(index_text)
     if not match:
         return ()
-    return tuple(dict.fromkeys(RD_RE.findall(match.group(1))))
+    return tuple(dict.fromkeys(TARGET_RE.findall(match.group(1))))
 
 
 def parse_tasks(execution_text: str) -> tuple[Task, ...]:
@@ -94,7 +95,7 @@ def inspect_plan(plan_dir: Path, root: Path | None = None) -> PlanStatus:
         problems.append("missing required 99-execution-plan.md")
     implements = parse_implements(index_text)
     if not implements:
-        problems.append("00-index.md must declare one or more RD identifiers in **Implements**")
+        problems.append("00-index.md must declare one or more requirement or tracker targets in **Implements**")
     tasks = parse_tasks(execution_text)
     if not tasks:
         problems.append("99-execution-plan.md contains no execution tasks")
@@ -135,6 +136,8 @@ def rd_delivery(statuses: tuple[PlanStatus, ...]) -> dict[str, str]:
     grouped: dict[str, list[str]] = {}
     for status in statuses:
         for rd_id in status.implements:
+            if not rd_id.rsplit("/", 1)[-1].startswith("RD-"):
+                continue
             grouped.setdefault(rd_id, []).append(status.lifecycle)
     result: dict[str, str] = {}
     for rd_id, states in grouped.items():

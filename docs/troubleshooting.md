@@ -15,8 +15,9 @@ Open `/hooks`. Non-managed plugin hooks are skipped until their exact definition
 ## Plan status reports missing metadata
 
 Confirm the plan contains `00-index.md`, `99-execution-plan.md`, and one
-`> **Implements**:` line with at least one RD identifier. An empty portfolio is configured but has
-no plan status to report.
+`> **Implements**:` line with at least one RD, tracker (`T-*`), or plan-local requirement (`REQ-*`)
+target. Only RD targets contribute to the derived requirements summary. An empty portfolio is
+configured but has no plan status to report.
 
 ## A sibling blocks or advances unexpectedly
 

@@ -9,6 +9,7 @@ is unambiguous. It creates no replacement state or compatibility layer.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -16,14 +17,17 @@ from dataclasses import dataclass
 from pathlib import Path
 
 try:
-    from scripts.codeops_plan import IMPLEMENTS_RE, inspect_plan, parse_implements
+    from scripts.codeops_plan import BLOCKED_REASON_RE, IMPLEMENTS_RE, parse_implements, parse_tasks
 except ModuleNotFoundError:  # Direct execution adds scripts/, not the repository root, to sys.path.
-    from codeops_plan import IMPLEMENTS_RE, inspect_plan, parse_implements
+    from codeops_plan import BLOCKED_REASON_RE, IMPLEMENTS_RE, parse_implements, parse_tasks
 
 
-RD_ID_RE = re.compile(r"^RD-(?:[A-Za-z0-9]+-)*\d+$")
+TARGET_ID_RE = re.compile(
+    r"^(?:RD-(?:[A-Za-z0-9]+-)*\d+|T-\d+|REQ-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)$"
+)
 RD_FILE_RE = re.compile(r"^(RD-(?:[A-Za-z0-9]+-)*\d+)(?:[-.].*)?$", re.IGNORECASE)
 MARKDOWN_LINK_RE = re.compile(r"\[[^]]*\]\(([^)]+)\)")
+HEADING_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
 
 
 @dataclass(frozen=True)
@@ -59,7 +63,7 @@ def _rd_ids(feature_dir: Path) -> tuple[str, ...]:
 
 
 def _roadmap_links(feature_dir: Path) -> dict[Path, tuple[str, ...]]:
-    """Map plan indexes to RD IDs using the feature roadmap's Tracker rows."""
+    """Map plan directories to requirement or tracker IDs from roadmap rows."""
     roadmap = feature_dir / "00-roadmap.md"
     if not roadmap.is_file():
         return {}
@@ -68,15 +72,98 @@ def _roadmap_links(feature_dir: Path) -> dict[Path, tuple[str, ...]]:
         if not line.startswith("|"):
             continue
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
-        if len(cells) < 4 or not RD_ID_RE.fullmatch(cells[0]):
+        if len(cells) < 4 or not TARGET_ID_RE.fullmatch(cells[0]):
             continue
         for link in MARKDOWN_LINK_RE.findall(cells[3]):
             link_path = link.split("#", 1)[0]
-            if not link_path.endswith("00-index.md"):
+            if not link_path.endswith(("00-index.md", "99-execution-plan.md")):
                 continue
-            index = (roadmap.parent / link_path).resolve()
-            found.setdefault(index, []).append(_qualify(feature_dir.name, cells[0]))
+            plan_dir = (roadmap.parent / link_path).resolve().parent
+            found.setdefault(plan_dir, []).append(_qualify(feature_dir.name, cells[0]))
     return {path: tuple(dict.fromkeys(ids)) for path, ids in found.items()}
+
+
+def _source_plan(source_path: str, feature: str) -> str | None:
+    parts = Path(source_path.replace("\\", "/")).parts
+    marker = ("features", feature, "plans")
+    for offset in range(len(parts) - 3):
+        if tuple(parts[offset : offset + 3]) == marker:
+            return parts[offset + 3]
+    return None
+
+
+def _graph_links(feature_dir: Path) -> tuple[dict[Path, tuple[str, ...]], str | None]:
+    """Extract the last useful plan mapping before the legacy graph is deleted."""
+    graph = feature_dir / "traceability.json"
+    if not graph.is_file():
+        return {}, None
+    try:
+        payload = json.loads(graph.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        return {}, f"{graph}: cannot read legacy graph: {error}"
+    found: dict[Path, list[str]] = {}
+    requirements_by_plan: dict[str, list[str]] = {}
+    plan_nodes: dict[str, list[dict[str, object]]] = {}
+    for node in payload.get("nodes", []):
+        if not isinstance(node, dict):
+            continue
+        source_plans = {
+            plan
+            for source in node.get("semanticSources", [])
+            if isinstance(source, dict)
+            and isinstance(source.get("path"), str)
+            and (plan := _source_plan(source["path"], feature_dir.name))
+        }
+        node_id = node.get("id")
+        if (
+            node.get("type") == "requirement"
+            and isinstance(node_id, str)
+            and TARGET_ID_RE.fullmatch(node_id)
+        ):
+            for plan in source_plans:
+                requirements_by_plan.setdefault(plan, []).append(_qualify(feature_dir.name, node_id))
+        if node.get("type") == "plan":
+            for plan in source_plans:
+                plan_nodes.setdefault(plan, []).append(node)
+    for plan, nodes in plan_nodes.items():
+        targets: list[str] = []
+        for node in nodes:
+            for edge in node.get("edges", []):
+                if not isinstance(edge, dict) or edge.get("relation") != "depends-on":
+                    continue
+                target = edge.get("target")
+                if isinstance(target, str) and TARGET_ID_RE.fullmatch(target.rsplit("/", 1)[-1]):
+                    targets.append(_qualify(feature_dir.name, target))
+        targets = targets or requirements_by_plan.get(plan, [])
+        if targets:
+            found[(feature_dir / "plans" / plan).resolve()] = list(dict.fromkeys(targets))
+    for plan, targets in requirements_by_plan.items():
+        found.setdefault((feature_dir / "plans" / plan).resolve(), list(dict.fromkeys(targets)))
+    return {path: tuple(targets) for path, targets in found.items()}, None
+
+
+def _metadata_targets(feature_dir: Path, index_text: str) -> tuple[str, ...]:
+    """Read explicit targets from the title and index metadata block only."""
+    leading = index_text.splitlines()[:20]
+    metadata = "\n".join(line for line in leading if line.startswith(("# ", ">")))
+    return tuple(
+        dict.fromkeys(
+            _qualify(feature_dir.name, match.group(0))
+            for match in re.finditer(
+                r"RD-(?:[A-Za-z0-9]+-)*\d+|T-\d+|REQ-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*",
+                metadata,
+            )
+        )
+    )
+
+
+def _new_index(execution_text: str, implements: tuple[str, ...]) -> str:
+    heading = HEADING_RE.search(execution_text)
+    title = heading.group(1) if heading else "Implementation Plan"
+    return (
+        f"# {title}\n\n> **Implements**: {', '.join(implements)}\n"
+        "> **CodeOps Artifact Schema**: 1\n"
+    )
 
 
 def _replace_implements(index_text: str, implements: tuple[str, ...]) -> str:
@@ -103,7 +190,9 @@ def inspect_migration(codeops_root: Path) -> Migration:
     feature_dirs = [path for path in (root / "features").iterdir() if path.is_dir()]
     archive = root / "_archive"
     if archive.is_dir():
-        feature_dirs.extend(path for path in archive.iterdir() if path.is_dir())
+        feature_dirs.extend(
+            path for path in archive.iterdir() if path.is_dir() and (path / "traceability.json").is_file()
+        )
     graphs = tuple(
         sorted(
             feature_dir / "traceability.json"
@@ -114,32 +203,44 @@ def inspect_migration(codeops_root: Path) -> Migration:
     for feature_dir in sorted(feature_dirs):
         plan_dirs = sorted((feature_dir / "plans").glob("*/99-execution-plan.md"))
         roadmap_links = _roadmap_links(feature_dir)
+        graph_links, graph_problem = _graph_links(feature_dir)
+        if graph_problem:
+            problems.append(graph_problem)
         feature_rds = _rd_ids(feature_dir)
         for execution in plan_dirs:
             plan_dir = execution.parent
             index = plan_dir / "00-index.md"
-            if not index.is_file():
-                problems.append(f"{index}: missing 00-index.md")
-                continue
-            index_text = index.read_text(encoding="utf-8")
+            index_text = index.read_text(encoding="utf-8") if index.is_file() else ""
             declared = tuple(_qualify(feature_dir.name, item) for item in parse_implements(index_text))
             if declared:
                 implements, source = declared, "existing declaration"
-            elif index.resolve() in roadmap_links:
-                implements, source = roadmap_links[index.resolve()], "feature roadmap"
+            elif plan_dir.resolve() in roadmap_links:
+                implements, source = roadmap_links[plan_dir.resolve()], "feature roadmap"
+            elif plan_dir.resolve() in graph_links:
+                implements, source = graph_links[plan_dir.resolve()], "legacy graph"
+            elif metadata := _metadata_targets(
+                feature_dir, index_text or execution.read_text(encoding="utf-8")
+            ):
+                implements, source = metadata, "plan metadata"
             elif len(plan_dirs) == 1 and len(feature_rds) == 1:
                 implements, source = feature_rds, "single plan and single RD"
             else:
                 problems.append(
-                    f"{index}: cannot infer implemented RDs; add an Implements declaration or roadmap link"
+                    f"{index}: cannot infer implemented targets; add an Implements declaration or roadmap link"
                 )
                 continue
-            updated = _replace_implements(index_text, implements)
-            status = inspect_plan(plan_dir, root.parent)
-            non_mapping_problems = tuple(
-                problem for problem in status.problems if "must declare one or more RD" not in problem
+            execution_text = execution.read_text(encoding="utf-8")
+            tasks = parse_tasks(execution_text)
+            if not tasks:
+                problems.append(f"{execution}: contains no execution tasks")
+            for task in tasks:
+                if task.marker == "!" and not BLOCKED_REASON_RE.search(task.text):
+                    problems.append(f"{execution}: blocked task lacks a visible 'Blocked: <reason>': {task.text}")
+            updated = (
+                _replace_implements(index_text, implements)
+                if index_text
+                else _new_index(execution_text, implements)
             )
-            problems.extend(f"{plan_dir}: {problem}" for problem in non_mapping_problems)
             plans.append(PlanMigration(index, implements, source, updated, updated != index_text))
     return Migration(root, tuple(plans), graphs, tuple(problems))
 

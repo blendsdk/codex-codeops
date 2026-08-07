@@ -43,6 +43,19 @@ class PlanStateSpecificationTests(unittest.TestCase):
             done = inspect_plan(self.make_plan(root, "RD-01, RD-02", "- [x] T-1 Verified\n"), root)
         self.assertEqual(rd_delivery((done,)), {"RD-01": "Done", "RD-02": "Done"})
 
+    def test_tracker_and_plan_local_requirement_targets_are_supported(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = inspect_plan(
+                self.make_plan(root, "billing/T-01", "- [x] T-1 Verified\n", "tracked"), root
+            )
+            local = inspect_plan(
+                self.make_plan(root, "billing/REQ-IMPORT", "- [x] T-1 Verified\n", "local"), root
+            )
+        self.assertFalse(tracked.problems)
+        self.assertFalse(local.problems)
+        self.assertEqual(rd_delivery((tracked, local)), {})
+
 
 if __name__ == "__main__":
     unittest.main()

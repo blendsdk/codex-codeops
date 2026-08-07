@@ -20,10 +20,13 @@ python3 /path/to/plugin/scripts/codeops_plan_migrate.py ./codeops --apply
 ```
 
 The migrator preserves checklist progress, adds or normalizes each plan's single
-`> **Implements**:` declaration, validates the four task markers, and deletes active and archived
-feature `traceability.json` files. It infers RD mappings only from an existing declaration, a
-feature-roadmap plan link, or a single-plan/single-RD feature. Any missing or ambiguous mapping
-blocks the entire apply without changing files. Apply requires a clean Git working tree.
+`> **Implements**:` declaration, creates a minimal index for roadmap-linked lightweight plans,
+validates the four task markers, and deletes active and archived feature `traceability.json`
+files. It prefers existing declarations and roadmap links, then consumes the legacy graph once
+to recover plan-local requirements before deleting it. Explicit index metadata and a
+single-plan/single-RD feature are conservative fallbacks. Archived features without a graph are
+outside this bounded conversion. Any missing or ambiguous mapping blocks the entire apply without
+changing files. Apply requires a clean Git working tree.
 
 For blocked legacy work that does not already use `[!]`, first use `upgrade-plan` to record a
 visible reason. Do not migrate graph state into another state platform.

@@ -91,7 +91,7 @@ class PlanMigrationTests(unittest.TestCase):
             self.commit_fixture(root)
             result = self.run_migrator(codeops, "--apply")
             self.assertEqual(result.returncode, 1)
-            self.assertIn("cannot infer implemented RDs", result.stdout)
+            self.assertIn("cannot infer implemented targets", result.stdout)
             self.assertTrue((codeops / "features" / "billing" / "traceability.json").is_file())
             for plan_name in ("first", "second"):
                 index = codeops / "features" / "billing" / "plans" / plan_name / "00-index.md"
@@ -113,6 +113,76 @@ class PlanMigrationTests(unittest.TestCase):
             result = self.run_migrator(codeops)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("DELETE _archive/billing/traceability.json", result.stdout)
+
+    def test_roadmap_tracker_creates_missing_index_from_execution_plan(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            codeops = self.make_feature(root, rds=(), roadmap=False)
+            feature = codeops / "features" / "billing"
+            plan = feature / "plans" / "billing-plan"
+            (plan / "00-index.md").unlink()
+            (feature / "00-roadmap.md").write_text(
+                "# Roadmap\n\n| ID | Title | RD | Plan |\n|---|---|---|---|\n"
+                "| T-01 | Cleanup | — | [plan](plans/billing-plan/99-execution-plan.md) |\n",
+                encoding="utf-8",
+            )
+            self.commit_fixture(root)
+            result = self.run_migrator(codeops, "--apply")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            index = plan / "00-index.md"
+            self.assertIn("> **Implements**: billing/T-01", index.read_text(encoding="utf-8"))
+            self.assertEqual(inspect_plan(plan).implements, ("billing/T-01",))
+
+    def test_plan_local_requirement_is_recovered_from_legacy_graph(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            codeops = self.make_feature(Path(directory), rds=(), roadmap=False)
+            graph = codeops / "features" / "billing" / "traceability.json"
+            graph.write_text(
+                '{"nodes": ['
+                '{"id":"REQ-IMPORT","type":"requirement","semanticSources":['
+                '{"path":"codeops/features/billing/plans/billing-plan/01-requirements.md"}]},'
+                '{"id":"PLAN-IMPORT","type":"plan","semanticSources":['
+                '{"path":"codeops/features/billing/plans/billing-plan/00-index.md"}],"edges":[]}'
+                ']}\n',
+                encoding="utf-8",
+            )
+            result = self.run_migrator(codeops)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("billing/REQ-IMPORT (legacy graph)", result.stdout)
+
+    def test_archived_feature_without_graph_is_out_of_scope(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            codeops = self.make_feature(Path(directory), rds=("RD-01",), roadmap=False)
+            archive_feature = codeops / "_archive" / "unrelated"
+            plan = archive_feature / "plans" / "ambiguous"
+            plan.mkdir(parents=True)
+            (plan / "99-execution-plan.md").write_text("# Execution\n\n- [ ] T-1 Build\n", encoding="utf-8")
+            result = self.run_migrator(codeops)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertNotIn("unrelated", result.stdout)
+
+    def test_rd_reference_in_index_metadata_is_an_explicit_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            codeops = self.make_feature(Path(directory), plans=("first", "second"), roadmap=False)
+            index = codeops / "features" / "billing" / "plans" / "first" / "00-index.md"
+            index.write_text("# First\n\n> **Type**: Remediation follow-up to RD-02\n", encoding="utf-8")
+            second = codeops / "features" / "billing" / "plans" / "second" / "00-index.md"
+            second.write_text("# Second\n\n> **Implements**: billing/RD-01\n", encoding="utf-8")
+            result = self.run_migrator(codeops)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("billing/RD-02 (plan metadata)", result.stdout)
+
+    def test_lightweight_task_id_in_execution_title_is_an_explicit_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            codeops = self.make_feature(Path(directory), rds=(), roadmap=False)
+            plan = codeops / "features" / "billing" / "plans" / "billing-plan"
+            (plan / "00-index.md").unlink()
+            (plan / "99-execution-plan.md").write_text(
+                "# Task T-07: Repair release\n\n- [x] T-07.1 Verified\n", encoding="utf-8"
+            )
+            result = self.run_migrator(codeops)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("billing/T-07 (plan metadata)", result.stdout)
 
 
 if __name__ == "__main__":
