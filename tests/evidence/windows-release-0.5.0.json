@@ -1,13 +1,13 @@
 {
-  "artifactName": "codeops-0.5.0-92bc84b.zip",
-  "candidateSha256": "c5462c788920b3fb8166426af0c6440882af5b63c1cd76146cd2aab1ff47ecdc",
+  "artifactName": "codeops-0.5.0-642d85f.zip",
+  "candidateSha256": "ad9d59f996bffad9fc51909e2d2f2e88c9e2ce9692339cb4398f8aceaaa3d5b8",
   "ci": {
-    "artifactName": "codeops-0.5.0-92bc84b.zip",
+    "artifactName": "codeops-0.5.0-642d85f.zip",
     "conclusion": "success",
-    "headCommit": "92bc84b044d4f4d096f2bef8ac25f4c14c7bad58",
+    "headCommit": "642d85f9f48ee68eb707ba75cf08aa287853df22",
     "runId": "pending-certification-run"
   },
   "pluginVersion": "0.5.0",
   "schemaVersion": 1,
-  "sourceCommit": "92bc84b044d4f4d096f2bef8ac25f4c14c7bad58"
+  "sourceCommit": "642d85f9f48ee68eb707ba75cf08aa287853df22"
 }
