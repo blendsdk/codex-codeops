@@ -1,9 +1,8 @@
 # Installation and trust
 
-The release-tested host is Linux with Bash and Python 3. Native Windows 11 is a pending 0.5.0
-release target until the exact final artifact passes CLI, Desktop, Ubuntu, and Windows evidence
-gates and the annotated release is published. It requires PowerShell, Git for Windows, and Python
-3.10 or newer. Do not invoke CodeOps through WSL, Git Bash, or a Bash launcher on Windows.
+The release-tested hosts are Linux with Bash and Python 3, and native Windows 11 with PowerShell,
+Git for Windows, and Python 3.10 or newer. Do not invoke CodeOps through WSL, Git Bash, or a Bash
+launcher on Windows.
 
 ## Install from GitHub
 

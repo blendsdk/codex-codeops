@@ -337,16 +337,17 @@ class MutationUtilityImplementationTests(unittest.TestCase):
 
 
 class DocumentationImplementationTests(unittest.TestCase):
-    def test_windows_docs_keep_support_pending_and_publish_native_commands(self) -> None:
+    def test_windows_docs_publish_supported_boundary_and_native_commands(self) -> None:
         combined = "\n".join(
             (ROOT / relative).read_text(encoding="utf-8")
             for relative in ("README.md", "docs/installation.md", "docs/troubleshooting.md")
         )
-        self.assertIn("pending 0.5.0", combined)
+        self.assertIn("release-tested hosts", combined)
+        self.assertIn("native Windows 11", combined)
         self.assertIn("codeops-verify.ps1", combined)
         self.assertIn("Python 3.10", combined)
         self.assertIn("WSL", combined)
-        self.assertNotIn("supports native Windows 11", combined)
+        self.assertIn("supports native Windows 11", combined)
 
     def test_native_constraints_are_present_in_migration_tutorial_and_concepts(self) -> None:
         for relative in ("docs/migration.md", "docs/tutorial.md", "docs/concepts.md"):

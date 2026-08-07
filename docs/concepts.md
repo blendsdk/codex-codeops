@@ -31,7 +31,7 @@ Windows command selection is host-native: PowerShell resolves Python 3.10 or new
 Python owners perform the work. WSL may be installed, but a CodeOps process actually running in
 WSL is unsupported and blocks before mutation; Git Bash is not a Windows runtime path. Durable
 mutation support is limited to writable fixed local NTFS workspaces without reparse-backed path
-components. These constraints define the candidate native Windows mutation boundary; see
+components. These constraints define the supported native Windows mutation boundary; see
 [installation](installation.md) for current release status, prerequisites, and verification commands.
 
 ## Delegated technical design

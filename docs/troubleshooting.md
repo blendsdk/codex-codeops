@@ -61,5 +61,3 @@ Use neither WSL nor Git Bash. If the bootstrap cannot resolve Python, install Py
 and make `py -3` or `python` available. Confirm that Codex is running natively on Windows 11 and
 that the checkout is on writable, fixed local NTFS storage without reparse-backed path components.
 The preflight reports the blocking prerequisite and remediation before any mutation occurs.
-Before 0.5.0 is published, a successful developer run remains diagnostic evidence rather than a
-native Windows support claim.
