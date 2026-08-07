@@ -1,8 +1,8 @@
 {
-  "commandClass": "native-python",
+  "commandClass": "native-codex",
   "result": "pass",
   "scenarioId": "planning",
   "schemaVersion": 1,
-  "summary": "native command completed successfully",
-  "timestamp": "2026-08-07T00:28:24Z"
+  "summary": "installed-plugin planning workflow completed with verified postconditions",
+  "timestamp": "2026-08-07T05:03:16Z"
 }
