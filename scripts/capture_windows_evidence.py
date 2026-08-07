@@ -375,6 +375,7 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
         timestamp = datetime.now(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
         base_environment = dict(os.environ)
         base_environment.update({"PLUGIN_ROOT": str(plugin_root), "PLUGIN_DATA": str(records_root / "plugin-data"), "PYTHONUTF8": "1"})
+        Path(base_environment["PLUGIN_DATA"]).mkdir(parents=True)
         marketplace_name = f"codeops-cert-{authority['candidateSha256'][:12]}"
         marketplace = extracted / ".agents" / "plugins" / "marketplace.json"
         relative_plugin = plugin_root.relative_to(extracted).as_posix()
@@ -423,7 +424,14 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
             extracted / "recovery-project", base_environment,
         )
         (lifecycle / "codeops" / "codeops.json").write_text(
-            '{"metrics":{"enabled":true}}\n', encoding="utf-8", newline="\n",
+            json.dumps({
+                "schema": 1,
+                "mode": "strict",
+                "artifacts": {"layout": "nested", "root": "codeops"},
+                "quality": {"independentReview": True, "minimumReviewers": 1, "stopOnMajorFinding": True},
+                "metrics": {"enabled": True},
+            }, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8", newline="\n",
         )
         _commit_all(lifecycle, "certification requests", base_environment)
         _commit_all(recovery_graph.parents[3], "interrupted recovery fixture", base_environment)
@@ -511,9 +519,9 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
                     for item in installed if isinstance(item, dict)
                 )
             postconditions = {
-                "requirements": any(workspace.rglob("*requirements*.md")),
-                "planning": any(workspace.rglob("*plan*.md")),
-                "preflight-audit": any(workspace.rglob("*preflight*.md")),
+                "requirements": bool(_git(workspace, "status", "--porcelain")),
+                "planning": bool(_git(workspace, "status", "--porcelain")),
+                "preflight-audit": bool(_git(workspace, "status", "--porcelain")),
                 "execution-transition-recovery": (
                     json.loads(graph_path.read_text(encoding="utf-8"))["nodes"][2]["status"] == "implemented"
                     and json.loads(recovery_graph.read_text(encoding="utf-8"))["nodes"][2]["status"] == "pending"

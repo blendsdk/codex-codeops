@@ -148,6 +148,9 @@ class CaptureBoundaryTests(unittest.TestCase):
         self.assertIn("installed scenarios failed", source)
         self.assertIn('"--json", "transition"', source)
         self.assertIn('for gate in ("docs", "migration", "roadmap", "compact")', source)
+        self.assertIn('Path(base_environment["PLUGIN_DATA"]).mkdir', source)
+        self.assertIn('"artifacts": {"layout": "nested", "root": "codeops"}', source)
+        self.assertIn('bool(_git(workspace, "status", "--porcelain"))', source)
 
     def test_path_sanitizer_replaces_candidate_root(self) -> None:
         plugin = Path("C:/Candidate With Spaces")
