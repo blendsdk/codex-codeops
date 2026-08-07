@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 import stat
+import subprocess
 import tempfile
 import unittest
 import zipfile
@@ -225,15 +226,39 @@ class CertificationCISpecification(unittest.TestCase):
         from scripts.package_release import package
 
         with tempfile.TemporaryDirectory() as raw:
+            fixture = Path(raw) / "fixture"
+            fixture.mkdir()
+            (fixture / ".gitattributes").write_text(
+                "ignored.txt export-ignore\n", encoding="utf-8", newline="\n"
+            )
+            (fixture / "ignored.txt").write_text("excluded\n", encoding="utf-8", newline="\n")
+            (fixture / "run.sh").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8", newline="\n")
+            subprocess.run(["git", "init", str(fixture)], check=True, capture_output=True)
+            subprocess.run(
+                ["git", "-C", str(fixture), "config", "user.name", "CodeOps Test"], check=True
+            )
+            subprocess.run(
+                ["git", "-C", str(fixture), "config", "user.email", "codeops@example.invalid"],
+                check=True,
+            )
+            subprocess.run(["git", "-C", str(fixture), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(fixture), "update-index", "--chmod=+x", "run.sh"], check=True
+            )
+            subprocess.run(
+                ["git", "-C", str(fixture), "commit", "-m", "fixture"],
+                check=True,
+                capture_output=True,
+            )
             first = Path(raw) / "first.zip"
             second = Path(raw) / "second.zip"
-            package(ROOT, "HEAD", first)
-            package(ROOT, "HEAD", second)
+            package(fixture, "HEAD", first)
+            package(fixture, "HEAD", second)
             self.assertEqual(first.read_bytes(), second.read_bytes())
             with zipfile.ZipFile(first) as archive:
                 names = set(archive.namelist())
-                self.assertNotIn("tests/evidence/windows-native-0.5.0.json", names)
-                mode = archive.getinfo("scripts/validate-codex.sh").external_attr >> 16
+                self.assertNotIn("ignored.txt", names)
+                mode = archive.getinfo("run.sh").external_attr >> 16
                 self.assertTrue(mode & stat.S_IXUSR)
 
 
