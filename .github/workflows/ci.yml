@@ -45,7 +45,12 @@ jobs:
           npm install --global @openai/codex@0.146.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $npmRoot = & npm root --global
-          $source = Join-Path $npmRoot '@openai/codex/vendor/aarch64-pc-windows-msvc/codex/codex.exe'
+          $matches = @(
+            Get-ChildItem -LiteralPath $npmRoot -Recurse -File -Filter codex.exe |
+              Where-Object { $_.FullName -match 'aarch64-pc-windows-msvc' }
+          )
+          if ($matches.Count -ne 1) { throw "Expected one native ARM64 Codex binary, found $($matches.Count)" }
+          $source = $matches[0].FullName
           $bin = Join-Path $env:RUNNER_TEMP 'native-codex-bin'
           New-Item -ItemType Directory -Force -Path $bin | Out-Null
           Copy-Item -LiteralPath $source -Destination (Join-Path $bin 'codex.exe')
