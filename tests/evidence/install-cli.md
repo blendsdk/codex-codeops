@@ -1,14 +1,15 @@
 # Codex CLI installation lifecycle evidence
 
-- Captured: 2026-07-31
-- Host: Linux
+- Captured: 2026-08-07
+- Host: release-candidate metadata preparation
 - Codex CLI: `0.146.0`
 - Marketplace: `blendsdk/codex-codeops`, ref `main`
-- Plugin: `codeops@codeops-marketplace`, version `0.4.0`
-- Repository source: release tag `v0.4.0`
+- Plugin: `codeops@codeops-marketplace`, version `0.5.0`
+- Evidence state: pre-publication package validation
+- Source state: working tree for planned `v0.5.0`
 
-The following lifecycle was executed successfully against commit `b29ab79` on the public GitHub
-repository in this order:
+The retained `0.4.0` lifecycle below remains the latest published installation proof while the
+`0.5.0` candidate is certified:
 
 1. `codex plugin marketplace upgrade codeops-marketplace --json` refreshed the public marketplace
    without errors.

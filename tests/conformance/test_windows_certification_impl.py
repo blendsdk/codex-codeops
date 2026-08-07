@@ -11,7 +11,13 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from scripts.capture_windows_evidence import _normalized, capture
+from scripts.capture_windows_evidence import (
+    _discard_capture,
+    _normalized,
+    _prepare_output,
+    _write_json,
+    capture,
+)
 from scripts.codeops_verify_lib.core import windows_evidence
 from scripts.validate_windows_evidence import validate_evidence_set
 from scripts.validate_plugin import validate_windows_support_claim
@@ -91,6 +97,26 @@ class CaptureBoundaryTests(unittest.TestCase):
         with patch("scripts.capture_windows_evidence.os.name", "posix"):
             with self.assertRaisesRegex(RuntimeError, "native Windows 11"):
                 capture(args)
+
+    def test_output_preserves_existing_evidence_and_refuses_version_collision(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            output = Path(raw) / "evidence"
+            output.mkdir()
+            retained = output / "prior.json"
+            retained.write_text("retained\n", encoding="utf-8")
+            records, manifest = _prepare_output(output, VERSION)
+            _write_json(manifest, {"status": "partial"})
+            with self.assertRaisesRegex(RuntimeError, "already exists"):
+                _prepare_output(output, VERSION)
+            _discard_capture(records, manifest)
+            self.assertEqual(retained.read_text(encoding="utf-8"), "retained\n")
+            self.assertTrue(output.is_dir())
+
+    def test_json_writer_uses_lf_for_hash_stability(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "record.json"
+            _write_json(path, {"line": "one\ntwo"})
+            self.assertNotIn(b"\r\n", path.read_bytes())
 
 
 class PortableVerificationTests(unittest.TestCase):

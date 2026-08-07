@@ -55,7 +55,28 @@ def _parser() -> argparse.ArgumentParser:
 
 def _write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+
+
+def _prepare_output(output: Path, version: str) -> tuple[Path, Path]:
+    """Create a version-owned record directory without disturbing retained evidence."""
+
+    records_root = output / f"windows-native-{version}"
+    manifest_path = output / f"windows-native-{version}.json"
+    if records_root.exists() or manifest_path.exists():
+        raise RuntimeError(f"evidence already exists for version {version}")
+    output.mkdir(parents=True, exist_ok=True)
+    records_root.mkdir()
+    return records_root, manifest_path
+
+
+def _discard_capture(records_root: Path, manifest_path: Path) -> None:
+    """Remove only artifacts owned by the current failed capture."""
+
+    manifest_path.unlink(missing_ok=True)
+    if records_root.exists():
+        shutil.rmtree(records_root)
 
 
 def _sha256(path: Path) -> str:
@@ -112,10 +133,7 @@ def capture(args: argparse.Namespace) -> Path:
         if not (plugin_root / "scripts" / "codeops_verify.py").is_file():
             raise RuntimeError("packed candidate is missing portable verification tooling")
 
-        records_root = output / f"windows-native-{version}"
-        if output.exists():
-            raise RuntimeError("output directory already exists")
-        records_root.mkdir(parents=True)
+        records_root, manifest_path = _prepare_output(output, version)
         timestamp = datetime.now(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
         environment = dict(os.environ)
         environment.update({"PLUGIN_ROOT": str(plugin_root), "PLUGIN_DATA": str(records_root / "plugin-data"), "PYTHONUTF8": "1"})
@@ -155,7 +173,6 @@ def capture(args: argparse.Namespace) -> Path:
         git_version = _git(root, "--version")
         build = int(platform.version().split(".")[-1])
         architecture = platform.machine().upper()
-        manifest_path = output / f"windows-native-{version}.json"
         _write_json(manifest_path, {
             "schemaVersion": 1, "pluginVersion": version, "commit": head,
             "candidateSha256": _sha256(candidate),
@@ -170,7 +187,7 @@ def capture(args: argparse.Namespace) -> Path:
         })
         errors = validate_evidence_set(output, cli_path=manifest_path, desktop_path=None, expected_version=version, expected_commit=head)
         if errors:
-            shutil.rmtree(output)
+            _discard_capture(records_root, manifest_path)
             raise RuntimeError("captured evidence failed validation: " + "; ".join(errors))
         return manifest_path
 
