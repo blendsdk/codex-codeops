@@ -1,0 +1,41 @@
+{
+  "assertions": {
+    "gitBashInvoked": false,
+    "nativeWindows": true,
+    "wslInvoked": false
+  },
+  "candidateSha256": "d4b469cd522caf734e5f274857b5e89cff03e1013204c5c7ddf72280d3446ada",
+  "checklist": [
+    {
+      "id": "installation",
+      "status": "pass"
+    },
+    {
+      "id": "enablement",
+      "status": "pass"
+    },
+    {
+      "id": "hook-review",
+      "status": "pass"
+    },
+    {
+      "id": "preflight",
+      "status": "pass"
+    },
+    {
+      "id": "requirements-to-plan",
+      "status": "pass"
+    }
+  ],
+  "commit": "87978a39861686491156b1f847d6bf843069b9da",
+  "kind": "desktop",
+  "pluginVersion": "0.5.0",
+  "reviewer": {
+    "github": "blendsdk",
+    "timestamp": "2026-08-07T01:04:00Z"
+  },
+  "schemaVersion": 1,
+  "tools": {
+    "codex": "Codex desktop 26.730.8199.0 (codex 0.147.0-alpha.1.2)"
+  }
+}

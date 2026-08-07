@@ -1825,6 +1825,10 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "implementationEvidence:Codex Desktop 26.730.8199.0 loaded installed candidate 0.5.0, native Windows and PowerShell settings were observed, hooks reviewed, native preflight passed, and isolated requirements-to-plan smoke produced 12 artifacts",
+        "verificationEvidence:Paired CLI and Desktop evidence validation passed; isolated Desktop smoke graph validated and exact PLAN-HELLO plan readiness reached READY"
+      ],
       "id": "TASK-5.3.2",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1837,7 +1841,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Execute Windows desktop installation, hook review, preflight, and representative requirements-to-plan smoke on the same candidate and retain evidence",
       "type": "task",
       "validations": []
