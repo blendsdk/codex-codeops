@@ -12,10 +12,21 @@ Project instructions belong in `AGENTS.md` for Codex. Do not mechanically copy g
 
 ## Legacy workflow-state artifacts
 
-Upgrade legacy Markdown in place: preserve requirements and checklist progress, add one
-`> **Implements**:` declaration listing every RD implemented by the plan, convert blocked work to
-`[!]` with a visible reason, and retain `[~]`/`[x]` accurately. After confirming no external tool
-still consumes it, delete `traceability.json`; do not migrate it into another state platform.
+Use the one-shot migrator on a nested `codeops/` directory. It previews by default:
 
-Run `python3 /path/to/plugin/scripts/codeops_plan.py --root . --json`, then the repository's normal
-verification. Git history is the rollback and recovery mechanism.
+```bash
+python3 /path/to/plugin/scripts/codeops_plan_migrate.py ./codeops
+python3 /path/to/plugin/scripts/codeops_plan_migrate.py ./codeops --apply
+```
+
+The migrator preserves checklist progress, adds or normalizes each plan's single
+`> **Implements**:` declaration, validates the four task markers, and deletes active and archived
+feature `traceability.json` files. It infers RD mappings only from an existing declaration, a
+feature-roadmap plan link, or a single-plan/single-RD feature. Any missing or ambiguous mapping
+blocks the entire apply without changing files. Apply requires a clean Git working tree.
+
+For blocked legacy work that does not already use `[!]`, first use `upgrade-plan` to record a
+visible reason. Do not migrate graph state into another state platform.
+
+After apply, run `python3 /path/to/plugin/scripts/codeops_plan.py --root . --json`, then the
+repository's normal verification. Git history is the rollback and recovery mechanism.

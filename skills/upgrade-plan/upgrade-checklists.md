@@ -15,6 +15,10 @@ SKILL.md — never destroy user work.
 
 ## Plan upgrade — re-evaluation checklists
 
+For a whole nested project, use `codeops_plan_migrate.py <codeops-dir>` to preview the mechanical
+RD mapping and obsolete-graph deletion after these content checks pass. Apply only from a clean
+Git tree and only when the preview has no blocked plan.
+
 Re-evaluate each plan document against the make-plan skill's current standards.
 
 ### `00-index.md`

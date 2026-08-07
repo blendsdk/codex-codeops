@@ -16,7 +16,10 @@ from pathlib import Path
 
 
 IMPLEMENTS_RE = re.compile(r"^>\s*\*\*Implements\*\*:\s*(.+?)\s*$", re.MULTILINE)
-RD_RE = re.compile(r"(?<![A-Za-z0-9_-])(?:[A-Za-z0-9][A-Za-z0-9_-]*/)?RD-\d+(?![A-Za-z0-9_-])")
+RD_RE = re.compile(
+    r"(?<![A-Za-z0-9_-])(?:[A-Za-z0-9][A-Za-z0-9_-]*/)?RD-(?:[A-Za-z0-9]+-)*\d+"
+    r"(?![A-Za-z0-9_-])"
+)
 TASK_RE = re.compile(r"^-\s*\[([ xX~!])\]\s+(.+?)\s*$", re.MULTILINE)
 BLOCKED_REASON_RE = re.compile(r"(?:blocked|reason)\s*:\s*\S", re.IGNORECASE)
 

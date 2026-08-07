@@ -27,6 +27,16 @@ uses the four checklist markers, report no upgrade needed. Treat obsolete tracea
 deletion candidates after confirming no external consumer depends on them; do not migrate their
 graph state into a replacement platform.
 
+For a whole nested `codeops/` project, preview the deterministic structural portion with:
+
+```bash
+python3 "${PLUGIN_ROOT}/scripts/codeops_plan_migrate.py" ./codeops
+```
+
+If the preview has no `BLOCKED` entries and the user approves it, rerun with `--apply`. The
+migrator never resolves content ambiguities: return blocked mappings or legacy blocker semantics
+to this skill before applying.
+
 ## Phase 2 — Approval and content-quality gate
 
 Present the report before writing. The user may approve all, request details, narrow scope, or decline.
