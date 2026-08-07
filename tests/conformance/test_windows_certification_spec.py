@@ -258,6 +258,7 @@ class CertificationCISpecification(unittest.TestCase):
             with zipfile.ZipFile(first) as archive:
                 names = set(archive.namelist())
                 self.assertNotIn("ignored.txt", names)
+                self.assertEqual(archive.read("run.sh"), b"#!/bin/sh\nexit 0\n")
                 mode = archive.getinfo("run.sh").external_attr >> 16
                 self.assertEqual(mode, stat.S_IFREG | 0o755)
 
