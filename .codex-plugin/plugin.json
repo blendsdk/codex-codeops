@@ -1,6 +1,6 @@
 {
   "name": "codeops",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Rigorous requirements, recursive ambiguity elimination, planning, execution, review, and project tracking for complex systems.",
   "author": {
     "name": "blendsdk",

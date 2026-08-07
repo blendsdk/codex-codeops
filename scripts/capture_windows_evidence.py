@@ -123,10 +123,16 @@ def capture(args: argparse.Namespace) -> Path:
         trace: list[dict[str, object]] = []
         for scenario in REQUIRED_SCENARIOS:
             if scenario == "verification":
-                argv = (sys.executable, str(plugin_root / "scripts" / "codeops_verify.py"), "all", "--root", str(root))
+                argv = (
+                    sys.executable,
+                    str(plugin_root / "scripts" / "codeops_verify.py"),
+                    "all",
+                    "--root",
+                    str(plugin_root),
+                )
             else:
                 argv = (sys.executable, "-m", "unittest", SCENARIO_TESTS[scenario])
-            result = run_command(argv, cwd=root, environment=environment)
+            result = run_command(argv, cwd=plugin_root, environment=environment)
             status = "pass" if result.exit_code == 0 else "fail"
             record = records_root / f"{scenario}.json"
             _write_json(record, {
