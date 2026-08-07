@@ -4,7 +4,7 @@ CodeOps is a specification-first engineering system for building complex softwar
 
 It is designed for work where an unstated assumption can become a correctness defect: programming languages and compilers, financial systems, protocols, distributed services, security-sensitive applications, developer tools, and substantial web applications.
 
-> **Release status:** `0.4.0` is the stable release of the current CodeOps workflow surface. Core workflows, deterministic state, project tracking, domain lenses, Codex-native routing, opt-in delegated technical design, strict scope control with user-owned exploration, and a non-negotiable source-documentation gate are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
+> **Release status:** `0.5.0` is the current stable release. It adds certified native Windows 11 support while preserving the Linux workflow surface, deterministic state, project tracking, domain lenses, Codex-native routing, delegated technical design, strict scope control, and the source-documentation gate. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
 
 ## The workflow
 
@@ -81,10 +81,9 @@ codex plugin add codeops@codeops-marketplace
 
 These commands have been verified against the published repository. Start a new Codex thread after installation so skills and hooks are discovered.
 
-The tested host is Linux with Bash and Python 3. macOS is expected to be compatible but is not yet
-a release-tested claim. Native Windows 11 support is under implementation and remains unsupported
-until version-matched CI, CLI, and desktop certification evidence passes. Windows development uses
-PowerShell and native executables only—never WSL or Git Bash.
+CodeOps supports native Windows 11 with PowerShell, Git for Windows, and Python 3.10 or newer, and
+supports Linux with Bash and Python 3. macOS is expected to be compatible but is not yet a
+release-tested claim. On Windows, CodeOps uses native executables only—never WSL or Git Bash.
 
 Codex requires non-managed hooks to be reviewed before they run. Open `/hooks`, inspect the CodeOps SessionStart and edit-warning definitions, and trust them if they match this repository.
 
@@ -115,7 +114,7 @@ python -m pip install -r requirements-dev.txt
 ./scripts/validate-codex.sh
 ```
 
-Native Windows 11 pre-certification uses Python 3.10 or newer and the PowerShell-owned portable
+Native Windows 11 development uses Python 3.10 or newer and the PowerShell-owned portable
 verification path:
 
 ```powershell
@@ -124,8 +123,9 @@ $python = & .\scripts\codeops-windows-preflight.ps1 -ResolvePython
 & .\scripts\codeops-verify.ps1 all
 ```
 
-These development commands do not establish a Windows support claim; that claim remains blocked
-until the exact release candidate has passing retained certification evidence.
+The supported mutation boundary is a native Windows 11 Codex process in a writable, fixed local
+NTFS workspace without reparse-backed path components. The preflight blocks before mutation when
+that boundary or another prerequisite is not satisfied.
 
 The sibling Claude CodeOps repository is the behavioral baseline during the port. Codex-specific improvements are accepted only when they preserve or strengthen ambiguity closure, verification, recovery, and project tracking.
 

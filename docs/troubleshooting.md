@@ -49,7 +49,7 @@ Re-run `setup-routing` to preview and regenerate selected marked agents. Hand-au
 
 Migration requires a Git repository and clean working tree because recoverability depends on Git history. Commit or stash unrelated work, review the dry-run again, then apply.
 
-## Native Windows pre-certification fails
+## Native Windows verification fails
 
 Run the native verifier from a PowerShell session in a fixed local NTFS checkout:
 
@@ -58,6 +58,6 @@ Run the native verifier from a PowerShell session in a fixed local NTFS checkout
 ```
 
 Use neither WSL nor Git Bash. If the bootstrap cannot resolve Python, install Python 3.10 or newer
-and make `py -3` or `python` available. A successful developer run is useful diagnostic evidence,
-but Windows remains unsupported until the retained CI, CLI, and desktop certification records for
-the exact release candidate pass validation.
+and make `py -3` or `python` available. Confirm that Codex is running natively on Windows 11 and
+that the checkout is on writable, fixed local NTFS storage without reparse-backed path components.
+The preflight reports the blocking prerequisite and remediation before any mutation occurs.

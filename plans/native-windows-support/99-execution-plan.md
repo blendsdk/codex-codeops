@@ -2,8 +2,8 @@
 
 > **Document**: 99-execution-plan.md
 > **Parent**: [Index](00-index.md)
-> **Last Updated**: 2026-08-07 03:10
-> **Progress**: 70/72 tasks (97%)
+> **Last Updated**: 2026-08-07 03:29
+> **Progress**: 71/72 tasks (99%)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -458,7 +458,7 @@ suite and the native PowerShell aggregate of all five logical gates.
 
 - [x] 5.3.1 Run the capture command against the packed candidate on a real native Windows 11 Codex CLI host and retain the version-matched manifest, command trace, and sanitized hash-bound scenario records — `tests/evidence/windows-native-<version>.json`, `tests/evidence/windows-native-<version>/` ✅ (completed: 2026-08-07 02:32)
 - [x] 5.3.2 Execute Windows desktop installation, hook review, preflight, and representative requirements-to-plan smoke on the same candidate and retain evidence — `tests/evidence/windows-desktop-<version>.json` ✅ (completed: 2026-08-07 03:10)
-- [ ] 5.3.3 Validate CI/CLI/desktop evidence together, update README/docs/changelog/release metadata to the proven support boundary, and select the SemVer change under repository policy — `README.md`, `docs/installation.md`, `CHANGELOG.md`
+- [x] 5.3.3 Validate CI/CLI/desktop evidence together, update README/docs/changelog/release metadata to the proven support boundary, and select the SemVer change under repository policy — `README.md`, `docs/installation.md`, `CHANGELOG.md` ✅ (completed: 2026-08-07 03:29)
 - [ ] 5.3.4 Run the installed release artifact on native Windows and Ubuntu, run all five logical gates, complete independent quality review/audit, then close GitHub issues #2 and #3 only if their acceptance criteria are met — `tests/evidence/windows-native-<version>.json`
 
 **Verify**: run all five commands confirmed in AR-14 on Ubuntu and their native portable

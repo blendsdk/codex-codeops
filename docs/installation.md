@@ -1,9 +1,8 @@
 # Installation and trust
 
-The tested host is Linux with Bash and Python 3. macOS compatibility is expected but not yet
-release-tested. Native Windows 11 support is under implementation and remains unsupported until
-the version-matched CI, CLI, and desktop evidence gate passes. The commands below are for
-development and pre-certification only; passing them does not establish a release support claim.
+CodeOps supports native Windows 11 with PowerShell, Git for Windows, and Python 3.10 or newer, and
+supports Linux with Bash and Python 3. macOS compatibility is expected but not yet release-tested.
+Windows execution is native: do not invoke CodeOps through WSL, Git Bash, or a Bash launcher.
 
 ## Install from GitHub
 
@@ -64,7 +63,7 @@ python -m pip install -r requirements-dev.txt
 
 Do not hand-edit installed cache files.
 
-### Native Windows 11 development
+### Native Windows 11
 
 Use Windows PowerShell or PowerShell 7 with native Git for Windows. Do not use WSL, Git Bash, or a
 Bash launcher for CodeOps on Windows.
@@ -78,6 +77,7 @@ $python = & .\scripts\codeops-windows-preflight.ps1 -ResolvePython
 ```
 
 The bootstrap requires Python 3.10 or newer. The native mutation preflight additionally requires
-Windows 11, native Codex, Git for Windows, and a writable fixed local NTFS workspace. Native
-Windows remains a pending support target until retained certification evidence validates the
-exact release candidate.
+Windows 11, native Codex, Git for Windows, and a writable fixed local NTFS workspace without
+reparse-backed path components. It reports actionable prerequisite status and blocks before a
+write when the supported mutation boundary is not satisfied. WSL may remain installed; CodeOps
+only prohibits executing through it.

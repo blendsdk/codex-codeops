@@ -2,8 +2,8 @@
 
 ## 0.5.0 — 2026-08-07
 
-- Prepare native Windows 11 support with PowerShell launchers, Windows path and encoding handling,
-  an ARM64 Windows CI authority, and release-bound CLI and desktop certification evidence.
+- Add certified native Windows 11 support with PowerShell launchers, Windows path and encoding
+  handling, an ARM64 Windows CI authority, and release-bound CLI and desktop evidence.
 - Preserve the Ubuntu Bash verification authority while keeping Windows execution entirely native.
 
 All notable changes to CodeOps for Codex are recorded here.

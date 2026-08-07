@@ -144,9 +144,10 @@ class PortableVerificationTests(unittest.TestCase):
 
 
 class ReleaseClaimGuardTests(unittest.TestCase):
-    def test_current_pending_documentation_passes_claim_guard(self) -> None:
+    def test_current_certified_documentation_passes_claim_guard(self) -> None:
+        manifest = json.loads((ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         errors: list[str] = []
-        validate_windows_support_claim(ROOT, {"version": VERSION}, errors)
+        validate_windows_support_claim(ROOT, manifest, errors)
         self.assertEqual(errors, [])
 
     def test_affirmative_claim_without_retained_pair_is_rejected(self) -> None:

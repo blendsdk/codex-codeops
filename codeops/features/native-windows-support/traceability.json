@@ -1848,6 +1848,10 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "implementationEvidence:Public documentation and 0.5.0 changelog metadata now state the evidence-proven native Windows 11 support boundary and exact native prerequisites",
+        "verificationEvidence:Evidence-bound support claim validation and all five native PowerShell verification gates passed; Windows PowerShell native-stderr regression is covered"
+      ],
       "id": "TASK-5.3.3",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1860,7 +1864,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "verified",
       "title": "Validate CI/CLI/desktop evidence together, update README/docs/changelog/release metadata to the proven support boundary, and select the SemVer change under repository policy",
       "type": "task",
       "validations": []

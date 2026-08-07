@@ -21,5 +21,16 @@ if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($python)) {
 
 $root = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $verifier = Join-Path $PSScriptRoot 'codeops_verify.py'
-& $python $verifier $Command --root $root @ForwardedArguments
-exit $LASTEXITCODE
+$nativeErrorActionPreference = $ErrorActionPreference
+try {
+    # Windows PowerShell converts native stderr into error records. Verification children may
+    # legitimately write diagnostics to stderr even when their aggregate result succeeds, so the
+    # native exit code remains the authority for this invocation.
+    $ErrorActionPreference = 'Continue'
+    & $python $verifier $Command --root $root @ForwardedArguments
+    $nativeExitCode = $LASTEXITCODE
+}
+finally {
+    $ErrorActionPreference = $nativeErrorActionPreference
+}
+exit $nativeExitCode

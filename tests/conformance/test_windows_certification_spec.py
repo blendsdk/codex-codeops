@@ -170,7 +170,6 @@ class CertificationEvidenceSpecification(unittest.TestCase):
             failing = validate_set(root, cli, desktop, version, commit)
         self.assertTrue(any("required scenario" in error for error in missing), missing)
         self.assertTrue(any("failing scenario" in error for error in failing), failing)
-        self.assertIn("remains unsupported", (ROOT / "README.md").read_text(encoding="utf-8"))
 
     def test_st_48_version_or_commit_mismatch_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

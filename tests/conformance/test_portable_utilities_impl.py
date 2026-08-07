@@ -571,6 +571,31 @@ class PortableRenderingAndReportingTests(unittest.TestCase):
                 )
                 self.assertEqual(result.returncode, 2)
 
+    @unittest.skipUnless(os.name == "nt", "native PowerShell launcher is Windows-only")
+    def test_powershell_verifier_preserves_native_stderr_exit_code(self) -> None:
+        launcher = (ROOT / "scripts/codeops-verify.ps1").read_text(encoding="utf-8")
+        self.assertIn("$nativeErrorActionPreference = $ErrorActionPreference", launcher)
+        self.assertIn("$ErrorActionPreference = 'Continue'", launcher)
+        self.assertIn("$ErrorActionPreference = $nativeErrorActionPreference", launcher)
+        result = subprocess.run(
+            [
+                "powershell.exe",
+                "-NoProfile",
+                "-File",
+                str(ROOT / "scripts/codeops-verify.ps1"),
+                "docs",
+                "--unexpected-option",
+            ],
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            capture_output=True,
+            check=False,
+            shell=False,
+        )
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("unrecognized arguments", result.stderr)
+
     def test_aggregate_reports_all_checks_after_failure_in_closed_order(self) -> None:
         from scripts.codeops_verify_lib.core import CHECK_NAMES, CheckResult, run_checks
 

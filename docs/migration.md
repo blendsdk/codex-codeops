@@ -41,4 +41,4 @@ $python = & "$env:PLUGIN_ROOT\scripts\codeops-windows-preflight.ps1" -ResolvePyt
 WSL may be installed on the machine, but CodeOps does not run through WSL or Git Bash on Windows;
 an actual WSL process is rejected before mutation. Apply migrations only from a writable
 fixed local NTFS checkout without reparse-backed path components. See [installation](installation.md)
-for the complete pre-certification boundary.
+for the complete supported boundary.
