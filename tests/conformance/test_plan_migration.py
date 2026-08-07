@@ -83,6 +83,9 @@ class PlanMigrationTests(unittest.TestCase):
             plan = codeops / "features" / "billing" / "plans" / "billing-plan"
             self.assertEqual(inspect_plan(plan).implements, ("billing/RD-01", "billing/RD-02"))
             self.assertFalse((codeops / "features" / "billing" / "traceability.json").exists())
+            second_preview = self.run_migrator(codeops)
+            self.assertEqual(second_preview.returncode, 0, second_preview.stdout + second_preview.stderr)
+            self.assertNotIn("UPDATE", second_preview.stdout)
 
     def test_ambiguous_mapping_blocks_every_write_and_deletion(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
