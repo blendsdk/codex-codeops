@@ -88,11 +88,11 @@ valid appended event determines current state. Never edit, delete, or reorder an
 
 Accepted proposals also maintain dependency-oriented authority links:
 
-| SE ID | Derived artifact or graph target | Relation or kind | Current state | Evidence source |
+| SE ID | Derived artifact | Relation or kind | Current state | Evidence source |
 |---|---|---|---|---|
-| `SE-001` | Requirement, specification, test, task, implementation evidence, verification, or roadmap item | `authorizes` or `invalidates` | Current, stale, or superseded | Durable artifact or traceability evidence |
+| `SE-001` | Requirement, specification, test, task, implementation evidence, verification, or roadmap item | `authorizes` or `invalidates` | Current, stale, or superseded | Durable artifact evidence |
 
-Implementation linkage belongs in traceability records or other artifact evidence and never in source comments.
+Implementation linkage belongs in plan or other artifact evidence and never in source comments.
 Recompute the proposal table's current state from the latest valid event; the event log
 remains authoritative history.
 

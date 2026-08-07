@@ -38,18 +38,14 @@ codebase**. Find every issue, ambiguity, contradiction, gap, and risk; verify ev
 assumption against the real code; present each finding with options + a recommendation; iterate
 until the artifact passes clean.
 
-Begin with deterministic evidence when the project has CodeOps traceability:
-
-```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
-  --gate audit --target <target>
-```
-
-Resolve `<target>` from the graph-owned artifact named by the user. Closure may supply review
-context, but the declared target is the modification set: a sibling issue is contextual unless
-the user explicitly expands that set. Graphless ad-hoc artifacts receive semantic audit only.
-
-Report its surviving structural/readiness failures alongside, but never as substitutes for, the semantic audit. Deterministic checks own identifiers, links, statuses, and coverage shape; reviewers own truth, completeness, consistency, feasibility, and risk.
+Begin with direct artifact checks: resolve the exact artifact named by the user, confirm required
+documents and links exist, confirm material ambiguities are closed, and for a plan confirm its
+specification-first ordering. Related artifacts may supply review context, but the declared target
+is the modification set: a sibling issue is contextual unless the user explicitly expands that
+set. Report structural failures alongside, but never as substitutes for, the semantic audit.
+Deterministic checks own identifiers, links, statuses, and coverage shape; reviewers own truth,
+completeness, consistency, feasibility, and risk. A pass still requires every critical/major
+finding resolved and every remaining minor finding explicitly accepted.
 
 Read [../../references/domains/selection.md](../../references/domains/selection.md), verify the artifact selected all applicable domain lenses, and add one audit cluster per selected lens. A generic security or feasibility pass does not substitute for compiler semantics, financial integrity, concurrency, or migration analysis.
 

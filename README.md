@@ -4,7 +4,7 @@ CodeOps is a specification-first engineering system for building complex softwar
 
 It is designed for work where an unstated assumption can become a correctness defect: programming languages and compilers, financial systems, protocols, distributed services, security-sensitive applications, developer tools, and substantial web applications.
 
-> **Release status:** `0.4.0` is the stable release of the current CodeOps workflow surface. Core workflows, deterministic state, project tracking, domain lenses, Codex-native routing, opt-in delegated technical design, strict scope control with user-owned exploration, and a non-negotiable source-documentation gate are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
+> **Release status:** `0.4.0` is the stable release of the current CodeOps workflow surface. Core workflows, Markdown-authoritative progress, project tracking, domain lenses, Codex-native routing, opt-in delegated technical design, strict scope control with user-owned exploration, and a non-negotiable source-documentation gate are present. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
 
 ## The workflow
 
@@ -16,7 +16,7 @@ Intent or existing system
   → specification ambiguity closure
   → execution plan
   → plan ambiguity closure
-  → readiness proof
+  → direct artifact readiness checks
   → specification tests
   → implementation
   → verification and independent review
@@ -40,11 +40,10 @@ The port begins from the proven CodeOps workflow set:
 - safe artifact upgrades and migration; and
 - CodeOps project setup.
 
-Codex-native traceability, readiness proofs, recovery, agent routing, and outcome evaluation are governed by the [port program](plans/codex-port/00-index.md).
-
-Readiness commands are target-scoped: skills resolve the exact graph node and matching lifecycle
-gate, while dependency closure supplies diagnostics without implicitly advancing sibling work.
-Schema-1 graphs remain compatible and can be atomically upgraded to schema 2.
+Requirements own agreed behavior; plan metadata declares RD mapping; and each
+`99-execution-plan.md` owns its task progress. Roadmaps and status summaries are derived. The
+minimal lifecycle and the rest of the Codex-native workflow are governed by the
+[port program](plans/codex-port/00-index.md).
 
 The retained [evaluation evidence](docs/evaluation.md) currently passes compiler, financial, and multi-tenant web ambiguity benchmarks against Claude CodeOps 3.12.0.
 For a first project, follow the [complex-project quick start](docs/tutorial.md).

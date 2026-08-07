@@ -153,7 +153,7 @@ class ScopeExpansionControlSpecification(unittest.TestCase):
             "append-only history",
             "Decision",
             "Authority and evidence",
-            "Derived artifact or graph target",
+            "Derived artifact",
         ):
             self.assertIn(token, text)
 

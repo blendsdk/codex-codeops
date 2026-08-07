@@ -82,7 +82,7 @@ assert '00-scope-expansion-register-<document-name>.md' in layout
 assert 'scope-expansion-register-<artifact-name>.md' in layout
 assert '| Ad-hoc directory | `scope-expansion-register.md` inside the governed directory |' in layout
 assert '| Event ID | SE ID | Timestamp | From state | Decision | Authority and evidence |' in policy
-assert '| SE ID | Derived artifact or graph target | Relation or kind | Current state |' in policy
+assert '| SE ID | Derived artifact | Relation or kind | Current state |' in policy
 assert 'choose `Keep`' in Path('_shared/auto-design.md').read_text(encoding='utf-8')
 assert 'scope mode (`strict` or `explore`)' in Path('_shared/quality-profile.md').read_text(encoding='utf-8')
 PY
@@ -191,10 +191,10 @@ assert 'exact expanded modification set' in make_plan
 assert 'explicitly approved `⏸ Deferred`' in make_plan
 assert 'after two post-gate ambiguity batches' in make_plan
 assert 'except the incrementally persisted Ambiguity' in make_plan
-assert '--gate plan --target <target>' in make_plan.replace(' \\\n  ', ' ')
-assert '--gate execution --target <plan-target>' in exec_plan.replace(' \\\n  ', ' ')
-assert '--request <transition-request.json>' in exec_plan.replace(' \\\n  ', ' ')
-assert '`task-complete`' in exec_plan
+assert '`99-execution-plan.md` is the sole' in make_plan
+assert '`99-execution-plan.md` is the only mutable' in exec_plan
+assert '`[!]` is blocked' in exec_plan
+assert 'mark `[x]` only on' in exec_plan
 assert 'codeops_worktree_snapshot.py\" snapshot' in protocol
 assert 'codeops_worktree_snapshot.py\" diff' in protocol
 assert 'three consecutive failures with the same failure signature' in protocol
@@ -302,7 +302,7 @@ run_check "preflight scope and convergence contract" validate_preflight_contract
 run_check "plan and execution scope contracts" validate_plan_execution_contracts
 run_check "auto-design authority contract" validate_auto_design_contract
 run_check "scope-expansion authority contract" validate_scope_expansion_contract
-run_check "state conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
+run_check "workflow conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
 run_check "retained adversarial parity evidence" validate_scenarios
 run_check "release evidence provenance" validate_release_evidence
 

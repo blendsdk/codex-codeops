@@ -2,7 +2,7 @@
 
 ## Recursive ambiguity closure
 
-CodeOps does not ask one round of questions and call the result a specification. Requirements, component specifications, testing strategies, and execution plans each receive their own ambiguity pass. A later discovery can reopen an earlier gate and invalidate downstream readiness.
+CodeOps does not ask one round of questions and call the result a specification. Requirements, component specifications, testing strategies, and execution plans each receive their own ambiguity pass. A later discovery can reopen an earlier gate and block affected downstream tasks.
 
 ## Material ambiguity
 
@@ -10,20 +10,21 @@ An ambiguity is material when plausible answers can change behavior, semantics, 
 
 ## Durable artifacts
 
-Markdown owns human-readable requirements, decisions, specifications, tests, and plans. `traceability.json` owns stable typed relationships and state. Roadmaps are derived views. Conversations are useful context but never durable workflow state.
+Markdown owns requirements, decisions, specifications, tests, plans, and progress. Requirements
+documents own agreed behavior and acceptance criteria. A plan's `00-index.md` declares the RD or
+RDs it implements. Its `99-execution-plan.md` is the only mutable task-progress authority.
+Roadmaps and status output are derived views. Git supplies history and recovery.
 
 ## Readiness
 
-The deterministic state tool validates identifiers, paths, relationships, status, and coverage shape. Semantic review validates truth, completeness, consistency, feasibility, and risk. Both must pass.
+Readiness is checked directly from artifacts: required documents exist, material ambiguities are
+closed, specification tests precede implementation, and critical/major findings are resolved.
+Semantic review validates truth, completeness, consistency, feasibility, and risk.
 
-Readiness is target-scoped. A workflow selects one canonical node or group and one gate profile;
-the engine computes its dependency closure and shortest blocker paths. Closure is read context,
-not permission to edit or advance siblings. Feature and release nodes are explicit aggregates,
-and a release contains only declared members.
-
-Schema 2 binds semantic sources to normalized revisions and stores relationship snapshots.
-Changing upstream meaning therefore makes affected downstream claims stale. Legal lifecycle
-changes are atomic compare-and-swap transitions with recovery evidence.
+A plan has four derived states: `Ready`, `Executing`, `Done`, and `Blocked`. Tasks use `[ ]` for
+not started, `[~]` for implemented with verification pending, `[x]` for verified, and `[!]` for
+blocked with a visible reason. Resume selects the first `[~]` task, otherwise the first `[ ]`.
+Only a passing verification permits `[~]` to become `[x]`.
 
 ## Delegated technical design
 
@@ -60,7 +61,9 @@ inside scope that the user already kept, but it cannot choose `Keep` or activate
 
 ## Project tracking
 
-Tracking combines lifecycle—discovery through archive—with readiness, task progress, verification, findings, blockers, dependencies, and deferrals. A new thread can reconstruct the next safe action from repository and Git evidence.
+Tracking combines lifecycle—discovery through archive—with derived plan progress, findings,
+blockers, dependencies, and deferrals. A new thread reconstructs the next safe action from the
+execution plan and Git evidence.
 
 ## Agents
 

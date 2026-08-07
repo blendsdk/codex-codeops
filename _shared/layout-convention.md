@@ -85,9 +85,10 @@ they intentionally share the full-set or full-plan scope baseline.
 - **RD ids reset per feature.** Within `codeops/features/billing/requirements/` the ids run
   `RD-01, RD-02, …` independently of every other feature. (In flat layout there is one global
   RD sequence, as before.)
-- **Cross-feature references are feature-qualified.** A plan's `00-index.md` declares
-  `> **Implements**: billing/RD-01` (feature-qualified) in nested layout, or `> **Implements**:
-  RD-01` in flat layout. The roadmap matcher reads this line.
+- **Cross-feature references are feature-qualified.** A plan's `00-index.md` declares one or more
+  requirements on a single line, for example `> **Implements**: billing/RD-01, billing/RD-02` in
+  nested layout or `> **Implements**: RD-01, RD-02` in flat layout. The roadmap matcher and plan
+  status parser read this line.
 - **Tasks use a separate per-feature sequence** `T-01, T-02, …`, so a task id never collides
   with an RD id in the same feature. See the task-lane spec for the lightweight task model.
 

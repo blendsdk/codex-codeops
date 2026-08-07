@@ -26,8 +26,8 @@ front. Those appear lazily when the first RD, plan, or task is authored (AR #5).
 4. Write `codeops/codeops.json` with the strict defaults below.
 5. Write `codeops/00-roadmap.md` (empty portfolio — see the portfolio template in the `roadmap`
    skill; seed it with zero features and an empty Archived section).
-6. Run `codeops_state.py status`; no feature graph exists yet, so report setup state rather than
-   claiming project readiness.
+6. Confirm the marker, policy, portfolio, and empty feature directory exist; report setup state
+   rather than claiming project readiness.
 7. Report what was created and what to do next (`make-requirements` / `make-plan` for the first
    feature; the feature folder is created lazily then).
 

@@ -24,21 +24,14 @@ If `$ARGUMENTS` contains exactly one exact standalone `--explore-scope` token be
 do not report or plan optional additions. Exploration may propose `SE-*` items but
 never accepts them; only the user may choose `Keep`.
 
-## Codex readiness proof
+## Plan readiness proof
 
-Maintain the feature's typed requirement → specification/invariant → acceptance criterion → specification test → task chain in `traceability.json`; follow [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). A plan is not ready merely because its documents exist. Before presenting it as executable, run:
-
-```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
-  --gate plan --target <target>
-```
-
-Use the exact RD, task, or planning-group `<target>` from `traceability.json`; never broaden the
-planning modification set to its feature or siblings. Use the exact `feature` value from the selected feature's `traceability.json`; never substitute a
-directory guess. This keeps unrelated draft features from blocking the selected plan. Resolve every
-in-scope structural or readiness blocker, then perform the semantic Zero-Ambiguity Gate.
-Record approval only through the exact compare-and-swap request in the traceability reference:
-`transition --request <request.json>` with gate `plan` and the selected target.
+A plan is not ready merely because its documents exist. Before presenting it as executable,
+directly confirm that its required documents exist, its `00-index.md` declares every implemented
+RD on one `> **Implements**:` line, its ambiguity register has no open material item, and its
+specification tests are ordered before implementation tasks. Run the semantic Zero-Ambiguity Gate.
+Do not create a graph, readiness record, or transition request. `99-execution-plan.md` is the sole
+mutable task-progress authority.
 
 ## Planning scope contract
 
@@ -51,7 +44,7 @@ Record three boundaries before discovery:
 | **Modification set** | The requirement/specification artifacts the user has authorized make-plan to change |
 
 Reading an artifact does not authorize changing it. If planning exposes an upstream defect, reopen
-the owning requirement or specification and mark affected downstream traceability stale, but do
+the owning requirement or specification and mark affected downstream plan content stale, but do
 not edit it until the user confirms the exact expanded modification set. If the correction would
 redesign sibling RDs or the requirement set, pause and offer a separate requirements revision
 instead of silently absorbing it into plan creation.
@@ -141,7 +134,7 @@ When a `requirements/` directory exists with `RD-XX-*.md` files (produced by the
 
 ### 1.1 Ask clarifying questions
 
-> **ZERO-AMBIGUITY RULE — active from the first question.** Applies to every decision with semantic weight: design, architecture, behavior, scope, edge cases, error messages, naming, file structure. Behavior/scope/data/security decisions ALWAYS gate; cosmetic choices with zero semantic impact are exempt (per the shared gate's traceability exemptions), and low-stakes cosmetic items may be batched. In normal mode, if there is more than one semantically distinct option, the **user decides**. With active auto-design, resolve and record eligible technical decisions under the shared policy; reserved decisions still require the user. Demand concrete, specific answers. Do not fill gaps with assumptions, infer intent, or apply "reasonable defaults" outside that delegated policy. If an answer is vague, ask again with sharper options.
+> **ZERO-AMBIGUITY RULE — active from the first question.** Applies to every decision with semantic weight: design, architecture, behavior, scope, edge cases, error messages, naming, file structure. Behavior/scope/data/security decisions ALWAYS gate; cosmetic choices with zero semantic impact are exempt (per the shared gate's semantic-impact exemptions), and low-stakes cosmetic items may be batched. In normal mode, if there is more than one semantically distinct option, the **user decides**. With active auto-design, resolve and record eligible technical decisions under the shared policy; reserved decisions still require the user. Demand concrete, specific answers. Do not fill gaps with assumptions, infer intent, or apply "reasonable defaults" outside that delegated policy. If an answer is vague, ask again with sharper options.
 
 Cover at minimum: **Feature scope** (what it does / does NOT do, boundaries), **Technical context** (affected code, existing patterns, constraints), **Dependencies** (prerequisites, external deps), and **Success criteria** (definition of done, required tests, required docs).
 
