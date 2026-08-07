@@ -442,6 +442,9 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
         _commit_all(migration, "migration baseline", base_environment)
 
         state = plugin_root / "scripts" / "codeops_state.py"
+        requirements_skill = plugin_root / "skills" / "make-requirements" / "SKILL.md"
+        planning_skill = plugin_root / "skills" / "make-plan" / "SKILL.md"
+        preflight_skill = plugin_root / "skills" / "preflight" / "SKILL.md"
         scenario_commands: dict[str, tuple[tuple[str, ...], ...]] = {
             "installation": (
                 (args.codex, "plugin", "marketplace", "add", str(extracted), "--json"),
@@ -454,18 +457,18 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
             ),),
             "requirements": ((
                 args.codex, "exec", "--json", "--ephemeral", "--dangerously-bypass-hook-trust",
-                "--sandbox", "workspace-write", "--cd", str(workspace),
-                "Use the installed codeops:make-requirements skill with --auto-design. The README is the complete product scope. Create a decision-complete requirements set without implementation. Use only native Windows PowerShell and native executables.",
+                "--sandbox", "danger-full-access", "--cd", str(workspace),
+                f'Read and follow the exact installed candidate skill at "{requirements_skill}" with --auto-design; do not resolve a same-named skill from another marketplace. The README is the complete product scope. Create a decision-complete requirements set without implementation. Use only native Windows PowerShell and native executables.',
             ),),
             "planning": ((
                 args.codex, "exec", "--json", "--ephemeral", "--dangerously-bypass-hook-trust",
-                "--sandbox", "workspace-write", "--cd", str(workspace),
-                "Use the installed codeops:make-plan skill with --auto-design for the approved hello CLI requirements. Create a complete plan and traceability, but do not implement. Use only native Windows PowerShell and native executables.",
+                "--sandbox", "danger-full-access", "--cd", str(workspace),
+                f'Read and follow the exact installed candidate skill at "{planning_skill}" with --auto-design; do not resolve a same-named skill from another marketplace. Plan the approved hello CLI requirements. Create a complete plan and traceability, but do not implement. Use only native Windows PowerShell and native executables.',
             ),),
             "preflight-audit": ((
                 args.codex, "exec", "--json", "--ephemeral", "--dangerously-bypass-hook-trust",
-                "--sandbox", "workspace-write", "--cd", str(workspace),
-                "Use the installed codeops:preflight skill with --auto-design on the hello CLI plan. Resolve eligible technical findings and leave a durable readiness verdict. Do not implement. Use only native Windows PowerShell and native executables.",
+                "--sandbox", "danger-full-access", "--cd", str(workspace),
+                f'Read and follow the exact installed candidate skill at "{preflight_skill}" with --auto-design; do not resolve a same-named skill from another marketplace. Audit the hello CLI plan, resolve eligible technical findings, and leave a durable readiness verdict. Do not implement. Use only native Windows PowerShell and native executables.',
             ),),
             "execution-transition-recovery": (
                 (sys.executable, str(state), "--root", str(lifecycle), "--request", str(transition_request), "--json", "transition"),

@@ -151,6 +151,9 @@ class CaptureBoundaryTests(unittest.TestCase):
         self.assertIn('Path(base_environment["PLUGIN_DATA"]).mkdir', source)
         self.assertIn('"artifacts": {"layout": "nested", "root": "codeops"}', source)
         self.assertIn('bool(_git(workspace, "status", "--porcelain"))', source)
+        self.assertIn('"--sandbox", "danger-full-access"', source)
+        self.assertIn("exact installed candidate skill", source)
+        self.assertIn("do not resolve a same-named skill", source)
 
     def test_path_sanitizer_replaces_candidate_root(self) -> None:
         plugin = Path("C:/Candidate With Spaces")
