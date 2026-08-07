@@ -425,6 +425,8 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
         (lifecycle / "codeops" / "codeops.json").write_text(
             '{"metrics":{"enabled":true}}\n', encoding="utf-8", newline="\n",
         )
+        _commit_all(lifecycle, "certification requests", base_environment)
+        _commit_all(recovery_graph.parents[3], "interrupted recovery fixture", base_environment)
 
         migration = extracted / "migration-project"
         shutil.copytree(root / "scripts" / "fixtures" / "flat-repo", migration)
@@ -458,8 +460,8 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
                 "Use the installed codeops:preflight skill with --auto-design on the hello CLI plan. Resolve eligible technical findings and leave a durable readiness verdict. Do not implement. Use only native Windows PowerShell and native executables.",
             ),),
             "execution-transition-recovery": (
-                (sys.executable, str(state), "transition", "--root", str(lifecycle), "--request", str(transition_request), "--json"),
-                (sys.executable, str(state), "transition-recover", "--root", str(recovery_graph.parents[3]), "--request", str(recovery_request), "--json"),
+                (sys.executable, str(state), "--root", str(lifecycle), "--request", str(transition_request), "--json", "transition"),
+                (sys.executable, str(state), "--root", str(recovery_graph.parents[3]), "--request", str(recovery_request), "--json", "transition-recover"),
             ),
             "migration": ((sys.executable, str(plugin_root / "scripts" / "codeops_migrate.py"), "apply", "--root", str(migration), "--json"),),
             "roadmap": (
@@ -478,7 +480,10 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
                 (sys.executable, str(plugin_root / "scripts" / "codeops_outcomes.py"), "emit", "--root", str(lifecycle), "--event", "verification-run", "--stage", "verification", "--result", "pass"),
                 (sys.executable, str(plugin_root / "scripts" / "codeops_outcomes.py"), "report", "--root", str(lifecycle), "--json"),
             ),
-            "verification": ((sys.executable, str(plugin_root / "scripts" / "codeops_verify.py"), "all", "--root", str(plugin_root)),),
+            "verification": tuple(
+                (sys.executable, str(plugin_root / "scripts" / "codeops_verify.py"), gate, "--root", str(plugin_root))
+                for gate in ("docs", "migration", "roadmap", "compact")
+            ),
         }
         scenarios: list[dict[str, str]] = []
         trace: list[dict[str, object]] = []
@@ -506,9 +511,9 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
                     for item in installed if isinstance(item, dict)
                 )
             postconditions = {
-                "requirements": (workspace / "requirements").is_dir(),
-                "planning": (workspace / "plans").is_dir(),
-                "preflight-audit": any(workspace.rglob("00-preflight-report.md")),
+                "requirements": any(workspace.rglob("*requirements*.md")),
+                "planning": any(workspace.rglob("*plan*.md")),
+                "preflight-audit": any(workspace.rglob("*preflight*.md")),
                 "execution-transition-recovery": (
                     json.loads(graph_path.read_text(encoding="utf-8"))["nodes"][2]["status"] == "implemented"
                     and json.loads(recovery_graph.read_text(encoding="utf-8"))["nodes"][2]["status"] == "pending"
@@ -527,6 +532,10 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
                     f"{scenario}: exits={[result.exit_code for result in results]}, "
                     f"postcondition={postconditions.get(scenario, True)}"
                 )
+            if passed and scenario in {"requirements", "planning", "preflight-audit"}:
+                _commit_all(workspace, f"certification {scenario}", base_environment)
+            if passed and scenario in {"execution-transition-recovery", "roadmap", "agent-install-check"}:
+                _commit_all(lifecycle, f"certification {scenario}", base_environment)
             status = "pass" if passed else "fail"
             record = records_root / f"{scenario}.json"
             _write_json(record, {
