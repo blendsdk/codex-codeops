@@ -228,7 +228,7 @@ class PortableContainmentAndFailureTests(unittest.TestCase):
                     raise OSError("simulated post-marker failure")
 
             def fail_config_cleanup(path: Path, *args, **kwargs):
-                if path == project / "codeops/codeops.json":
+                if path.resolve() == (project / "codeops/codeops.json").resolve():
                     raise PermissionError("simulated cleanup denial")
                 return original_unlink(path, *args, **kwargs)
 

@@ -429,7 +429,7 @@ class WindowsPreflightImplementationTests(unittest.TestCase):
             (
                 "import argparse, json, sys\n"
                 "p=argparse.ArgumentParser(); p.add_argument('--event', required=True)\n"
-                "a=p.parse_args(); payload=json.load(sys.stdin)\n"
+                "a=p.parse_args(); payload=json.loads(sys.stdin.read().lstrip('\\ufeff'))\n"
                 "assert payload['hook_event_name'] == a.event\n"
                 "print('Coding standards')\n"
             ),
