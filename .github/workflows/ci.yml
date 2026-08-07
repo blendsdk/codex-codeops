@@ -9,7 +9,23 @@ permissions:
   contents: read
 
 jobs:
+  package-release-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Pack exact release artifact
+        run: |
+          mkdir -p release-artifact
+          git archive --format=zip --output release-artifact/codeops.zip HEAD
+          sha256sum release-artifact/codeops.zip
+      - uses: actions/upload-artifact@v6
+        with:
+          name: codeops-release-candidate
+          path: release-artifact/codeops.zip
+          if-no-files-found: error
+
   validate-ubuntu:
+    needs: package-release-artifact
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -22,8 +38,23 @@ jobs:
       - run: ./scripts/migration-check.sh
       - run: ./scripts/roadmap-sync-check.sh
       - run: ./scripts/compact-check.sh
+      - uses: actions/download-artifact@v7
+        with:
+          name: codeops-release-candidate
+          path: ${{ runner.temp }}/release-artifact
+      - name: Run all five gates from installed release artifact
+        run: |
+          mkdir -p "$RUNNER_TEMP/installed-codeops"
+          python -m zipfile -e "$RUNNER_TEMP/release-artifact/codeops.zip" "$RUNNER_TEMP/installed-codeops"
+          cd "$RUNNER_TEMP/installed-codeops"
+          ./scripts/validate-codex.sh
+          ./scripts/docs-check.sh
+          ./scripts/migration-check.sh
+          ./scripts/roadmap-sync-check.sh
+          ./scripts/compact-check.sh
 
   validate-windows-11-arm:
+    needs: package-release-artifact
     runs-on: windows-11-arm
     env:
       PYTHONUTF8: "1"
@@ -74,5 +105,17 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run all five native logical gates
         run: |
+          & .\scripts\codeops-verify.ps1 all
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/download-artifact@v7
+        with:
+          name: codeops-release-candidate
+          path: ${{ runner.temp }}\release-artifact
+      - name: Run all five gates from installed release artifact
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP 'release-artifact\codeops.zip'
+          $installed = Join-Path $env:RUNNER_TEMP 'installed-codeops'
+          Expand-Archive -LiteralPath $archive -DestinationPath $installed
+          Set-Location -LiteralPath $installed
           & .\scripts\codeops-verify.ps1 all
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

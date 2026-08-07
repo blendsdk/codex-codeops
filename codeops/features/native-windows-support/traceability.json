@@ -1871,6 +1871,9 @@
     },
     {
       "edges": [],
+      "evidence": [
+        "implementationEvidence:CI now packs one exact release artifact and runs the five logical gates from that downloaded artifact on Ubuntu and native Windows 11 ARM64"
+      ],
       "id": "TASK-5.3.4",
       "revision": "sha256:d928650e5b546990d2fcde8383b0fd1415c91394112b2c649fbcdd9a7d7252f8",
       "semanticSources": [
@@ -1883,7 +1886,7 @@
           }
         }
       ],
-      "status": "pending",
+      "status": "implemented",
       "title": "Run the installed release artifact on native Windows and Ubuntu, run all five logical gates, complete independent quality review/audit, then close GitHub issues #2 and #3 only if their acceptance criteria are met",
       "type": "task",
       "validations": []

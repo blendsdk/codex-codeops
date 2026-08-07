@@ -117,10 +117,22 @@ class CertificationCISpecification(unittest.TestCase):
         workflow = ROOT / ".github/workflows/ci.yml"
         payload = yaml.safe_load(workflow.read_text(encoding="utf-8"))
         jobs = payload["jobs"]
+        package = jobs["package-release-artifact"]
         ubuntu = jobs["validate-ubuntu"]
         windows = jobs["validate-windows-11-arm"]
+        self.assertEqual(ubuntu["needs"], "package-release-artifact")
+        self.assertEqual(windows["needs"], "package-release-artifact")
         self.assertEqual(ubuntu["runs-on"], "ubuntu-latest")
         self.assertEqual(windows["runs-on"], "windows-11-arm")
+
+        package_steps = "\n".join(
+            str(step.get("run", "")) for step in package["steps"] if isinstance(step, dict)
+        )
+        self.assertIn("git archive", package_steps)
+        self.assertTrue(any(
+            str(step.get("uses", "")).startswith("actions/upload-artifact@")
+            for step in package["steps"] if isinstance(step, dict)
+        ))
 
         def python_versions(job: dict[str, object]) -> list[str]:
             return [
@@ -141,6 +153,8 @@ class CertificationCISpecification(unittest.TestCase):
         self.assertIn("source with spaces", str(windows).casefold())
         self.assertIn("codeops-windows-preflight.ps1", windows_steps)
         self.assertIn("codeops-verify.ps1", windows_steps)
+        self.assertIn("release-artifact", windows_steps)
+        self.assertIn("expand-archive", windows_steps)
         self.assertNotRegex(windows_steps, r"(?:^|\s)(?:bash|wsl)(?:\.exe)?(?:\s|$)")
         self.assertNotIn(".sh", windows_steps)
 
@@ -153,6 +167,8 @@ class CertificationCISpecification(unittest.TestCase):
             "./scripts/compact-check.sh",
         ):
             self.assertIn(launcher, ubuntu_steps)
+        self.assertIn("release-artifact", ubuntu_steps)
+        self.assertIn("python -m zipfile -e", ubuntu_steps)
 
 
 class CertificationEvidenceSpecification(unittest.TestCase):
