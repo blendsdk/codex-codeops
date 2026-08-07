@@ -4,7 +4,7 @@
     "nativeWindows": true,
     "wslInvoked": false
   },
-  "candidateSha256": "0e90449b66e8fa3e5ac80f247369cf1ce58b14e2a3bc928c5f5fd20247e9a3dc",
+  "candidateSha256": "bbfbb34bb3d46efa7c6b17b8f57b0e9b782921d9eac13c0d08030644481a7df2",
   "checklist": [
     {
       "id": "installation",
@@ -27,12 +27,12 @@
       "status": "pass"
     }
   ],
-  "commit": "c14274dff88452691d67bc1961e6d107d28e1d89",
+  "commit": "1b9456e64c75bada84cd5e23155a8275fb674d60",
   "kind": "desktop",
   "pluginVersion": "0.5.0",
   "reviewer": {
     "github": "blendsdk",
-    "timestamp": "2026-08-07T18:52:09Z"
+    "timestamp": "2026-08-07T19:54:34Z"
   },
   "schemaVersion": 1,
   "tools": {
