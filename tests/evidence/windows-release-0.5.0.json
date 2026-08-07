@@ -1,6 +1,6 @@
 {
   "artifactName": "codeops-0.5.0-05d8d6d.zip",
-  "candidateSha256": "e79fde38796a26018f97ba69f2e72b529410d8ac92366260b6df9ac4aa32dc34",
+  "candidateSha256": "e9db94832bdf79245737727c08597eda281e639d14702fa7bb11532c08539ee8",
   "ci": {
     "artifactName": "codeops-0.5.0-05d8d6d.zip",
     "conclusion": "success",
