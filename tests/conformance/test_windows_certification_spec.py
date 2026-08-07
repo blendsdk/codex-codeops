@@ -7,8 +7,10 @@ from pathlib import Path
 import hashlib
 import json
 import re
+import stat
 import tempfile
 import unittest
+import zipfile
 
 import yaml
 
@@ -154,7 +156,7 @@ class CertificationCISpecification(unittest.TestCase):
         package_steps = "\n".join(
             str(step.get("run", "")) for step in package["steps"] if isinstance(step, dict)
         )
-        self.assertIn("git archive", package_steps)
+        self.assertIn("scripts/package_release.py", package_steps)
         self.assertIn("sourceCommit", package_steps)
         self.assertIn("sha256sum --check --strict", package_steps)
         self.assertIn("evidence_ref", workflow.read_text(encoding="utf-8"))
@@ -162,10 +164,10 @@ class CertificationCISpecification(unittest.TestCase):
         self.assertIn("authority=tests/evidence/windows-release-0.5.0.json", package_steps)
         self.assertLess(
             package_steps.index("source_commit=$(python"),
-            package_steps.index("git archive"),
+            package_steps.index("scripts/package_release.py"),
         )
         self.assertLess(
-            package_steps.index("git archive"),
+            package_steps.index("scripts/package_release.py"),
             package_steps.index("sha256sum --check --strict"),
         )
         for job, retained_path in (
@@ -218,6 +220,21 @@ class CertificationCISpecification(unittest.TestCase):
         self.assertIn("release-artifact", ubuntu_steps)
         self.assertIn("unzip -q", ubuntu_steps)
         self.assertIn("test -x", ubuntu_steps)
+
+    def test_release_packaging_is_byte_reproducible_and_preserves_modes(self) -> None:
+        from scripts.package_release import package
+
+        with tempfile.TemporaryDirectory() as raw:
+            first = Path(raw) / "first.zip"
+            second = Path(raw) / "second.zip"
+            package(ROOT, "HEAD", first)
+            package(ROOT, "HEAD", second)
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+            with zipfile.ZipFile(first) as archive:
+                names = set(archive.namelist())
+                self.assertNotIn("tests/evidence/windows-native-0.5.0.json", names)
+                mode = archive.getinfo("scripts/validate-codex.sh").external_attr >> 16
+                self.assertTrue(mode & stat.S_IXUSR)
 
 
 class CertificationEvidenceSpecification(unittest.TestCase):

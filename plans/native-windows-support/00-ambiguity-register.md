@@ -29,6 +29,8 @@
 | AR-22 | Filesystem test seam (runtime) | How can specification tests control native path and atomic-write behavior without depending on private implementation details? | Narrow production-default protocols / patch private helpers | Use narrow `PathProbe` and `AtomicWriteOps` protocols with production defaults and validate the complete transaction path set before mutation. | ✅ Resolved |
 | AR-23 | Sandbox interpreter (runtime) | Which certified Python executable should the native sandbox smoke execute? | Concrete `sys.executable` / Windows Store launcher alias | Use the concrete certified `sys.executable`; launcher discovery remains covered by the preceding Python prerequisite check. | ✅ Resolved |
 | AR-24 | Release-tail CI identity (runtime) | How should ordinary push/PR CI package the certified candidate after evidence-only commits advance `HEAD`? | Read the retained authority's immutable `sourceCommit` / package the evidence-tail `HEAD` | Read and rehash the authority-bound `sourceCommit` for all runs. Detached certification additionally requires `GITHUB_SHA` to equal that source commit; ordinary runs validate against evidence in their checked-out tail. | ✅ Resolved |
+| AR-25 | Detached workflow dispatch (runtime) | How can GitHub dispatch certification at the immutable source commit when `workflow_dispatch` rejects a raw SHA? | Temporary source branch / evidence-tail dispatch | Use a temporary certification branch pointing exactly at the source commit, require `GITHUB_SHA == sourceCommit`, and delete the branch after certification. | ✅ Resolved |
+| AR-26 | Cross-platform release bytes (runtime) | How can Windows and Ubuntu reproduce one exact ZIP digest when native Git ZIP compression differs? | Canonical stored ZIP from Git's TAR stream / platform-native Git ZIP | Normalize ZIP timestamps, ordering, Unix modes, compression, and metadata in a checked-in Python packager while retaining Git as the owner of content selection and `export-ignore`. | ✅ Resolved |
 
 ## Resolution Notes
 
@@ -205,3 +207,21 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
 - **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
 - **Reopen triggers:** A release authority format no longer owns source identity and digest, or CI
   begins producing multiple release candidates in one workflow.
+
+## Runtime Decisions AR-25 and AR-26 Provenance
+
+- **Authority:** AI — delegated by `--auto-design` during release certification.
+- **Eligibility:** Internal CI dispatch and artifact-serialization mechanisms inside the approved
+  immutable-candidate contract; neither changes plugin behavior or support scope.
+- **Decision:** Dispatch from a temporary branch whose tip is the exact source commit, delete it
+  after certification, and create the candidate with a checked-in canonical ZIP packager over
+  Git's TAR archive stream.
+- **Evidence:** GitHub rejected raw-SHA workflow dispatch, and Ubuntu's native `git archive` ZIP
+  did not match the digest produced by Git for Windows from the same commit and tree.
+- **Rejected alternatives:** Dispatching the evidence tail breaks the CI/source identity guard;
+  accepting platform-specific digests breaks immutable candidate identity.
+- **Strongest counterargument:** Stored ZIPs are larger, but the plugin is small and exact
+  reproducibility is more important than compression for the certification artifact.
+- **Confidence / hardening:** High; conformance verifies repeatable bytes, export exclusions, and
+  retained executable modes, while CI rehashes the result before upload.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
