@@ -11,7 +11,7 @@ description: >-
   progress, stages, and next steps), archive_roadmap (move a completed feature to the archive), and
   compact_roadmap (slim a bloated roadmap: strip the legacy Notes log and trim fat cells). Detects
   the action from the user's phrasing or arguments and branches. The roadmap is the cross-session
-  source of truth at the RD/plan altitude, above any single execution plan.
+  derived cross-session summary at the RD/plan altitude.
 ---
 
 # roadmap — Live Feature-Set Roadmap Keeper
@@ -20,25 +20,18 @@ description: >-
 
 ## Codex derived-status rule
 
-When a feature has `traceability.json`, treat the graph plus on-disk execution plans as the status evidence. Run this as a standalone command (never in an `&&` chain with roadmap reads):
+Execution-plan checklists and plan metadata are authoritative. Derive status without writing a
+second state store. For a read-only summary, run:
 
 ```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" status --root . --target <target> --json
+python3 "${PLUGIN_ROOT}/scripts/codeops_plan.py" --root . --json
 ```
 
-Resolve and query each canonical target independently; updating one row must never advance its
-siblings. Feature and release aggregation is explicit:
-
-```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
-  --gate feature-acceptance --target <feature-target>
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
-  --gate release --target <release-target>
-```
-
-A release includes only its declared members.
-
-`status` exits zero when valid project state is read, even when its JSON says `"ready": false`; not-ready is normal status data for draft or in-progress features. A nonzero exit means structurally invalid or unreadable state. Roadmaps summarize lifecycle, readiness, tasks, verification, findings, blockers, and deferrals; they never become an independent owner of those facts. If roadmap text conflicts with derived evidence, report drift and repair the derived view without silently changing authoritative artifacts.
+The helper reads every `> **Implements**:` declaration and each `[ ]`/`[~]`/`[x]`/`[!]` task.
+Its output is derived and read-only; a nonzero exit means a required plan artifact, RD mapping, or
+blocked reason is missing. Updating one row must never advance its siblings. Roadmaps summarize
+lifecycle, tasks, blockers, and RD delivery; they never become an independent owner of those
+facts. If roadmap text conflicts with the plan, report drift and repair only the derived view.
 
 ## Resolve paths first (layout-aware)
 
@@ -158,10 +151,10 @@ Plan folders are named by feature (e.g. `plans/billing/`) and carry **no encoded
 id**, and the repo can hold multiple unrelated feature-sets at once, so "everything
 under `plans/`" is **not** a valid membership rule. Link deterministically instead:
 
-- Every plan declares the requirement it implements as a `> **Implements**: RD-NN`
-  line in its `00-index.md` (feature-qualified `> **Implements**: <feature>/RD-NN` in nested
-  layout — see the ID rules in the convention doc). The `Plan Created` hook reads this line and
-  links the plan to the matching RD row in that feature's roadmap.
+- Every plan declares every requirement it implements on one `> **Implements**: RD-NN, RD-NN`
+  line in its `00-index.md` (feature-qualified identifiers in nested layout — see the ID rules in
+  the convention doc). The `Plan Created` hook reads this line and links the plan to each matching
+  RD row in that feature's roadmap.
 - A plan with **no declared RD** is linked only when the user explicitly states which
   RD (or `DEF-n`) it belongs to. Unrelated plans are never silently swept in.
 

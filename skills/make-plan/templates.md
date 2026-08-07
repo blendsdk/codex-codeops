@@ -45,7 +45,7 @@ excerpt at dispatch time — excerpting for a handoff packet is not restatement)
 > **Feature**: [Brief description]
 > **Status**: Planning Complete
 > **Created**: [Date]
-> **Implements**: RD-NN   (only if based on a requirements document; omit otherwise)
+> **Implements**: RD-NN, RD-NN   (one or more RD identifiers; feature-qualify in nested layout)
 > **CodeOps Artifact Schema**: 1
 
 ## Overview
@@ -425,6 +425,8 @@ task-size criteria in [quality-checklist.md](quality-checklist.md))
 >    stamp after EVERY task — never batch updates. Only `[x]` counts as complete.
 > 4. **Resume** by scanning the phase sections top-to-bottom: the first `[~]` task is resumed
 >    first, else the first `[ ]` task.
+> 5. **On blocker:** mark the task `[!]` and append `Blocked: <short reason>` on the same line.
+>    The plan lifecycle is `Ready`, `Executing`, `Done`, or `Blocked`, derived from these markers.
 >
 > Timestamps come from `date '+%Y-%m-%d %H:%M'` — never invented. Failure to keep the marks
 > current means progress is invisible after crashes, context resets, or session handoffs.

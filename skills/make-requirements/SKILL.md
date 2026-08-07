@@ -31,22 +31,15 @@ Transform a rough project idea into a structured, complete set of formal
 **requirement documents (RDs)**. This skill is upstream of, and independent
 from, the make-plan skill — neither requires the other.
 
-## Codex traceability contract
+## Requirements authority contract
 
-For every accepted requirement and material ambiguity, maintain the feature's `traceability.json` according to [../../references/artifacts/traceability.md](../../references/artifacts/traceability.md). Requirements use stable `RD-*` identifiers; ambiguities and decisions use stable `AR-*` identifiers. Link each resolved ambiguity to every requirement or specification it affects. Before declaring requirements complete, run:
-
-```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
-  --gate requirements --target <target>
-```
-
-Resolve `<target>` from the graph (an RD, or an explicitly selected requirement-set/group);
-never infer it from a directory or widen it to sibling RDs. Closure is read context, not an
-authorized modification set. The requirements gate remains closed while a material ambiguity is
-open, a requirement is not approved, a referenced artifact is missing, or the traceability graph
-is broken. The script validates structure; this skill remains responsible for semantic completeness.
-Advance a draft target only with the exact compare-and-swap request defined in the traceability
-reference and `transition --request <request.json>` using gate `requirements`.
+Requirement documents own agreed behavior and acceptance criteria. Use stable `RD-*` identifiers;
+ambiguities and decisions use stable `AR-*` identifiers. Link each resolved ambiguity to every
+requirement or specification it affects. Before declaring requirements complete, directly confirm
+that every material ambiguity is resolved, every requirement is approved, and every referenced
+artifact exists. Do not create a workflow-state file. When a plan is later created, its
+`00-index.md` declares the RD or RDs it implements; RD delivery is derived from that plan rather
+than stored as a second mutable status.
 
 ## Core Principle: Proactive Domain Consultant
 
@@ -149,7 +142,7 @@ This rule applies to **every decision with semantic weight** — feature specs,
 behavioral definitions, scope boundaries, edge-case handling, technical choices,
 data models, naming, document organization. Behavior/scope/data/security
 decisions ALWAYS gate; cosmetic choices with zero semantic impact are exempt
-(per the shared gate's traceability exemptions), and low-stakes cosmetic items
+(per the shared gate's semantic-impact exemptions), and low-stakes cosmetic items
 may be batched. If you must choose between two or more semantically distinct
 options. **In normal mode, the user decides.** With active auto-design, resolve only eligible
 technical decisions under the shared policy; reserved decisions still require the user.

@@ -69,7 +69,8 @@ complete the per-feature roadmap transition (codeops/features/<f>/00-roadmap.md)
 
 ## Source-of-truth rule (stated directly here)
 
-The roadmap is the **cross-session source of truth** at the RD/plan altitude:
+The roadmap is a **cross-session derived view** at the RD/plan altitude. Requirements own agreed
+behavior; plan metadata owns RD mapping; `99-execution-plan.md` owns task progress:
 
 - **Read-if-exists** — when a roadmap exists, read it at the start of relevant work
   to see what is done, in flight, blocked, or in the backlog.

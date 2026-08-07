@@ -5,7 +5,9 @@ description: Configure risk- and capability-based Codex subagent routing for a p
 
 # Configure CodeOps routing for Codex
 
-Routing is an optimization and isolation mechanism, not a source of correctness. Requirements, ambiguity, readiness, verification, and review gates remain identical whether work runs inline, through a named custom agent, or through a dynamically prompted generic subagent.
+Routing is an optimization and isolation mechanism, not a source of correctness. Requirements,
+ambiguity, direct artifact checks, verification, and review gates remain identical whether work
+runs inline, through a named custom agent, or through a dynamically prompted generic subagent.
 
 ## Inputs
 
@@ -57,7 +59,7 @@ Model names are implementation choices, not policy names. Default to the current
 
 ## Structured policy
 
-Store CodeOps policy in `codeops/codeops.json`, not in `AGENTS.md`. `AGENTS.md` receives only a concise instruction that CodeOps routing is configured and that material ambiguity/readiness gates may not be bypassed.
+Store CodeOps policy in `codeops/codeops.json`, not in `AGENTS.md`. `AGENTS.md` receives only a concise instruction that CodeOps routing is configured and that material ambiguity and verification gates may not be bypassed.
 
 Example policy fields are documented in [routing.md](routing.md).
 
@@ -95,7 +97,6 @@ After setup:
 
 ```bash
 python3 "${PLUGIN_ROOT}/scripts/install_agents.py" --project . --check
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" status --root .
 ```
 
 Report configured roles, model pins if any, read-only roles, fallbacks, and unresolved capability gaps.

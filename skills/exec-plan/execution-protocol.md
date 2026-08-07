@@ -32,17 +32,15 @@ If the execution plan can't be loaded cleanly, **STOP** and handle as follows:
 
 ### Artifact schema check
 
-Read `00-index.md` or `99-execution-plan.md`. Schema 1 plans must also have valid traceability and
-pass the execution-entry readiness gate. A legacy `CodeOps Skills Version` stamp or no schema
-stamp triggers a read-only upgrade assessment. Do not execute a legacy plan merely because its
-task checkbox shape can be parsed; the user must approve migration or explicitly accept the
-recorded compatibility risk.
+Read `00-index.md` and `99-execution-plan.md`. A current plan declares one or more RDs on its
+`> **Implements**:` line and uses `[ ]`, `[~]`, `[x]`, and `[!]` as its complete task-state
+vocabulary. A legacy `CodeOps Skills Version` stamp or no schema stamp triggers a read-only
+upgrade assessment. Do not execute a legacy plan merely because its task checkbox shape can be
+parsed; the user must approve migration or explicitly accept the recorded compatibility risk.
 
-For schema-2 traceability, resolve the exact plan target and run `readiness --gate execution
---target <plan-target>` before implementation. Before promoting a task to `[x]`, submit a public
-compare-and-swap `transition --request <transition-request.json>` from `implemented` to `verified`
-with gate `task-complete`; the transition evaluates the projected state atomically. A task
-transition never advances siblings; dependency closure is context, not a modification set.
+Before implementation, directly check required documents, closed material ambiguities,
+specification-first ordering, and unresolved critical/major findings. Before promoting a task to
+`[x]`, run its verification. A task update never advances siblings.
 
 Suggestion only — the user may proceed without upgrading.
 
@@ -170,12 +168,12 @@ whole-task diff. Activation rules, packets, supersession, and caps are defined i
    Before merging, apply `_shared/scope-expansion-control.md`: a necessary correction or blocking
    uncertainty remains a finding, while an optional remediation is omitted in strict scope or
    moved to a separate `SE-*` proposal in exploration mode. A finding ruling never chooses `Keep`.
-4. **Record decisions durably** in the finding and traceability artifacts after each ruling batch.
+4. **Record decisions durably** in the finding artifact after each ruling batch.
 5. **Accepted fixes:** implement → verify → follow-up commit per the commit mode. If any 🔴/🟠
    fix was applied, dispatch ONE re-review scoped to the fix diff — never a third pass. A fix
    the re-review still rejects is reported. Normal mode returns the ruling to the user; active
    auto-design may select one eligible technical correction, but cannot waive the finding.
-6. **Attach review evidence** to the task/verification nodes, optionally record a content-free
+6. **Record review evidence** in the plan or its review report, optionally record a content-free
    review outcome, then proceed to the next phase.
 
 A dispatch that fails or dies mid-loop is reported — the phase completes UNreviewed only on the
@@ -216,7 +214,7 @@ unchanged — and the temp log is read-only evidence, never executed.
 
 If you encounter any implementation detail, behavioral question, edge case, or design choice not
 covered by the plan documents or `00-ambiguity-register.md`, first record it and mark affected
-downstream traceability stale.
+tasks `[!]` with `Blocked: <short reason>` until the owning artifact is resolved.
 
 First determine whether the discovery is an ambiguity inside authorized scope, a necessary
 correction, or an optional expansion. Optional expansions do not enter the ambiguity register:
@@ -231,8 +229,8 @@ they are silent in strict scope or use the Scope Expansion Register during explo
 4. **Record** it in `00-ambiguity-register.md` with the next sequential AR number, tagged
    `(runtime)` in the Category column. Update the register header to note items added during
    execution.
-5. **Only then** rerun affected readiness gates and resume implementation using the authorized
-   decision.
+5. **Only then** update affected plan artifacts, confirm direct entry checks still pass, and
+   resume implementation using the authorized decision.
 
 This applies to ALL ambiguities — architectural, behavioral, naming, formatting, UX, error
 handling. Never fill gaps by guessing.

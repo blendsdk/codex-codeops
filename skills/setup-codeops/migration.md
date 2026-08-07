@@ -1,4 +1,37 @@
-# Flat → Nested Migration (UX)
+# CodeOps Migration UX
+
+## Existing nested project: remove legacy workflow state
+
+Read this section when `setup-codeops` finds `traceability.json` in an active or archived feature,
+including when `codeops/.codeops.yml` already exists. This detection precedes the normal
+already-configured no-op.
+
+1. Preview with:
+
+   ```text
+   python3 "${PLUGIN_ROOT}/scripts/codeops_plan_migrate.py" ./codeops
+   ```
+
+2. Render every `UPDATE`, `KEEP`, `DELETE`, and `BLOCKED` line. A non-zero preview or any
+   `BLOCKED` entry stops the migration without asking to apply.
+3. Unless `--yes` was passed, ask once whether to apply the displayed Markdown updates and graph
+   deletions.
+4. Apply with `codeops_plan_migrate.py ./codeops --apply`. The engine refuses dirty Git state and
+   performs no writes unless every mapping is unambiguous.
+5. Verify with:
+
+   ```text
+   python3 "${PLUGIN_ROOT}/scripts/codeops_plan.py" --root . --json
+   ```
+
+   Then run the repository's normal verification command. Report plan coverage, preserved task
+   progress, deleted graphs, and any residual risk. Do not advance roadmap lifecycle state.
+
+Re-running after success must report no graph migration and continue to the normal configured
+project status. `--yes` skips only the confirmation; it never bypasses ambiguity or Git-safety
+checks.
+
+## Flat → nested layout
 
 > Read this when `setup-codeops` detects an existing **flat layout** (a `requirements/` dir, a
 > `plans/00-roadmap.md`, or any `plans/<dir>/`). Resolve paths via

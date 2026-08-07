@@ -189,7 +189,7 @@ class ScopeExpansionControlImplementation(unittest.TestCase):
         for header in (
             "| ID | Proposed addition | Origin | Why it is outside scope | Impact | Recommendation | Current state |",
             "| Event ID | SE ID | Timestamp | From state | Decision | Authority and evidence | Owner | Revisit trigger | Replacement or reversal |",
-            "| SE ID | Derived artifact or graph target | Relation or kind | Current state | Evidence source |",
+            "| SE ID | Derived artifact | Relation or kind | Current state | Evidence source |",
         ):
             self.assertIn(header, text)
         self.assertIn("normalized project-relative path", text)

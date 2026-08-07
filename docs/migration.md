@@ -10,20 +10,28 @@ Run the setup skill in dry-run mode first. Review all source-relative-link warni
 
 Project instructions belong in `AGENTS.md` for Codex. Do not mechanically copy global Claude instructions or model-routing blocks. Preserve repository commands and conventions that remain true, then express routing and quality policy in `codeops/codeops.json` or `.codex/config.toml`.
 
-## Traceability adoption and schema upgrade
+## Legacy workflow-state artifacts
 
-Legacy Markdown artifacts and schema-1 graphs remain readable. Upgrade graphs with a deterministic
-preview and explicit resolutions:
+Re-run `setup-codeops` on the existing project. It automatically detects legacy graphs before its
+normal already-configured no-op. Use `--dry-run` for preview only, or `--yes` for an unattended
+apply followed by verification. The same one-shot engine can also be invoked directly:
 
 ```bash
-python3 /path/to/plugin/scripts/codeops_state.py traceability-upgrade --root . \
-  --feature my-feature --preview upgrade.json
-python3 /path/to/plugin/scripts/codeops_state.py traceability-upgrade --root . \
-  --feature my-feature --preview upgrade.json --resolutions resolutions.json --apply
-python3 /path/to/plugin/scripts/codeops_state.py validate --root .
+python3 /path/to/plugin/scripts/codeops_plan_migrate.py ./codeops
+python3 /path/to/plugin/scripts/codeops_plan_migrate.py ./codeops --apply
 ```
 
-Review the preview; resolve every classified ambiguity or explicitly omit the link. Apply is
-atomic, creates a protected backup, and reports recovery-required state instead of guessing after
-an interrupted write. Do not mark legacy work ready until every active node has valid links,
-current source revisions and snapshots, and semantic review passes.
+The migrator preserves checklist progress, adds or normalizes each plan's single
+`> **Implements**:` declaration, creates a minimal index for roadmap-linked lightweight plans,
+validates the four task markers, and deletes active and archived feature `traceability.json`
+files. It prefers existing declarations and roadmap links, then consumes the legacy graph once
+to recover plan-local requirements before deleting it. Explicit index metadata and a
+single-plan/single-RD feature are conservative fallbacks. Archived features without a graph are
+outside this bounded conversion. Any missing or ambiguous mapping blocks the entire apply without
+changing files. Apply requires a clean Git working tree.
+
+For blocked legacy work that does not already use `[!]`, first use `upgrade-plan` to record a
+visible reason. Do not migrate graph state into another state platform.
+
+After apply, run `python3 /path/to/plugin/scripts/codeops_plan.py --root . --json`, then the
+repository's normal verification. Git history is the rollback and recovery mechanism.

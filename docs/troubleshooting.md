@@ -12,28 +12,23 @@ Start a new Codex thread after installation or update. Confirm the installed cac
 
 Open `/hooks`. Non-managed plugin hooks are skipped until their exact definitions are reviewed and trusted. A hook change invalidates its prior trust hash.
 
-## Readiness says no traceability graph exists
+## Plan status reports missing metadata
 
-Run `setup-codeops`, then create or migrate a feature and its `traceability.json`. A newly scaffolded empty portfolio is configured but cannot be implementation-ready.
+Confirm the plan contains `00-index.md`, `99-execution-plan.md`, and one
+`> **Implements**:` line with at least one RD, tracker (`T-*`), or plan-local requirement (`REQ-*`)
+target. Only RD targets contribute to the derived requirements summary. An empty portfolio is
+configured but has no plan status to report.
 
 ## A sibling blocks or advances unexpectedly
 
-Confirm the command includes both `--target` and `--gate`. The reported closure may name sibling
-or upstream context, but only the selected target may transition. Roadmap sync repairs derived
-rows; it must not mutate authoritative graph state.
+Confirm each plan declares only the RDs it implements and each task appears once in its execution
+plan. Roadmap sync repairs derived rows; it must not mutate requirements or task checkboxes.
 
-## Upgrade or transition requires recovery
+## A task is stuck after interruption
 
-Do not delete the journal, backup, or lock metadata. Create a recovery request with the recorded
-operation ID and an explicit `roll-forward` or `rollback` action, then run:
-
-```bash
-python3 /path/to/plugin/scripts/codeops_state.py transition-recover --root . \
-  --request recovery-request.json
-```
-
-Inspect the durable images before choosing the action. A second apply is safe only after recovery
-completes.
+Read `99-execution-plan.md`. Resume the first `[~]` task and re-run its verification; otherwise
+start the first `[ ]` task. For `[!]`, resolve the visible blocker before restoring the appropriate
+task marker. Use Git history to inspect or recover interrupted edits.
 
 ## Generated agents are missing or stale
 

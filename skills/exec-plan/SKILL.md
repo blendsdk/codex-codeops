@@ -41,37 +41,26 @@ argument is the feature name; an optional flag selects the commit mode.
 
 ## Execution-entry gate
 
-When CodeOps traceability exists, run the readiness check before modifying implementation files:
+Before modifying implementation files, directly confirm the plan has its required documents, the
+ambiguity register has no open material item, specification tests precede implementation, and no
+critical/major preflight finding remains unresolved. `99-execution-plan.md` is the only mutable
+task-progress authority:
 
-```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" readiness --root . \
-  --gate execution --target <plan-target>
-```
+- `[ ]` is not started;
+- `[~]` is implemented with verification pending;
+- `[x]` is verified; and
+- `[!]` is blocked and includes `Blocked: <short reason>` on the task line.
 
-Use the exact plan target from the selected graph. At task completion create a compare-and-swap
-request for `<task-target>` with its expected status/revision, requested status `verified`, gate
-`task-complete`, lifecycle evidence, and validation additions, then run:
+Never advance sibling tasks. Implement, immediately mark `[~]`, verify, then mark `[x]` only on
+success. The primary agent updates the checklist after every delegated result.
 
-```bash
-python3 "${PLUGIN_ROOT}/scripts/codeops_state.py" transition --root . \
-  --request <transition-request.json>
-```
-
-The transition evaluates `task-complete` against the projected verified state atomically; do not
-run the gate against the still-implemented task first. `[ ]`, `[~]`, and `[x]` correspond to
-`pending`, `implemented`, and `verified`. Never advance sibling
-tasks. Use the exact `feature` value from the selected feature's `traceability.json`; never guess from a
-directory name. Do not execute while the selected feature reports a blocker. During execution,
-keep task, implementation, and verification nodes synchronized with the Markdown plan's `[ ]` →
-`[~]` → `[x]` transitions.
-
-A runtime ambiguity invalidates the selected feature's readiness: record it and mark affected
-links stale. In normal mode, present options and obtain the user's explicit decision. With active
+A runtime ambiguity blocks affected plan tasks: record it in the ambiguity register and mark each
+affected task `[!]` with a short visible reason. In normal mode, present options and obtain the user's explicit decision. With active
 auto-design, resolve and record an eligible technical ambiguity under the shared policy; reserved
 authority still pauses for the user. If resolution requires changing an upstream artifact outside
 the selected plan's documents, present the exact expanded modification set and obtain the user's
-approval before editing because auto-design does not expand scope. Resolve the ambiguity, rerun
-feature-scoped readiness, and only then resume.
+approval before editing because auto-design does not expand scope. Resolve the ambiguity, update
+the affected plan artifacts, and only then resume.
 
 Before treating a runtime discovery or reviewer remediation as executable, classify it under the
 shared scope-expansion protocol. A necessary correction retains the ordinary ambiguity/finding
@@ -139,9 +128,9 @@ summary template. The essentials:
 4. If the plan is missing/empty/already complete, **STOP** — see the load table in
    [execution-protocol.md](execution-protocol.md). Generally suggest the make-plan skill.
 
-**Schema check:** schema 1 plans require valid traceability and readiness. A legacy
-`CodeOps Skills Version` stamp or missing schema triggers a read-only upgrade assessment; ask
-before migration or execution with recorded compatibility risk. Never silently upgrade.
+**Schema check:** a legacy `CodeOps Skills Version` stamp or missing schema triggers a read-only
+upgrade assessment; ask before migration or execution with recorded compatibility risk. Never
+silently upgrade.
 
 ### Step 2 — Execute tasks (per-task loop)
 
@@ -174,7 +163,7 @@ For each task, in order:
 > `00-ambiguity-register.md`, STOP and record it. In normal mode, present options and wait for an
 > explicit user decision. With active auto-design, resolve an eligible technical choice under the
 > shared policy or escalate a reserved choice. Record the authorized resolution in
-> `00-ambiguity-register.md` (tag `(runtime)`), rerun affected readiness gates, then resume.
+> `00-ambiguity-register.md` (tag `(runtime)`), update affected plan documents, then resume.
 > Never guess.
 
 > **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes. In normal mode, the user decides; active auto-design resolves eligible technical decisions and escalates reserved ones. Apply the recommendation-hardening protocol (`_shared/recommendation-hardening.md`) to consequential recommendations; escalate to an independent challenger only when the decision is genuinely high-stakes.
@@ -202,7 +191,7 @@ links to them, never restates them.
 The flow: the protocol records a phase-start ref when the phase begins; after the phase's last
 task verifies, the correctness reviewer and any active auditors are dispatched **in parallel** on
 the phase diff, their findings are merged and presented in severity-grouped batches, and each
-ruling is recorded in durable finding and traceability artifacts.
+ruling is recorded in the durable finding artifact.
 
 > **🚨 Finding gate (load-bearing).** In normal mode, 🔴 CRITICAL and 🟠 MAJOR findings PAUSE
 > execution for the user's ruling in ALL commit modes. With active auto-design, select and record

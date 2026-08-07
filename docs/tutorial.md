@@ -2,7 +2,7 @@
 
 This walkthrough starts a new project without skipping the ambiguity gates.
 
-## 1. Initialize durable CodeOps state
+## 1. Initialize CodeOps artifacts
 
 In a new Codex thread, ask:
 
@@ -64,29 +64,25 @@ blocking safety, correctness, or feasibility uncertainties are reported in eithe
 explicit `Keep` decision turns a proposal into executable work; `--auto-design` cannot make that
 decision.
 
-## 4. Prove readiness and execute
+## 4. Check the plan and execute
 
-Run the deterministic check from the project root:
+Inspect derived plan status from the project root:
 
 ```bash
-python3 /path/to/codeops/scripts/codeops_state.py readiness --root . \
-  --gate requirements --target my-feature/RD-01
-python3 /path/to/codeops/scripts/codeops_state.py readiness --root . \
-  --gate execution --target my-feature/PLAN-01
+python3 /path/to/codeops/scripts/codeops_plan.py --root . --json
 ```
 
-When semantic preflight and deterministic readiness both pass, ask Codex to use
-`exec-plan`. Specification tests establish the oracle before production code.
-Each completed task records implementation, verification, review, and roadmap
-state before moving to the next task.
+The plan's `00-index.md` declares one or more implemented RDs. Before execution, directly confirm
+required documents exist, material ambiguities are closed, specification tests precede production
+code, and critical/major findings are resolved. Then ask Codex to use `exec-plan`.
 
-Use the exact target ID from `traceability.json`. For a completed task, run the
-`task-complete` gate for that task and persist its transition; do not use a feature-wide check.
+The executor immediately marks implementation `[~]`, runs verification, and promotes the task to
+`[x]` only on success. A blocker uses `[!]` and records a short reason on the task line.
 
 ## 5. Resume safely
 
 In a fresh thread, ask CodeOps for project status or use the `roadmap` skill.
-It reconstructs state from artifacts, traceability, plan checkboxes, findings,
-and Git drift. If implementation uncovers a missing upstream decision, reopen
-the ambiguity, mark linked downstream work stale, resolve it, and re-run the
-affected gates before continuing.
+It reconstructs status from requirements, plan metadata, execution checkboxes, findings, and Git
+drift. If implementation uncovers a missing upstream decision, reopen the ambiguity, block the
+affected task visibly, resolve it, update affected artifacts, and continue from the first `[~]`
+task or otherwise the first `[ ]` task.
