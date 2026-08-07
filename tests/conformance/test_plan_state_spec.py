@@ -56,6 +56,14 @@ class PlanStateSpecificationTests(unittest.TestCase):
         self.assertFalse(local.problems)
         self.assertEqual(rd_delivery((tracked, local)), {})
 
+    def test_internal_feature_qualifier_is_preserved(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            status = inspect_plan(
+                self.make_plan(root, "_maintenance/T-01", "- [x] T-1 Verified\n"), root
+            )
+        self.assertEqual(status.implements, ("_maintenance/T-01",))
+
 
 if __name__ == "__main__":
     unittest.main()

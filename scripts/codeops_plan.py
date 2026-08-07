@@ -17,7 +17,7 @@ from pathlib import Path
 
 IMPLEMENTS_RE = re.compile(r"^>\s*\*\*Implements\*\*:\s*(.+?)\s*$", re.MULTILINE)
 TARGET_RE = re.compile(
-    r"(?<![A-Za-z0-9_-])(?:[A-Za-z0-9][A-Za-z0-9_-]*/)?"
+    r"(?<![A-Za-z0-9_-])(?:[A-Za-z0-9_][A-Za-z0-9_-]*/)?"
     r"(?:RD-(?:[A-Za-z0-9]+-)*\d+|T-\d+|REQ-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)"
     r"(?![A-Za-z0-9_-])"
 )
