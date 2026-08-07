@@ -36,6 +36,8 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+$env:PYTHONUTF8 = '1'
+$env:PYTHONIOENCODING = 'utf-8'
 $OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 [Console]::OutputEncoding = $OutputEncoding
 $payload | & $python $hookEntry --event $Event

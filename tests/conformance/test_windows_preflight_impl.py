@@ -431,7 +431,7 @@ class WindowsPreflightImplementationTests(unittest.TestCase):
                 "p=argparse.ArgumentParser(); p.add_argument('--event', required=True)\n"
                 "a=p.parse_args(); payload=json.loads(sys.stdin.read().lstrip('\\ufeff'))\n"
                 "assert payload['hook_event_name'] == a.event\n"
-                "print('Coding standards')\n"
+                "print('Coding standards \\u2192 ready')\n"
             ),
             encoding="utf-8",
         )
@@ -449,6 +449,8 @@ class WindowsPreflightImplementationTests(unittest.TestCase):
             "source": "startup",
         }
         environment = dict(os.environ)
+        environment.pop("PYTHONUTF8", None)
+        environment.pop("PYTHONIOENCODING", None)
         environment["PLUGIN_ROOT"] = str(plugin_root)
         environment["PLUGIN_DATA"] = str(plugin_data)
         result = subprocess.run(
