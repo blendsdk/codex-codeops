@@ -1,7 +1,7 @@
 # Ambiguity Register: Native Windows Support
 
-> **Status**: ✅ GATE PASSED — all 21 items resolved
-> **Last Updated**: 2026-08-06 21:25 CEST
+> **Status**: ✅ GATE PASSED — all 24 items resolved
+> **Last Updated**: 2026-08-07 08:55 CEST
 
 | # | Category | Ambiguity / Gap | Options Presented | User Decision | Status |
 |---|---|---|---|---|---|
@@ -26,6 +26,9 @@
 | AR-19 | Preflight CLI (runtime) | How does the PowerShell bootstrap transport the closed preflight request to Python? | Explicit allowlisted argument array / JSON stdin | Use explicit non-abbreviated flags with repeated `--target`; reject unknown or missing fields before probes, construct production dependencies internally, emit one closed JSON result, and preserve exits 0/1/2. | ✅ Resolved |
 | AR-20 | Windows hook launcher (runtime) | How can hooks execute from legal hostile plugin paths without evaluating path content? | Checked-in `-File` launcher using `$env:PLUGIN_ROOT` and `$PSScriptRoot` / inline `-Command` interpolation | Use a checked-in PowerShell `-File` launcher. The manifest contains no `${PLUGIN_ROOT}` substitution or inline script block; the launcher derives sibling scripts from `$PSScriptRoot` and forwards stdin as data. | ✅ Resolved |
 | AR-21 | Process adapter API (runtime) | What public Python surface owns versioned identities and absence decisions before platform backends exist? | Immutable backend-specific identities plus a three-state result and injectable protocol / raw dictionaries and nullable booleans | Use immutable Linux/Windows identity models, `AbsenceState`, an injected `ProcessBackend`, one exact parser including legacy Linux, and centralized mismatch/malformed handling. | ✅ Resolved |
+| AR-22 | Filesystem test seam (runtime) | How can specification tests control native path and atomic-write behavior without depending on private implementation details? | Narrow production-default protocols / patch private helpers | Use narrow `PathProbe` and `AtomicWriteOps` protocols with production defaults and validate the complete transaction path set before mutation. | ✅ Resolved |
+| AR-23 | Sandbox interpreter (runtime) | Which certified Python executable should the native sandbox smoke execute? | Concrete `sys.executable` / Windows Store launcher alias | Use the concrete certified `sys.executable`; launcher discovery remains covered by the preceding Python prerequisite check. | ✅ Resolved |
+| AR-24 | Release-tail CI identity (runtime) | How should ordinary push/PR CI package the certified candidate after evidence-only commits advance `HEAD`? | Read the retained authority's immutable `sourceCommit` / package the evidence-tail `HEAD` | Read and rehash the authority-bound `sourceCommit` for all runs. Detached certification additionally requires `GITHUB_SHA` to equal that source commit; ordinary runs validate against evidence in their checked-out tail. | ✅ Resolved |
 
 ## Resolution Notes
 
@@ -180,3 +183,25 @@ Git Bash, or WSL (AR-2, AR-8, AR-14).
   that discovery is already owned by the preceding Python check.
 - **Confidence / hardening:** High; production probe and complete mutation preflight pass natively.
 - **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
+
+## Runtime Decision AR-24 Provenance
+
+- **Authority:** AI — delegated by `--auto-design` during release certification.
+- **Eligibility:** Internal CI artifact-selection and evidence-routing mechanism inside the
+  approved immutable-candidate release contract; it changes no product behavior or support scope.
+- **Objective:** Keep ordinary push/PR validation green after evidence-only commits while proving
+  the shipped archive is byte-identical to the candidate certified by detached CI.
+- **Decision:** Resolve `sourceCommit`, artifact name, and SHA-256 from the retained authority on
+  every run. Use checked-out evidence for ordinary runs and detached evidence for certification;
+  retain the detached `GITHUB_SHA == sourceCommit` guard.
+- **Evidence:** Windows evidence is export-ignored so its commits cannot be part of the candidate;
+  the authority already owns the exact source commit and archive digest.
+- **Rejected alternatives:** Packaging evidence-tail `HEAD` changes the candidate identity;
+  omitting evidence variables makes stable-support validation fail from the installed archive.
+- **Strongest counterargument:** Ordinary CI trusts the checked-out authority to select an older
+  commit, but the mandatory digest recheck and full source/evidence validation expose tampering.
+- **Confidence / hardening:** High; detached certification remains commit-bound and every path
+  rehashes the generated archive before upload.
+- **Policy version / invocation:** 1 / `exec-native-windows-support-20260806-01`.
+- **Reopen triggers:** A release authority format no longer owns source identity and digest, or CI
+  begins producing multiple release candidates in one workflow.

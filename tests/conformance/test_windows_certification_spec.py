@@ -159,6 +159,24 @@ class CertificationCISpecification(unittest.TestCase):
         self.assertIn("sha256sum --check --strict", package_steps)
         self.assertIn("evidence_ref", workflow.read_text(encoding="utf-8"))
         self.assertIn("test \"$GITHUB_SHA\" = \"$source_commit\"", package_steps)
+        self.assertIn("authority=tests/evidence/windows-release-0.5.0.json", package_steps)
+        self.assertLess(
+            package_steps.index("source_commit=$(python"),
+            package_steps.index("git archive"),
+        )
+        self.assertLess(
+            package_steps.index("git archive"),
+            package_steps.index("sha256sum --check --strict"),
+        )
+        for job, retained_path in (
+            (ubuntu, "tests/evidence"),
+            (windows, "tests\\evidence"),
+        ):
+            evidence_steps = "\n".join(
+                str(step.get("run", "")) for step in job["steps"] if isinstance(step, dict)
+            )
+            self.assertIn(retained_path, evidence_steps)
+            self.assertIn("certification-evidence", evidence_steps)
         self.assertTrue(any(
             str(step.get("uses", "")).startswith("actions/upload-artifact@")
             for step in package["steps"] if isinstance(step, dict)

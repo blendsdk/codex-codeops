@@ -28,19 +28,18 @@ jobs:
       - name: Pack exact release artifact
         run: |
           mkdir -p release-artifact
-          source_commit="$GITHUB_SHA"
-          artifact_name=codeops-0.5.0.zip
+          authority=tests/evidence/windows-release-0.5.0.json
           if [ -n '${{ inputs.evidence_ref }}' ]; then
             authority=certification-evidence/tests/evidence/windows-release-0.5.0.json
-            source_commit=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['sourceCommit'])")
-            artifact_name=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['artifactName'])")
-            expected_sha=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['candidateSha256'])")
+          fi
+          source_commit=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['sourceCommit'])")
+          artifact_name=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['artifactName'])")
+          expected_sha=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['candidateSha256'])")
+          if [ -n '${{ inputs.evidence_ref }}' ]; then
             test "$GITHUB_SHA" = "$source_commit"
           fi
           git archive --format=zip --output "release-artifact/$artifact_name" "$source_commit"
-          if [ -n '${{ inputs.evidence_ref }}' ]; then
-            echo "$expected_sha  release-artifact/$artifact_name" | sha256sum --check --strict
-          fi
+          echo "$expected_sha  release-artifact/$artifact_name" | sha256sum --check --strict
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: codeops-release-candidate
@@ -61,11 +60,14 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install --require-hashes -r requirements-ci.txt
-      - name: Select detached certification evidence
-        if: ${{ inputs.evidence_ref != '' }}
+      - name: Select certification evidence
         run: |
-          echo "CODEOPS_WINDOWS_EVIDENCE_ROOT=$GITHUB_WORKSPACE/certification-evidence/tests/evidence" >> "$GITHUB_ENV"
-          echo "CODEOPS_WINDOWS_RELEASE_AUTHORITY=$GITHUB_WORKSPACE/certification-evidence/tests/evidence/windows-release-0.5.0.json" >> "$GITHUB_ENV"
+          evidence="$GITHUB_WORKSPACE/tests/evidence"
+          if [ -n '${{ inputs.evidence_ref }}' ]; then
+            evidence="$GITHUB_WORKSPACE/certification-evidence/tests/evidence"
+          fi
+          echo "CODEOPS_WINDOWS_EVIDENCE_ROOT=$evidence" >> "$GITHUB_ENV"
+          echo "CODEOPS_WINDOWS_RELEASE_AUTHORITY=$evidence/windows-release-0.5.0.json" >> "$GITHUB_ENV"
       - run: ./scripts/validate-codex.sh
       - run: ./scripts/docs-check.sh
       - run: ./scripts/migration-check.sh
@@ -83,10 +85,6 @@ jobs:
           unzip -q "$candidate" -d "$RUNNER_TEMP/installed-codeops"
           cd "$RUNNER_TEMP/installed-codeops"
           export CODEOPS_WINDOWS_CANDIDATE="$candidate"
-          if [ -n '${{ inputs.evidence_ref }}' ]; then
-            export CODEOPS_WINDOWS_EVIDENCE_ROOT="$GITHUB_WORKSPACE/certification-evidence/tests/evidence"
-            export CODEOPS_WINDOWS_RELEASE_AUTHORITY="$GITHUB_WORKSPACE/certification-evidence/tests/evidence/windows-release-0.5.0.json"
-          fi
           for launcher in validate-codex docs-check migration-check roadmap-sync-check compact-check; do
             test -x "./scripts/$launcher.sh"
           done
@@ -148,10 +146,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & $python -m pip install --require-hashes -r requirements-ci.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Select detached certification evidence
-        if: ${{ inputs.evidence_ref != '' }}
+      - name: Select certification evidence
         run: |
-          $evidence = Join-Path $PWD 'certification-evidence\tests\evidence'
+          $evidence = Join-Path $PWD 'tests\evidence'
+          if ('${{ inputs.evidence_ref }}') {
+            $evidence = Join-Path $PWD 'certification-evidence\tests\evidence'
+          }
           Add-Content -LiteralPath $env:GITHUB_ENV -Value "CODEOPS_WINDOWS_EVIDENCE_ROOT=$evidence" -Encoding utf8
           Add-Content -LiteralPath $env:GITHUB_ENV -Value "CODEOPS_WINDOWS_RELEASE_AUTHORITY=$(Join-Path $evidence 'windows-release-0.5.0.json')" -Encoding utf8
       - name: Run native Windows conformance tests
@@ -179,9 +179,5 @@ jobs:
           Expand-Archive -LiteralPath $archive -DestinationPath $installed
           Set-Location -LiteralPath $installed
           $env:CODEOPS_WINDOWS_CANDIDATE = $archive
-          if ('${{ inputs.evidence_ref }}') {
-            $env:CODEOPS_WINDOWS_EVIDENCE_ROOT = Join-Path $sourceRoot 'certification-evidence\tests\evidence'
-            $env:CODEOPS_WINDOWS_RELEASE_AUTHORITY = Join-Path $env:CODEOPS_WINDOWS_EVIDENCE_ROOT 'windows-release-0.5.0.json'
-          }
           & .\scripts\codeops-verify.ps1 all
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
