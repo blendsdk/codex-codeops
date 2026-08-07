@@ -39,6 +39,7 @@ jobs:
             test "$GITHUB_SHA" = "$source_commit"
           fi
           python scripts/package_release.py --root . --commit "$source_commit" --output "release-artifact/$artifact_name"
+          sha256sum "release-artifact/$artifact_name"
           echo "$expected_sha  release-artifact/$artifact_name" | sha256sum --check --strict
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
