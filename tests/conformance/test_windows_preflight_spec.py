@@ -153,7 +153,9 @@ class NativePreflightSpecificationTests(unittest.TestCase):
                 encoding="utf-8",
             )
             environment = dict(os.environ)
-            environment.pop("pythonLocation", None)
+            for name in tuple(environment):
+                if name.casefold() == "pythonlocation":
+                    environment.pop(name)
             environment["PATH"] = str(commands)
             result = subprocess.run(
                 [powershell, "-NoProfile", "-File", str(BOOTSTRAP), "-ResolvePython"],
@@ -178,7 +180,9 @@ class NativePreflightSpecificationTests(unittest.TestCase):
             for name in ("py.cmd", "python.cmd"):
                 (commands / name).write_text("@exit /b 1\n", encoding="utf-8")
             environment = dict(os.environ)
-            environment.pop("pythonLocation", None)
+            for name in tuple(environment):
+                if name.casefold() == "pythonlocation":
+                    environment.pop(name)
             environment["PATH"] = str(commands)
             result = subprocess.run(
                 [powershell, "-NoProfile", "-File", str(BOOTSTRAP), "-ResolvePython"],
@@ -205,7 +209,9 @@ class NativePreflightSpecificationTests(unittest.TestCase):
             )
             (commands / "python.cmd").write_text("@exit /b 1\n", encoding="utf-8")
             environment = dict(os.environ)
-            environment.pop("pythonLocation", None)
+            for name in tuple(environment):
+                if name.casefold() == "pythonlocation":
+                    environment.pop(name)
             environment["PATH"] = str(commands)
             resolved = subprocess.run(
                 [powershell, "-NoProfile", "-File", str(BOOTSTRAP), "-ResolvePython"],

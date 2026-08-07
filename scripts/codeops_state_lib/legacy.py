@@ -12,6 +12,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
+from .paths import NativePathProbe
+
 
 NODE_TYPES = {
     "requirement", "ambiguity", "decision", "invariant", "specification",
@@ -179,8 +181,10 @@ def load_graph(path: Path, project_root: Path, problems: list[Problem]) -> Graph
             problems.append(Problem("ERROR", path, f"duplicate node id {node_id}"))
             continue
         graph.nodes[node_id] = node
-        artifact = (path.parent / node["path"]).resolve()
-        if project_root not in (artifact, *artifact.parents):
+        probe = NativePathProbe()
+        artifact = probe.canonical(path.parent / node["path"])
+        canonical_root = probe.canonical(project_root)
+        if canonical_root not in (artifact, *artifact.parents):
             problems.append(Problem("ERROR", path, f"{node_id}.path escapes the project root"))
         elif not artifact.exists():
             problems.append(Problem("ERROR", path, f"{node_id}.path does not exist: {node['path']}"))
@@ -215,8 +219,10 @@ def validate_relationships(graphs: list[Graph], root: Path, problems: list[Probl
                 if target not in graph.nodes:
                     problems.append(Problem("ERROR", graph.source, f"{node_id} links to missing node {target}"))
             for evidence in node.get("evidence", []):
-                path = (graph.source.parent / evidence).resolve()
-                if root not in (path, *path.parents):
+                probe = NativePathProbe()
+                path = probe.canonical(graph.source.parent / evidence)
+                canonical_root = probe.canonical(root)
+                if canonical_root not in (path, *path.parents):
                     problems.append(Problem("ERROR", graph.source, f"{node_id} evidence escapes project root: {evidence}"))
                 elif not path.exists():
                     problems.append(Problem("ERROR", graph.source, f"{node_id} evidence is missing: {evidence}"))
