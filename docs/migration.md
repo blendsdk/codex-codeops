@@ -12,7 +12,9 @@ Project instructions belong in `AGENTS.md` for Codex. Do not mechanically copy g
 
 ## Legacy workflow-state artifacts
 
-Use the one-shot migrator on a nested `codeops/` directory. It previews by default:
+Re-run `setup-codeops` on the existing project. It automatically detects legacy graphs before its
+normal already-configured no-op. Use `--dry-run` for preview only, or `--yes` for an unattended
+apply followed by verification. The same one-shot engine can also be invoked directly:
 
 ```bash
 python3 /path/to/plugin/scripts/codeops_plan_migrate.py ./codeops
