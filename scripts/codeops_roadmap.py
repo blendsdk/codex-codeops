@@ -24,7 +24,7 @@ def _authority_is_valid(root: Path) -> tuple[bool, str]:
     if not graphs:
         return True, ""
     result = run_command(
-        (sys.executable, str(SCRIPT_ROOT / "scripts/codeops_state.py"), "--root", str(root), "validate"),
+        (sys.executable, str(SCRIPT_ROOT / "scripts/codeops_state.py"), "validate", "--root", str(root)),
         cwd=root,
     )
     return result.exit_code == 0, result.stderr or result.stdout

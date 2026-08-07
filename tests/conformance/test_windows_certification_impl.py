@@ -146,7 +146,7 @@ class CaptureBoundaryTests(unittest.TestCase):
         self.assertIn('args.codex, "exec"', source)
         self.assertIn("_codex_commands", source)
         self.assertIn("installed scenarios failed", source)
-        self.assertIn('"--json", "transition"', source)
+        self.assertIn('str(state), "transition", "--root"', source)
         self.assertIn('for gate in ("docs", "migration", "roadmap", "compact")', source)
         self.assertIn('Path(base_environment["PLUGIN_DATA"]).mkdir', source)
         self.assertIn('"artifacts": {"layout": "nested", "root": "codeops"}', source)
@@ -154,6 +154,8 @@ class CaptureBoundaryTests(unittest.TestCase):
         self.assertIn('"--sandbox", "danger-full-access"', source)
         self.assertIn("exact installed candidate skill", source)
         self.assertIn("do not resolve a same-named skill", source)
+        self.assertIn("I explicitly approve the complete product scope", source)
+        self.assertIn("I explicitly approve the generated hello CLI requirements", source)
 
     def test_path_sanitizer_replaces_candidate_root(self) -> None:
         plugin = Path("C:/Candidate With Spaces")

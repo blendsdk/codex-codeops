@@ -458,12 +458,12 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
             "requirements": ((
                 args.codex, "exec", "--json", "--ephemeral", "--dangerously-bypass-hook-trust",
                 "--sandbox", "danger-full-access", "--cd", str(workspace),
-                f'Read and follow the exact installed candidate skill at "{requirements_skill}" with --auto-design; do not resolve a same-named skill from another marketplace. The README is the complete product scope. Create a decision-complete requirements set without implementation. Use only native Windows PowerShell and native executables.',
+                f'Read and follow the exact installed candidate skill at "{requirements_skill}" with --auto-design; do not resolve a same-named skill from another marketplace. I explicitly approve the complete product scope and every exact behavior stated in README.md for this disposable certification project. Do not ask for confirmation or introduce additional product choices. Create and approve a decision-complete requirements set without implementation. Use only native Windows PowerShell and native executables.',
             ),),
             "planning": ((
                 args.codex, "exec", "--json", "--ephemeral", "--dangerously-bypass-hook-trust",
                 "--sandbox", "danger-full-access", "--cd", str(workspace),
-                f'Read and follow the exact installed candidate skill at "{planning_skill}" with --auto-design; do not resolve a same-named skill from another marketplace. Plan the approved hello CLI requirements. Create a complete plan and traceability, but do not implement. Use only native Windows PowerShell and native executables.',
+                f'Read and follow the exact installed candidate skill at "{planning_skill}" with --auto-design; do not resolve a same-named skill from another marketplace. I explicitly approve the generated hello CLI requirements and every decision they contain. Treat that set as the selected planning target, close any required approved-state transition, and create a complete plan and traceability without implementation. Do not ask for confirmation or add product scope. Use only native Windows PowerShell and native executables.',
             ),),
             "preflight-audit": ((
                 args.codex, "exec", "--json", "--ephemeral", "--dangerously-bypass-hook-trust",
@@ -471,8 +471,8 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
                 f'Read and follow the exact installed candidate skill at "{preflight_skill}" with --auto-design; do not resolve a same-named skill from another marketplace. Audit the hello CLI plan, resolve eligible technical findings, and leave a durable readiness verdict. Do not implement. Use only native Windows PowerShell and native executables.',
             ),),
             "execution-transition-recovery": (
-                (sys.executable, str(state), "--root", str(lifecycle), "--request", str(transition_request), "--json", "transition"),
-                (sys.executable, str(state), "--root", str(recovery_graph.parents[3]), "--request", str(recovery_request), "--json", "transition-recover"),
+                (sys.executable, str(state), "transition", "--root", str(lifecycle), "--request", str(transition_request), "--json"),
+                (sys.executable, str(state), "transition-recover", "--root", str(recovery_graph.parents[3]), "--request", str(recovery_request), "--json"),
             ),
             "migration": ((sys.executable, str(plugin_root / "scripts" / "codeops_migrate.py"), "apply", "--root", str(migration), "--json"),),
             "roadmap": (
