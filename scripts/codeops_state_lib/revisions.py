@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .closure import TRACE_BY_GATE
 from .models import Node, SemanticSource, StructuralProblem
+from .paths import NativePathProbe
 
 
 def normalize_utf8(data: bytes) -> str:
@@ -66,8 +67,10 @@ def heading_section(text: str, heading: str) -> str | None:
 def compute_revision(root: Path, sources: tuple[SemanticSource, ...]) -> str:
     selected: list[tuple[tuple[str, str, str], str]] = []
     for source in sources:
-        path = (root / source.path).resolve()
-        if path != root.resolve() and root.resolve() not in path.parents:
+        probe = NativePathProbe()
+        canonical_root = probe.canonical(root)
+        path = probe.canonical(root / source.path)
+        if path != canonical_root and canonical_root not in path.parents:
             raise ValueError(f"source escapes project root: {source.path}")
         text = normalize_utf8(path.read_bytes())
         if source.selector.kind == "heading":

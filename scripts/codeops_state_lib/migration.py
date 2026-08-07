@@ -13,7 +13,7 @@ from typing import Any
 from . import legacy
 from .discovery import discover_state
 from .filesystem import NativeAtomicWriteOps, atomic_write_bytes
-from .paths import canonical_relative_path, resolve_durable_path
+from .paths import NativePathProbe, canonical_relative_path, resolve_durable_path
 from .revisions import compute_revision
 from .schema import RELATION_MATRIX, parse_graph_v2, validate_portfolio_v2
 from .models import SemanticSource, SourceSelector
@@ -34,8 +34,9 @@ def _preview_hash(value: dict[str, Any]) -> str:
 
 
 def _safe_output(root: Path, path: Path) -> bool:
-    resolved = path.resolve()
-    project = root.resolve()
+    probe = NativePathProbe()
+    resolved = probe.canonical(path)
+    project = probe.canonical(root)
     return resolved == project or project in resolved.parents
 
 

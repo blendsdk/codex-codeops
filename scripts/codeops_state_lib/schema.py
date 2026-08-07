@@ -11,6 +11,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Iterable
 
+from .paths import NativePathProbe
+
 from .models import (
     AGGREGATE_TYPES,
     CONTRACT_MATURITIES,
@@ -92,8 +94,9 @@ def _problem(source: Path, code: str, message: str, identity: str | None = None)
 
 
 def _safe_project_path(project_root: Path, value: str) -> Path | None:
-    candidate = (project_root / value).resolve()
-    root = project_root.resolve()
+    probe = NativePathProbe()
+    candidate = probe.canonical(project_root / value)
+    root = probe.canonical(project_root)
     return candidate if candidate == root or root in candidate.parents else None
 
 

@@ -40,6 +40,16 @@ jobs:
         with:
           python-version: "3.12"
           architecture: arm64
+      - name: Install native Codex CLI authority
+        run: |
+          npm install --global @openai/codex@0.146.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $npmRoot = & npm root --global
+          $source = Join-Path $npmRoot '@openai/codex/vendor/aarch64-pc-windows-msvc/codex/codex.exe'
+          $bin = Join-Path $env:RUNNER_TEMP 'native-codex-bin'
+          New-Item -ItemType Directory -Force -Path $bin | Out-Null
+          Copy-Item -LiteralPath $source -Destination (Join-Path $bin 'codex.exe')
+          Add-Content -LiteralPath $env:GITHUB_PATH -Value $bin -Encoding utf8
       - name: Assert native Windows 11 ARM64 runner
         run: |
           if ([Environment]::OSVersion.Version.Build -lt 22000) { throw 'Windows 11 build required' }
@@ -52,6 +62,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run native Windows conformance tests
         run: |
+          $env:CODEOPS_VERIFY_CHILD = '1'
           $python = & .\scripts\codeops-windows-preflight.ps1 -ResolvePython
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & $python -m unittest discover -s tests/conformance -p 'test_*.py'

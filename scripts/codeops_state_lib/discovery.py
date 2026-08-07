@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .models import StructuralProblem
+from .paths import NativePathProbe
 
 
 @dataclass(frozen=True)
@@ -34,8 +35,10 @@ def discover_state(root: Path) -> Discovery:
             return Discovery((), (StructuralProblem("invalid-config", "artifacts must be an object", config),))
         artifact_root = artifacts.get("root")
         if isinstance(artifact_root, str) and artifact_root:
-            base = (root / artifact_root).resolve()
-            if base != root.resolve() and root.resolve() not in base.parents:
+            probe = NativePathProbe()
+            canonical_root = probe.canonical(root)
+            base = probe.canonical(root / artifact_root)
+            if base != canonical_root and canonical_root not in base.parents:
                 return Discovery((), (StructuralProblem("unsafe-config-root", f"artifacts.root escapes project root: {artifact_root}", config),))
             feature_root = base / "features"
             search_root = feature_root if feature_root.is_dir() else base

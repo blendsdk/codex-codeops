@@ -36,5 +36,6 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+$OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 $payload | & $python $hookEntry --event $Event
 exit $LASTEXITCODE

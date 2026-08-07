@@ -174,7 +174,7 @@ class NativeHookDependencies:
 
 def _payload_from_stdin(event: str | None) -> Mapping[str, object]:
     """Read one JSON payload, allowing a SessionStart-only Unix compatibility fallback."""
-    raw = sys.stdin.read()
+    raw = sys.stdin.read().lstrip("\ufeff")
     if raw.strip():
         payload = json.loads(raw)
         if not isinstance(payload, dict):

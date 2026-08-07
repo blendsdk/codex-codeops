@@ -306,8 +306,9 @@ class MutationUtilityImplementationTests(unittest.TestCase):
             self.assertFalse(lock.exists())
         self.assertRegex(tree, snapshot.OBJECT_ID_RE)
         self.assertEqual(gate.call_args.kwargs["entrypoint_code"], "snapshot-write")
-        self.assertIn(root / ".git" / "objects", gate.call_args.args[1])
-        self.assertIn(lock, gate.call_args.args[1])
+        canonical_targets = tuple(path.resolve() for path in gate.call_args.args[1])
+        self.assertIn((root / ".git" / "objects").resolve(), canonical_targets)
+        self.assertIn(lock.resolve(), canonical_targets)
 
     def test_snapshot_from_linked_worktree_uses_common_sibling_boundary(self) -> None:
         from scripts import codeops_worktree_snapshot as snapshot
@@ -328,7 +329,10 @@ class MutationUtilityImplementationTests(unittest.TestCase):
             targets = gate.call_args.args[1]
         self.assertRegex(tree, snapshot.OBJECT_ID_RE)
         self.assertEqual(gate.call_args.args[0], base.resolve())
-        self.assertIn(main / ".git" / "objects", targets)
+        self.assertIn(
+            (main / ".git" / "objects").resolve(),
+            tuple(path.resolve() for path in targets),
+        )
         self.assertTrue(any(path.name.endswith(".lock") for path in targets))
 
 
