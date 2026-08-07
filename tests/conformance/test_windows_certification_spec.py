@@ -128,6 +128,17 @@ def validate_set(
 
 
 class CertificationCISpecification(unittest.TestCase):
+    def test_release_archive_excludes_only_self_referential_windows_evidence(self) -> None:
+        attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+        self.assertNotIn("tests/evidence/** export-ignore", attributes)
+        for path in (
+            "tests/evidence/windows-native-0.5.0.json",
+            "tests/evidence/windows-native-0.5.0/**",
+            "tests/evidence/windows-desktop-0.5.0.json",
+            "tests/evidence/windows-release-0.5.0.json",
+        ):
+            self.assertIn(f"{path} export-ignore", attributes)
+
     def test_st_46_ci_has_explicit_ubuntu_and_windows_11_arm_native_jobs(self) -> None:
         workflow = ROOT / ".github/workflows/ci.yml"
         payload = yaml.safe_load(workflow.read_text(encoding="utf-8"))

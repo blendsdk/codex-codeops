@@ -1,3 +1,6 @@
 tests/fixtures/windows-evidence/** text eol=lf
 tests/evidence/** text eol=lf
-tests/evidence/** export-ignore
+tests/evidence/windows-native-0.5.0.json export-ignore
+tests/evidence/windows-native-0.5.0/** export-ignore
+tests/evidence/windows-desktop-0.5.0.json export-ignore
+tests/evidence/windows-release-0.5.0.json export-ignore
