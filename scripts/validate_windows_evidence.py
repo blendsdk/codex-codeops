@@ -46,6 +46,21 @@ RECORD_FIELDS = {
     "schemaVersion", "scenarioId", "result", "commandClass", "timestamp", "summary",
 }
 TRACE_FIELDS = {"scenarioId", "executable", "arguments", "exitClass"}
+SCENARIO_COMMAND_MARKERS = {
+    "installation": ("plugin", "add"),
+    "enablement": ("plugin", "list"),
+    "session-preflight": ("codeops-windows-preflight.ps1",),
+    "requirements": ("exec", "make-requirements"),
+    "planning": ("exec", "make-plan"),
+    "preflight-audit": ("exec", "preflight"),
+    "execution-transition-recovery": ("transition", "transition-recover"),
+    "migration": ("codeops_migrate.py", "apply"),
+    "roadmap": ("codeops_roadmap.py", "sync"),
+    "worktree": ("codeops_worktree.py",),
+    "agent-install-check": ("install_agents.py", "--check"),
+    "outcomes": ("codeops_outcomes.py", "emit", "report"),
+    "verification": ("codeops_verify.py", "all"),
+}
 
 
 def _object(value: Any, label: str, errors: list[str]) -> dict[str, Any] | None:
@@ -140,24 +155,25 @@ def _false_assertions(value: Any, required: set[str], label: str, errors: list[s
             errors.append(f"{label} assertion `{field}` must be false")
 
 
-def _validate_trace(root: Path, reference: Any, errors: list[str]) -> set[str]:
+def _validate_trace(root: Path, reference: Any, errors: list[str]) -> tuple[set[str], dict[str, list[str]]]:
     command_trace = _object(reference, "CLI commandTrace", errors)
     if command_trace is None:
-        return set()
+        return set(), {}
     _closed(command_trace, {"path", "sha256"}, "CLI commandTrace", errors)
     path = _resolve_supporting(root, command_trace.get("path"), "CLI command trace", errors)
     if path is None:
-        return set()
+        return set(), {}
     _hash_matches(path, command_trace.get("sha256"), "CLI command trace", errors)
     try:
         commands = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as error:
         errors.append(f"CLI command trace is not valid JSON: {error}")
-        return set()
+        return set(), {}
     if not isinstance(commands, list) or not commands:
         errors.append("CLI command trace must be a non-empty array")
-        return set()
+        return set(), {}
     covered: set[str] = set()
+    texts: dict[str, list[str]] = {}
     for index, value in enumerate(commands):
         command = _object(value, f"CLI command trace entry {index}", errors)
         if command is None:
@@ -174,16 +190,18 @@ def _validate_trace(root: Path, reference: Any, errors: list[str]) -> set[str]:
             errors.append(f"CLI command trace entry {index} arguments are invalid")
             arguments = []
         runtime_text = " ".join([str(executable), *arguments])
+        if isinstance(scenario, str):
+            texts.setdefault(scenario, []).append(runtime_text.casefold())
         if PROHIBITED_RUNTIME_RE.search(runtime_text):
             errors.append(f"CLI command trace entry {index} uses a prohibited runtime")
         if command.get("exitClass") not in {"success", "expected-failure"}:
             errors.append(f"CLI command trace entry {index} exit class is invalid")
-    return covered
+    return covered, texts
 
 
 def _validate_cli(
     root: Path, payload: Mapping[str, Any], expected_version: str, expected_commit: str,
-    errors: list[str],
+    errors: list[str], expected_ci_commit: str | None = None, semantic_required: bool = False,
 ) -> None:
     _closed(payload, CLI_FIELDS, "CLI evidence", errors)
     _common(payload, "CLI evidence", expected_version, expected_commit, errors)
@@ -211,12 +229,17 @@ def _validate_cli(
         _closed(ci, {"runId", "commit", "conclusion", "runner"}, "CLI CI", errors)
         if not str(ci.get("runId", "")).strip() or ci.get("conclusion") != "success" or ci.get("runner") != "windows-11-arm":
             errors.append("CLI CI evidence must identify a successful windows-11-arm run")
-        if ci.get("commit") != expected_commit:
+        if ci.get("commit") != (expected_ci_commit or expected_commit):
             errors.append("CLI CI commit does not match the candidate")
     if payload.get("captureVersion") != 1:
         errors.append("CLI capture version is unsupported")
     _false_assertions(payload.get("assertions"), {"wslInvoked", "gitBashInvoked"}, "CLI", errors)
-    covered = _validate_trace(root, payload.get("commandTrace"), errors)
+    covered, command_texts = _validate_trace(root, payload.get("commandTrace"), errors)
+    if semantic_required:
+        for scenario, markers in SCENARIO_COMMAND_MARKERS.items():
+            combined = " ".join(command_texts.get(scenario, []))
+            if not all(marker.casefold() in combined for marker in markers):
+                errors.append(f"CLI command trace lacks concrete `{scenario}` workflow coverage")
     scenarios = payload.get("scenarios")
     if not isinstance(scenarios, list):
         errors.append("CLI scenarios must be an array")
@@ -307,6 +330,8 @@ def validate_evidence_set(
     desktop_path: Path | None,
     expected_version: str,
     expected_commit: str,
+    expected_candidate_sha256: str | None = None,
+    expected_ci_commit: str | None = None,
     support_claimed: bool = False,
 ) -> list[str]:
     """Return deterministic validation errors for one exact candidate."""
@@ -317,6 +342,8 @@ def validate_evidence_set(
         errors.append("expected plugin version must be stable semantic versioning")
     if COMMIT_RE.fullmatch(expected_commit) is None:
         errors.append("expected commit must be a full lowercase Git commit")
+    if expected_candidate_sha256 is not None and SHA256_RE.fullmatch(expected_candidate_sha256) is None:
+        errors.append("expected candidate SHA-256 must be lowercase SHA-256")
     cli: dict[str, Any] | None = None
     desktop: dict[str, Any] | None = None
     if cli_path is None:
@@ -325,7 +352,12 @@ def validate_evidence_set(
     else:
         cli = _read_object(cli_path, "CLI evidence", errors)
         if cli is not None:
-            _validate_cli(root, cli, expected_version, expected_commit, errors)
+            _validate_cli(
+                root, cli, expected_version, expected_commit, errors, expected_ci_commit,
+                semantic_required=support_claimed,
+            )
+            if expected_candidate_sha256 is not None and cli.get("candidateSha256") != expected_candidate_sha256:
+                errors.append("CLI evidence candidateSha256 does not match the release authority")
     if desktop_path is None:
         if support_claimed:
             errors.append("desktop evidence is required for a Windows support claim")
@@ -333,6 +365,8 @@ def validate_evidence_set(
         desktop = _read_object(desktop_path, "desktop evidence", errors)
         if desktop is not None:
             _validate_desktop(desktop, expected_version, expected_commit, errors)
+            if expected_candidate_sha256 is not None and desktop.get("candidateSha256") != expected_candidate_sha256:
+                errors.append("desktop evidence candidateSha256 does not match the release authority")
     if cli is not None and desktop is not None:
         for field in ("pluginVersion", "commit", "candidateSha256"):
             if cli.get(field) != desktop.get(field):
@@ -374,6 +408,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--desktop", type=Path)
     parser.add_argument("--expected-version", required=True)
     parser.add_argument("--expected-commit", required=True)
+    parser.add_argument("--expected-candidate-sha256")
+    parser.add_argument("--expected-ci-commit")
     parser.add_argument("--support-claimed", action="store_true")
     return parser
 
@@ -386,6 +422,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         desktop_path=args.desktop,
         expected_version=args.expected_version,
         expected_commit=args.expected_commit,
+        expected_candidate_sha256=args.expected_candidate_sha256,
+        expected_ci_commit=args.expected_ci_commit,
         support_claimed=args.support_claimed,
     )
     if errors:

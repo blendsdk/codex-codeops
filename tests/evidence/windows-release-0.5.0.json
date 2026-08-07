@@ -1,0 +1,13 @@
+{
+  "artifactName": "codeops-0.5.0-87978a3.zip",
+  "candidateSha256": "d4b469cd522caf734e5f274857b5e89cff03e1013204c5c7ddf72280d3446ada",
+  "ci": {
+    "artifactName": "codeops-0.5.0-87978a3.zip",
+    "conclusion": "success",
+    "headCommit": "87978a39861686491156b1f847d6bf843069b9da",
+    "runId": "31134570817"
+  },
+  "pluginVersion": "0.5.0",
+  "schemaVersion": 1,
+  "sourceCommit": "87978a39861686491156b1f847d6bf843069b9da"
+}

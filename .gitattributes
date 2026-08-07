@@ -1,2 +1,3 @@
 tests/fixtures/windows-evidence/** text eol=lf
 tests/evidence/** text eol=lf
+tests/evidence/** export-ignore

@@ -4,6 +4,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      evidence_ref:
+        description: Commit containing detached certification authority and evidence
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -12,41 +17,79 @@ jobs:
   package-release-artifact:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        if: ${{ inputs.evidence_ref != '' }}
+        with:
+          ref: ${{ inputs.evidence_ref }}
+          path: certification-evidence
       - name: Pack exact release artifact
         run: |
           mkdir -p release-artifact
-          git archive --format=zip --output release-artifact/codeops.zip HEAD
-          sha256sum release-artifact/codeops.zip
-      - uses: actions/upload-artifact@v6
+          source_commit="$GITHUB_SHA"
+          artifact_name=codeops-0.5.0.zip
+          if [ -n '${{ inputs.evidence_ref }}' ]; then
+            authority=certification-evidence/tests/evidence/windows-release-0.5.0.json
+            source_commit=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['sourceCommit'])")
+            artifact_name=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['artifactName'])")
+            expected_sha=$(python -c "import json; print(json.load(open('$authority', encoding='utf-8'))['candidateSha256'])")
+            test "$GITHUB_SHA" = "$source_commit"
+          fi
+          git archive --format=zip --output "release-artifact/$artifact_name" "$source_commit"
+          if [ -n '${{ inputs.evidence_ref }}' ]; then
+            echo "$expected_sha  release-artifact/$artifact_name" | sha256sum --check --strict
+          fi
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: codeops-release-candidate
-          path: release-artifact/codeops.zip
+          path: release-artifact/*.zip
           if-no-files-found: error
 
   validate-ubuntu:
     needs: package-release-artifact
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        if: ${{ inputs.evidence_ref != '' }}
+        with:
+          ref: ${{ inputs.evidence_ref }}
+          path: certification-evidence
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.12"
-      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pip install --require-hashes -r requirements-ci.txt
+      - name: Select detached certification evidence
+        if: ${{ inputs.evidence_ref != '' }}
+        run: |
+          echo "CODEOPS_WINDOWS_EVIDENCE_ROOT=$GITHUB_WORKSPACE/certification-evidence/tests/evidence" >> "$GITHUB_ENV"
+          echo "CODEOPS_WINDOWS_RELEASE_AUTHORITY=$GITHUB_WORKSPACE/certification-evidence/tests/evidence/windows-release-0.5.0.json" >> "$GITHUB_ENV"
       - run: ./scripts/validate-codex.sh
       - run: ./scripts/docs-check.sh
       - run: ./scripts/migration-check.sh
       - run: ./scripts/roadmap-sync-check.sh
       - run: ./scripts/compact-check.sh
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: codeops-release-candidate
           path: ${{ runner.temp }}/release-artifact
       - name: Run all five gates from installed release artifact
         run: |
           mkdir -p "$RUNNER_TEMP/installed-codeops"
-          python -m zipfile -e "$RUNNER_TEMP/release-artifact/codeops.zip" "$RUNNER_TEMP/installed-codeops"
+          candidate=$(find "$RUNNER_TEMP/release-artifact" -maxdepth 1 -type f -name '*.zip' -print -quit)
+          test -n "$candidate"
+          unzip -q "$candidate" -d "$RUNNER_TEMP/installed-codeops"
           cd "$RUNNER_TEMP/installed-codeops"
+          export CODEOPS_WINDOWS_CANDIDATE="$candidate"
+          if [ -n '${{ inputs.evidence_ref }}' ]; then
+            export CODEOPS_WINDOWS_EVIDENCE_ROOT="$GITHUB_WORKSPACE/certification-evidence/tests/evidence"
+            export CODEOPS_WINDOWS_RELEASE_AUTHORITY="$GITHUB_WORKSPACE/certification-evidence/tests/evidence/windows-release-0.5.0.json"
+          fi
+          for launcher in validate-codex docs-check migration-check roadmap-sync-check compact-check; do
+            test -x "./scripts/$launcher.sh"
+          done
           ./scripts/validate-codex.sh
           ./scripts/docs-check.sh
           ./scripts/migration-check.sh
@@ -64,16 +107,25 @@ jobs:
         shell: pwsh
         working-directory: source with spaces
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: source with spaces
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        if: ${{ inputs.evidence_ref != '' }}
+        with:
+          ref: ${{ inputs.evidence_ref }}
+          path: source with spaces/certification-evidence
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.12"
           architecture: arm64
       - name: Install native Codex CLI authority
         run: |
-          npm install --global @openai/codex@0.146.0
+          $metadata = & npm pack '@openai/codex@0.146.0' --pack-destination $env:RUNNER_TEMP --json | ConvertFrom-Json
+          if ($metadata.integrity -ne 'sha512-yG3sPWNda/2YAIQIDq9MrrjoCTIQ7rxYM5IasrG3VBcuhCLTkgeg/JzqmJq1V98RE4MJ5jCxDXXQlOjrditFRw==') {
+            throw 'Codex package integrity mismatch'
+          }
+          npm install --global (Join-Path $env:RUNNER_TEMP $metadata.filename)
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $npmRoot = & npm root --global
           $matches = @(
@@ -94,8 +146,14 @@ jobs:
         run: |
           $python = & .\scripts\codeops-windows-preflight.ps1 -ResolvePython
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & $python -m pip install -r requirements-dev.txt
+          & $python -m pip install --require-hashes -r requirements-ci.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Select detached certification evidence
+        if: ${{ inputs.evidence_ref != '' }}
+        run: |
+          $evidence = Join-Path $PWD 'certification-evidence\tests\evidence'
+          Add-Content -LiteralPath $env:GITHUB_ENV -Value "CODEOPS_WINDOWS_EVIDENCE_ROOT=$evidence" -Encoding utf8
+          Add-Content -LiteralPath $env:GITHUB_ENV -Value "CODEOPS_WINDOWS_RELEASE_AUTHORITY=$(Join-Path $evidence 'windows-release-0.5.0.json')" -Encoding utf8
       - name: Run native Windows conformance tests
         run: |
           $env:CODEOPS_VERIFY_CHILD = '1'
@@ -107,15 +165,23 @@ jobs:
         run: |
           & .\scripts\codeops-verify.ps1 all
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: codeops-release-candidate
           path: ${{ runner.temp }}\release-artifact
       - name: Run all five gates from installed release artifact
         run: |
-          $archive = Join-Path $env:RUNNER_TEMP 'release-artifact\codeops.zip'
+          $sourceRoot = $PWD.Path
+          $archives = @(Get-ChildItem -LiteralPath (Join-Path $env:RUNNER_TEMP 'release-artifact') -Filter '*.zip' -File)
+          if ($archives.Count -ne 1) { throw "Expected one release candidate archive, found $($archives.Count)" }
+          $archive = $archives[0].FullName
           $installed = Join-Path $env:RUNNER_TEMP 'installed-codeops'
           Expand-Archive -LiteralPath $archive -DestinationPath $installed
           Set-Location -LiteralPath $installed
+          $env:CODEOPS_WINDOWS_CANDIDATE = $archive
+          if ('${{ inputs.evidence_ref }}') {
+            $env:CODEOPS_WINDOWS_EVIDENCE_ROOT = Join-Path $sourceRoot 'certification-evidence\tests\evidence'
+            $env:CODEOPS_WINDOWS_RELEASE_AUTHORITY = Join-Path $env:CODEOPS_WINDOWS_EVIDENCE_ROOT 'windows-release-0.5.0.json'
+          }
           & .\scripts\codeops-verify.ps1 all
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -461,6 +461,19 @@ suite and the native PowerShell aggregate of all five logical gates.
 - [x] 5.3.3 Validate CI/CLI/desktop evidence together, update README/docs/changelog/release metadata to the proven support boundary, and select the SemVer change under repository policy — `README.md`, `docs/installation.md`, `CHANGELOG.md` ✅ (completed: 2026-08-07 03:29)
 - [~] 5.3.4 Run the installed release artifact on native Windows and Ubuntu, run all five logical gates, complete independent quality review/audit, then close GitHub issues #2 and #3 only if their acceptance criteria are met — `tests/evidence/windows-native-<version>.json` ⏳ (implemented: 2026-08-07 03:34)
 
+Phase-5 independent review blocked release. Auto-design accepted every necessary technical
+correction; no finding or risk is waived. The public support wording is returned to pending until
+the corrected exact artifact is certified and published.
+
+| Finding | Severity | Auto-design resolution | Status |
+|---|---|---|---|
+| P5-RV-001 / P5-RC-002 / P5-SEC-002 / P5-SEC-003: CLI evidence labels candidate-supplied unit suites as real workflows and fabricates only outer command traces | CRITICAL | Replace the test-module map with a trusted external installed-plugin harness, actual Codex installation/enablement and representative workflow execution, inherited adapter evidence, scenario-specific results, and derived prohibited-runtime assertions | Fixed locally; exact-candidate evidence regeneration pending |
+| P5-RV-002 / P5-RC-001 / P5-SEC-001: retained evidence self-authenticates an obsolete commit/archive | CRITICAL | Add an independently owned release-candidate authority, rehash the exact artifact in the independent verifier, bind CI head to candidate source, exclude evidence from the archive, and consume detached authority/evidence when certifying the frozen source commit | Fixed locally; candidate freeze and evidence regeneration pending |
+| P5-RC-003: Python ZIP extraction drops Ubuntu launcher executable modes | MAJOR | Use mode-preserving extraction and assert all five installed launchers are executable before invocation | Fixed locally; CI pending |
+| P5-SEC-004: stable/support wording precedes the completed release gate | MAJOR | Keep 0.5.0 and native Windows support explicitly pending until certification, review closure, annotated tag, and release publication are consistent | Fixed locally; final publication pending |
+| P5-SEC-005: release CI uses mutable action references and unlocked executable dependencies | MAJOR | Pin actions to reviewed commit SHAs, hash-lock CI Python dependencies, and integrity-check the exact Codex npm tarball before installation | Fixed locally; CI pending |
+| P5-RV-003 / P5-RC-004: failed capture can leave the temporary global Codex plugin or marketplace installed | MAJOR | Register the unique installation for unconditional cleanup, verify both identities are absent, and preserve the primary capture failure if cleanup also fails | Fixed locally; targeted regression coverage passed |
+
 **Verify**: run all five commands confirmed in AR-14 on Ubuntu and their native portable
 equivalents on Windows.
 

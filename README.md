@@ -4,7 +4,7 @@ CodeOps is a specification-first engineering system for building complex softwar
 
 It is designed for work where an unstated assumption can become a correctness defect: programming languages and compilers, financial systems, protocols, distributed services, security-sensitive applications, developer tools, and substantial web applications.
 
-> **Release status:** `0.5.0` is the current stable release. It adds certified native Windows 11 support while preserving the Linux workflow surface, deterministic state, project tracking, domain lenses, Codex-native routing, delegated technical design, strict scope control, and the source-documentation gate. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
+> **Release status:** `0.5.0` is a release candidate pending its exact-artifact certification and annotated release tag. Native Windows 11 is not yet a published support claim. The current stable release remains `0.4.0`. A retained Claude 3.12.0 requirements-stage ambiguity benchmark passes; it is not a claim of complete product parity. A real complex-project milestone remains the 1.0 release gate.
 
 ## The workflow
 
@@ -81,9 +81,10 @@ codex plugin add codeops@codeops-marketplace
 
 These commands have been verified against the published repository. Start a new Codex thread after installation so skills and hooks are discovered.
 
-CodeOps supports native Windows 11 with PowerShell, Git for Windows, and Python 3.10 or newer, and
-supports Linux with Bash and Python 3. macOS is expected to be compatible but is not yet a
-release-tested claim. On Windows, CodeOps uses native executables only—never WSL or Git Bash.
+The release-tested host is Linux with Bash and Python 3. Native Windows 11 certification requires
+PowerShell, Git for Windows, Python 3.10 or newer, and final exact-artifact evidence before the
+support claim is published. macOS is expected to be compatible but is not yet release-tested. On
+Windows, CodeOps uses native executables only—never WSL or Git Bash.
 
 Codex requires non-managed hooks to be reviewed before they run. Open `/hooks`, inspect the CodeOps SessionStart and edit-warning definitions, and trust them if they match this repository.
 

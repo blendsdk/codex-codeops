@@ -49,10 +49,25 @@ def write_candidate_evidence(root: Path) -> tuple[Path, Path, str, str]:
             "id": scenario, "status": "pass",
             "record": record.relative_to(root).as_posix(), "sha256": _sha256(record),
         })
+        markers = {
+            "installation": ["plugin", "add"],
+            "enablement": ["plugin", "list"],
+            "session-preflight": ["codeops-windows-preflight.ps1"],
+            "requirements": ["exec", "make-requirements"],
+            "planning": ["exec", "make-plan"],
+            "preflight-audit": ["exec", "preflight"],
+            "execution-transition-recovery": ["transition", "transition-recover"],
+            "migration": ["codeops_migrate.py", "apply"],
+            "roadmap": ["codeops_roadmap.py", "sync"],
+            "worktree": ["codeops_worktree.py"],
+            "agent-install-check": ["install_agents.py", "--check"],
+            "outcomes": ["codeops_outcomes.py", "emit", "report"],
+            "verification": ["codeops_verify.py", "all"],
+        }[scenario]
         commands.append({
             "scenarioId": scenario,
             "executable": "C:/Program Files/Python/python.exe",
-            "arguments": ["<PLUGIN_ROOT>/scripts/codeops_verify.py", "list"],
+            "arguments": markers,
             "exitClass": "success",
         })
     trace = records / "commands.json"
@@ -129,6 +144,10 @@ class CertificationCISpecification(unittest.TestCase):
             str(step.get("run", "")) for step in package["steps"] if isinstance(step, dict)
         )
         self.assertIn("git archive", package_steps)
+        self.assertIn("sourceCommit", package_steps)
+        self.assertIn("sha256sum --check --strict", package_steps)
+        self.assertIn("evidence_ref", workflow.read_text(encoding="utf-8"))
+        self.assertIn("test \"$GITHUB_SHA\" = \"$source_commit\"", package_steps)
         self.assertTrue(any(
             str(step.get("uses", "")).startswith("actions/upload-artifact@")
             for step in package["steps"] if isinstance(step, dict)
@@ -168,7 +187,8 @@ class CertificationCISpecification(unittest.TestCase):
         ):
             self.assertIn(launcher, ubuntu_steps)
         self.assertIn("release-artifact", ubuntu_steps)
-        self.assertIn("python -m zipfile -e", ubuntu_steps)
+        self.assertIn("unzip -q", ubuntu_steps)
+        self.assertIn("test -x", ubuntu_steps)
 
 
 class CertificationEvidenceSpecification(unittest.TestCase):

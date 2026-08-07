@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from pathlib import Path, PurePosixPath
+import subprocess
 import sys
 from typing import Any
 from urllib.parse import urlparse
@@ -22,6 +24,7 @@ from scripts.validate_windows_evidence import (
     validate_documentation_policy,
     validate_evidence_set,
 )
+from scripts.windows_release_authority import load_authority, verify_candidate
 
 
 TODO_MARKER = "[TODO:"
@@ -100,22 +103,53 @@ def validate_windows_support_claim(
     version = manifest.get("version")
     if not isinstance(version, str):
         return
-    evidence_root = plugin_root / "tests" / "evidence"
+    evidence_root = Path(os.environ.get("CODEOPS_WINDOWS_EVIDENCE_ROOT", plugin_root / "tests" / "evidence"))
+    authority_path = Path(os.environ.get(
+        "CODEOPS_WINDOWS_RELEASE_AUTHORITY",
+        evidence_root / f"windows-release-{version}.json",
+    ))
+    authority, authority_errors = load_authority(authority_path, version)
+    errors.extend(authority_errors)
+    if authority is None:
+        errors.extend(validate_evidence_set(
+            evidence_root,
+            cli_path=None,
+            desktop_path=None,
+            expected_version=version,
+            expected_commit="",
+            support_claimed=True,
+        ))
+        return
     cli_path = evidence_root / f"windows-native-{version}.json"
     desktop_path = evidence_root / f"windows-desktop-{version}.json"
-    expected_commit = ""
-    if cli_path.is_file():
-        try:
-            cli = json.loads(cli_path.read_text(encoding="utf-8"))
-            expected_commit = cli.get("commit", "") if isinstance(cli, dict) else ""
-        except (OSError, json.JSONDecodeError):
-            pass
+    candidate_value = os.environ.get("CODEOPS_WINDOWS_CANDIDATE")
+    if candidate_value:
+        errors.extend(verify_candidate(Path(candidate_value), authority))
+    elif (plugin_root / ".git").exists():
+        drift = subprocess.run(
+            ["git", "diff", "--name-only", authority["sourceCommit"], "HEAD", "--"],
+            cwd=plugin_root,
+            check=False,
+            capture_output=True,
+            text=True,
+            shell=False,
+        )
+        allowed = (
+            "tests/evidence/",
+            "plans/native-windows-support/99-execution-plan.md",
+            "codeops/features/native-windows-support/traceability.json",
+        )
+        changed = tuple(line for line in drift.stdout.splitlines() if line)
+        if drift.returncode != 0 or any(not line.startswith(allowed) for line in changed):
+            errors.append("release source has drifted outside retained evidence and execution state")
     errors.extend(validate_evidence_set(
         evidence_root,
         cli_path=cli_path if cli_path.is_file() else None,
         desktop_path=desktop_path if desktop_path.is_file() else None,
         expected_version=version,
-        expected_commit=expected_commit,
+        expected_commit=authority["sourceCommit"],
+        expected_candidate_sha256=authority["candidateSha256"],
+        expected_ci_commit=authority["ci"]["headCommit"],
         support_claimed=True,
     ))
 

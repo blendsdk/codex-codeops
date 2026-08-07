@@ -12,6 +12,7 @@ from typing import Callable, Mapping
 from scripts.codeops_platform.subprocesses import run_command
 from scripts.codeops_verify_lib.contracts import validate_contracts
 from scripts.validate_windows_evidence import validate_evidence_set
+from scripts.windows_release_authority import load_authority, verify_candidate
 
 
 CHECK_NAMES = ("validate", "docs", "migration", "roadmap", "compact")
@@ -100,26 +101,42 @@ def windows_evidence(root: Path, *, required: bool = False) -> CheckResult:
         version = manifest["version"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         return CheckResult("windows-evidence", 1, stderr="unable to resolve plugin version\n")
-    evidence_root = root / "tests" / "evidence"
+    evidence_root = Path(os.environ.get("CODEOPS_WINDOWS_EVIDENCE_ROOT", root / "tests" / "evidence"))
     cli = evidence_root / f"windows-native-{version}.json"
     desktop = evidence_root / f"windows-desktop-{version}.json"
     if not cli.is_file() and not desktop.is_file() and not required:
         return CheckResult("windows-evidence", 0)
-    expected_commit = ""
-    if cli.is_file():
-        try:
-            payload = json.loads(cli.read_text(encoding="utf-8"))
-            expected_commit = payload.get("commit", "") if isinstance(payload, dict) else ""
-        except (OSError, json.JSONDecodeError):
-            pass
+    authority_path = Path(os.environ.get(
+        "CODEOPS_WINDOWS_RELEASE_AUTHORITY",
+        evidence_root / f"windows-release-{version}.json",
+    ))
+    authority, authority_errors = load_authority(authority_path, str(version))
+    if authority is None:
+        fallback = validate_evidence_set(
+            evidence_root,
+            cli_path=cli if cli.is_file() else None,
+            desktop_path=desktop if desktop.is_file() else None,
+            expected_version=str(version),
+            expected_commit="",
+            support_claimed=required,
+        )
+        return CheckResult(
+            "windows-evidence", 1,
+            stderr="\n".join([*authority_errors, *fallback]) + "\n",
+        )
+    candidate_path = os.environ.get("CODEOPS_WINDOWS_CANDIDATE")
+    candidate_errors = verify_candidate(Path(candidate_path), authority) if candidate_path else []
     errors = validate_evidence_set(
         evidence_root,
         cli_path=cli if cli.is_file() else None,
         desktop_path=desktop if desktop.is_file() else None,
         expected_version=str(version),
-        expected_commit=expected_commit,
+        expected_commit=authority["sourceCommit"],
+        expected_candidate_sha256=authority["candidateSha256"],
+        expected_ci_commit=authority["ci"]["headCommit"],
         support_claimed=required,
     )
+    errors = [*candidate_errors, *errors]
     return CheckResult(
         "windows-evidence",
         1 if errors else 0,
