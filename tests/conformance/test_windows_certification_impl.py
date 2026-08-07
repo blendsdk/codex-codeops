@@ -149,6 +149,8 @@ class CaptureBoundaryTests(unittest.TestCase):
         self.assertIn('str(state), "transition", "--root"', source)
         self.assertIn('for gate in ("docs", "migration", "roadmap", "compact")', source)
         self.assertIn('Path(base_environment["PLUGIN_DATA"]).mkdir', source)
+        self.assertIn('"PLUGIN_DATA": str(extracted / "plugin-data")', source)
+        self.assertNotIn('"PLUGIN_DATA": str(records_root / "plugin-data")', source)
         self.assertIn('"artifacts": {"layout": "nested", "root": "codeops"}', source)
         self.assertIn('bool(_git(workspace, "status", "--porcelain"))', source)
         self.assertIn('"--sandbox", "danger-full-access"', source)

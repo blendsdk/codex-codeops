@@ -374,7 +374,7 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
         records_root, manifest_path = _prepare_output(output, version)
         timestamp = datetime.now(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
         base_environment = dict(os.environ)
-        base_environment.update({"PLUGIN_ROOT": str(plugin_root), "PLUGIN_DATA": str(records_root / "plugin-data"), "PYTHONUTF8": "1"})
+        base_environment.update({"PLUGIN_ROOT": str(plugin_root), "PLUGIN_DATA": str(extracted / "plugin-data"), "PYTHONUTF8": "1"})
         Path(base_environment["PLUGIN_DATA"]).mkdir(parents=True)
         marketplace_name = f"codeops-cert-{authority['candidateSha256'][:12]}"
         marketplace = extracted / ".agents" / "plugins" / "marketplace.json"
