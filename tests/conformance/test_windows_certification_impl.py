@@ -145,6 +145,7 @@ class CaptureBoundaryTests(unittest.TestCase):
         self.assertIn('"plugin", "add"', source)
         self.assertIn('args.codex, "exec"', source)
         self.assertIn("_codex_commands", source)
+        self.assertIn("installed scenarios failed", source)
 
     def test_path_sanitizer_replaces_candidate_root(self) -> None:
         plugin = Path("C:/Candidate With Spaces")

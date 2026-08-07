@@ -482,6 +482,7 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
         }
         scenarios: list[dict[str, str]] = []
         trace: list[dict[str, object]] = []
+        scenario_failures: list[str] = []
         for scenario in REQUIRED_SCENARIOS:
             raw_trace = records_root / f".{scenario}-commands.json"
             environment = {**base_environment, "CODEOPS_COMMAND_EVIDENCE": str(raw_trace.resolve())}
@@ -521,6 +522,11 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
                 "agent-install-check": (lifecycle / ".codex" / "agents" / "explorer.toml").is_file(),
             }
             passed = passed and postconditions.get(scenario, True)
+            if not passed:
+                scenario_failures.append(
+                    f"{scenario}: exits={[result.exit_code for result in results]}, "
+                    f"postcondition={postconditions.get(scenario, True)}"
+                )
             status = "pass" if passed else "fail"
             record = records_root / f"{scenario}.json"
             _write_json(record, {
@@ -550,6 +556,9 @@ def _capture(args: argparse.Namespace, cleanup: list[tuple[str, str, Path, dict[
                     "exitClass": "success" if exit_code == 0 else "expected-failure",
                 })
             raw_trace.unlink()
+        if scenario_failures:
+            _discard_capture(records_root, manifest_path)
+            raise RuntimeError("installed scenarios failed: " + "; ".join(scenario_failures))
         trace_path = records_root / "commands.json"
         if any(PROHIBITED_RUNTIME_RE.search(" ".join([
             str(command["executable"]), *(str(item) for item in command["arguments"]),
