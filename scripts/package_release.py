@@ -39,8 +39,11 @@ def package(root: Path, commit: str, output: Path) -> None:
                     raise ValueError(f"cannot read release archive entry: {member.name}")
                 info = zipfile.ZipInfo(member.name, date_time=ZIP_EPOCH)
                 info.create_system = 3
+                info.create_version = 20
+                info.extract_version = 20
                 info.compress_type = zipfile.ZIP_STORED
-                info.external_attr = ((0o100000 | member.mode) & 0xFFFF) << 16
+                permissions = 0o755 if member.mode & 0o111 else 0o644
+                info.external_attr = (0o100000 | permissions) << 16
                 target.writestr(info, stream.read())
 
 

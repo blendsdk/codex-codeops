@@ -259,7 +259,7 @@ class CertificationCISpecification(unittest.TestCase):
                 names = set(archive.namelist())
                 self.assertNotIn("ignored.txt", names)
                 mode = archive.getinfo("run.sh").external_attr >> 16
-                self.assertTrue(mode & stat.S_IXUSR)
+                self.assertEqual(mode, stat.S_IFREG | 0o755)
 
 
 class CertificationEvidenceSpecification(unittest.TestCase):
