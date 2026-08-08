@@ -2,6 +2,19 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 1.0.0 — 2026-08-08
+
+- Make Markdown plans the sole authoritative owner of execution progress and requirement delivery,
+  removing the mutable traceability graph, transition API, journal, lock, and shadow state.
+- Add a read-only plan parser that derives lifecycle, next task, and RD delivery directly from
+  `00-index.md` ownership metadata and `99-execution-plan.md` checklist markers.
+- Add an all-or-nothing migrator for existing nested projects that preserves checklist progress,
+  recovers lightweight and plan-local ownership, and deletes obsolete `traceability.json` files.
+- Make `setup-codeops --yes` automatically detect, migrate, and verify legacy workflow state in an
+  already-configured project while retaining clean-tree and ambiguity safeguards.
+- Validate the migration on JSVision with 21 active plans, deletion of five legacy graphs, and a
+  passing Windows, macOS, and Linux CI matrix on Node.js 22 and 24.
+
 ## 0.4.0 — 2026-07-31
 
 - Keep planning, preflight, and execution inside strict product scope by default, suppressing
