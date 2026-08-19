@@ -1,0 +1,18 @@
+{
+  "name": "codex-codeops-docs",
+  "private": true,
+  "type": "module",
+  "description": "User documentation website for the CodeOps plugin for Codex.",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  },
+  "overrides": {
+    "vite": "^6.4.3"
+  }
+}

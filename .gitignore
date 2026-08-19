@@ -5,3 +5,8 @@ __pycache__/
 *.py[cod]
 .tmp/
 tests/tmp/
+
+# Node / VitePress documentation artifacts
+node_modules/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
