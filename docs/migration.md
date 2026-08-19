@@ -6,10 +6,6 @@ CodeOps recognizes the historical flat `requirements/` plus `plans/` layout and 
 
 Run the setup skill in dry-run mode first. Review all source-relative-link warnings and the derived feature slug. Apply only after explicit confirmation.
 
-## Claude project guidance
-
-Project instructions belong in `AGENTS.md` for Codex. Do not mechanically copy global Claude instructions or model-routing blocks. Preserve repository commands and conventions that remain true, then express routing and quality policy in `codeops/codeops.json` or `.codex/config.toml`.
-
 ## Legacy workflow-state artifacts
 
 Re-run `setup-codeops` on the existing project. It automatically detects legacy graphs before its

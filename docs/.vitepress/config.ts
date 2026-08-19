@@ -87,7 +87,6 @@ export default defineConfig({
             { text: 'Plan a new feature', link: '/tutorials/new-feature' },
             { text: 'Reverse-engineer a codebase', link: '/tutorials/existing-codebase' },
             { text: 'Execute a plan safely', link: '/tutorials/execute-plan' },
-            { text: 'Migrate from Claude', link: '/tutorials/migrate-from-claude' },
           ],
         },
       ],
