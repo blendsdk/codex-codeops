@@ -66,7 +66,12 @@ These apply to all code I write unless this project's `AGENTS.md` overrides a sp
 
 # Working style
 - **Ask before assuming.** When a request is ambiguous, ask clarifying questions and suggest improvements rather than guessing. (For deep, structured disambiguation, the `grill-me` skill exists.)
-- **Don't overcomplicate.** Use existing infrastructure and patterns before adding new ones.
+- **Minimum-sufficient design — do not overengineer.** Use the simplest implementation that fully
+  satisfies the authorized requirements and existing project conventions. Do not introduce new
+  abstractions, layers, dependencies, services, generalized frameworks, infrastructure, or
+  future-proofing unless authorized requirements, existing project conventions, or demonstrated
+  risks require them. Prefer modifying and reusing existing patterns. When multiple solutions are
+  correct, choose the smaller one.
 - **Verify previous work** before building on it; confirm a task actually meets its acceptance criteria before calling it done.
 - **Grounded options & recommendations (NON-NEGOTIABLE).** Whenever you present options, choices, or recommendations — from analysis, defect/bug findings, a direction to fix a bug, requirements choices, plan-making, or plan execution:
   1. **Filter** — present only genuinely viable options; drop weakly-grounded options that realistically won't be chosen and never pad with strawmen. Present ≥2 options only when ≥2 are genuinely viable; when one path clearly dominates, present it alone, say it is the only viable one, and name what you rejected and why.

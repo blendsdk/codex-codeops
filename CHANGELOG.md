@@ -2,6 +2,13 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 1.0.1 — 2026-08-26
+
+- Direct planning and implementation toward the simplest solution that satisfies authorized
+  requirements, existing project conventions, and demonstrated risks.
+- Guard the minimum-sufficient-design instruction in plan quality checks and deterministic plugin
+  validation without changing existing workflow gates or artifact formats.
+
 ## 1.0.0 — 2026-08-08
 
 - Make Markdown plans the sole authoritative owner of execution progress and requirement delivery,

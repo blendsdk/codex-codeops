@@ -6,7 +6,7 @@ It is designed for work where an unstated assumption can become a correctness de
 
 **Documentation:** [blendsdk.github.io/codex-codeops](https://blendsdk.github.io/codex-codeops/)
 
-> **Release status:** `1.0.0` is the stable release of the Markdown-authoritative CodeOps workflow surface. Core workflows, direct plan-derived progress, project tracking, domain lenses, Codex-native routing, opt-in delegated technical design, strict scope control with user-owned exploration, automatic legacy-state migration, and a non-negotiable source-documentation gate are present. Migration has been exercised on JSVision with its full cross-platform CI matrix. The retained Claude 3.12.0 benchmark remains requirements-stage evidence and is not a claim of complete comparative parity.
+> **Release status:** `1.0.1` is the stable release of the Markdown-authoritative CodeOps workflow surface. Core workflows, direct plan-derived progress, project tracking, domain lenses, Codex-native routing, opt-in delegated technical design, strict scope control with user-owned exploration, minimum-sufficient design guidance, automatic legacy-state migration, and a non-negotiable source-documentation gate are present. Migration has been exercised on JSVision with its full cross-platform CI matrix. The retained Claude 3.12.0 benchmark remains requirements-stage evidence and is not a claim of complete comparative parity.
 
 ## The workflow
 

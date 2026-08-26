@@ -292,6 +292,27 @@ assert 'With active auto-design, select and record' in execution
 PY
 }
 
+validate_minimum_sufficient_design_contract() {
+  python3 - <<'PY'
+from pathlib import Path
+
+full_standards = Path('standards/coding-standards-full.md').read_text(encoding='utf-8')
+compact_standards = Path('standards/coding-standards.md').read_text(encoding='utf-8')
+plan_checklist = Path('skills/make-plan/quality-checklist.md').read_text(encoding='utf-8')
+
+for text in (full_standards, compact_standards):
+    normalized = ' '.join(text.split())
+    assert 'simplest implementation that fully satisfies the authorized requirements' in normalized
+    assert 'generalized frameworks' in normalized
+    assert 'authorized requirements, existing project conventions, or demonstrated risks require them' in normalized
+    assert 'choose the smaller one' in normalized
+
+assert '**Minimum-sufficient design' in full_standards
+assert '**Do not overengineer:**' in compact_standards
+assert "coding standards' **minimum-sufficient design** rule" in plan_checklist
+PY
+}
+
 run_check "plugin manifest" python3 scripts/validate_plugin.py .
 run_check "skill manifests" validate_skills
 run_check "marketplace metadata" validate_marketplace
@@ -301,6 +322,7 @@ run_check "shell syntax" bash -n scripts/*.sh bin/codeops-worktree
 run_check "preflight scope and convergence contract" validate_preflight_contract
 run_check "plan and execution scope contracts" validate_plan_execution_contracts
 run_check "auto-design authority contract" validate_auto_design_contract
+run_check "minimum-sufficient design contract" validate_minimum_sufficient_design_contract
 run_check "scope-expansion authority contract" validate_scope_expansion_contract
 run_check "workflow conformance" python3 -m unittest discover -s tests/conformance -p 'test_*.py'
 run_check "retained adversarial parity evidence" validate_scenarios

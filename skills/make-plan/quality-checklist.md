@@ -10,6 +10,7 @@ Run this before finalizing the plan documents. The **Specification-First Testing
 - [ ] Every planned item traces to the confirmed scope baseline or a user-kept `SE-*` entry
 - [ ] Strict scope contains no optional suggestions; exploration proposals remain non-executable
       until the user chooses `Keep`
+- [ ] The planned solution passes the coding standards' **minimum-sufficient design** rule
 
 ## ✅ Granularity
 - [ ] Each task is one reviewable change: 1-3 files, ~50-150 lines, immediately testable

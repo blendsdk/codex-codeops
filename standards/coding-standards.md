@@ -42,7 +42,12 @@ Do not duplicate these standards in `~/.codex/AGENTS.md` — the plugin injects 
   artifacts get validation too — see the full standards' validation-command table.
 
 # Working style
-- **Ask before assuming**; don't overcomplicate; **verify previous work** before building on it.
+- **Ask before assuming**; **verify previous work** before building on it.
+- **Do not overengineer:** use the simplest implementation that fully satisfies the authorized
+  requirements and existing project conventions. Do not add abstractions, layers, dependencies,
+  services, generalized frameworks, infrastructure, or future-proofing unless authorized
+  requirements, existing project conventions, or demonstrated risks require them. Prefer modifying
+  and reusing existing patterns; when multiple solutions are correct, choose the smaller one.
 - **Grounded options & recommendations (NON-NEGOTIABLE):** Filter (only genuinely viable options,
   no strawmen; ≥2 only when ≥2 are viable) → Second-guess each → Ground in the code (cite
   `file:line`; say so if unverified) → Recommend (lead with it and a concrete reason; you
