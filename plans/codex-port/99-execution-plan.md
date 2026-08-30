@@ -1,7 +1,7 @@
 # Codex Port Execution Plan
 
 > **Status:** Beta implementation; 1.0 pilot pending
-> **Progress:** 56/57 tasks
+> **Progress:** 60/61 tasks
 > **Execution prohibition:** Do not begin implementation phases affected by open material items in `00-ambiguity-register.md`.
 
 ## Phase 0 — Validate product decisions
@@ -97,3 +97,15 @@
 - [x] 6.9 Pass final beta readiness and independent release review.
 
 **Verify:** The 1.0 release gate in `07-testing-strategy.md` passes with retained evidence.
+
+## Phase 7 — Visible execution progress
+
+- [x] 7.1 Record the deterministic task-progress display requirement and acceptance coverage.
+- [x] 7.2 Add specification tests and confirm they fail before progress-bar implementation.
+- [x] 7.3 Implement read-only progress rendering and require `exec-plan` to display it after every
+  verified task.
+- [x] 7.4 Add implementation coverage, user documentation, release metadata, and run all repository
+  verification gates.
+
+**Verify:** Progress output is derived only from authoritative Markdown markers, remains accessible
+without glyph interpretation, and all repository gates pass.

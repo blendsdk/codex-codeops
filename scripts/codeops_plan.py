@@ -23,15 +23,21 @@ TARGET_RE = re.compile(
 )
 TASK_RE = re.compile(r"^-\s*\[([ xX~!])\]\s+(.+?)\s*$", re.MULTILINE)
 BLOCKED_REASON_RE = re.compile(r"(?:blocked|reason)\s*:\s*\S", re.IGNORECASE)
+_PROGRESS_WIDTH = 10
+_PROGRESS_FILLED = "█"
+_PROGRESS_EMPTY = "░"
 
 
 @dataclass(frozen=True)
 class Task:
+    """One authoritative Markdown checklist task and its derived state."""
+
     marker: str
     text: str
 
     @property
     def state(self) -> str:
+        """Return the stable user-facing state represented by the task marker."""
         return {" ": "not-started", "~": "verification-pending", "x": "verified", "!": "blocked"}[
             self.marker.lower()
         ]
@@ -39,6 +45,8 @@ class Task:
 
 @dataclass(frozen=True)
 class PlanStatus:
+    """Read-only lifecycle, progress, and diagnostics derived for one plan."""
+
     plan: str
     implements: tuple[str, ...]
     lifecycle: str
@@ -80,6 +88,43 @@ def lifecycle(tasks: tuple[Task, ...]) -> str:
     if any(task.marker in {"~", "x"} for task in tasks):
         return "Executing"
     return "Ready"
+
+
+def render_progress(verified: int, total: int) -> str:
+    """Render verified task progress with both visual and textual context.
+
+    The bar deliberately rounds filled cells down so it never visually suggests that a completion
+    threshold has been reached early. The accompanying rounded percentage and exact fraction make
+    the display understandable when block glyphs are unavailable or difficult to distinguish.
+
+    Args:
+        verified: Number of tasks whose verification passed.
+        total: Total number of tasks in the checklist.
+
+    Returns:
+        A single user-facing progress line containing ten cells, counts, and percentage.
+
+    Raises:
+        ValueError: If either count is negative or verified exceeds total.
+        TypeError: If either count is not an integer.
+
+    Example:
+        >>> render_progress(1, 3)
+        'Progress: [███░░░░░░░] 1/3 tasks (33%)'
+    """
+    if isinstance(verified, bool) or not isinstance(verified, int):
+        raise TypeError("verified must be an integer")
+    if isinstance(total, bool) or not isinstance(total, int):
+        raise TypeError("total must be an integer")
+    if verified < 0 or total < 0:
+        raise ValueError("task counts cannot be negative")
+    if verified > total:
+        raise ValueError("verified tasks cannot exceed total tasks")
+
+    filled = (verified * _PROGRESS_WIDTH // total) if total else 0
+    percentage = round(verified / total * 100) if total else 0
+    cells = (_PROGRESS_FILLED * filled) + (_PROGRESS_EMPTY * (_PROGRESS_WIDTH - filled))
+    return f"Progress: [{cells}] {verified}/{total} tasks ({percentage}%)"
 
 
 def inspect_plan(plan_dir: Path, root: Path | None = None) -> PlanStatus:
@@ -153,14 +198,22 @@ def rd_delivery(statuses: tuple[PlanStatus, ...]) -> dict[str, str]:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the command-line parser for read-only plan inspection."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--plan", type=Path, help="inspect one plan directory")
-    parser.add_argument("--json", action="store_true")
+    output = parser.add_mutually_exclusive_group()
+    output.add_argument("--json", action="store_true")
+    output.add_argument(
+        "--progress-bar",
+        action="store_true",
+        help="render verified task progress as an accessible ten-cell bar",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Inspect selected plans and write the requested read-only representation to stdout."""
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
     plan_dirs = (args.plan if args.plan.is_absolute() else root / args.plan,) if args.plan else discover_plans(root)
@@ -168,6 +221,9 @@ def main(argv: list[str] | None = None) -> int:
     payload = {"plans": [asdict(status) for status in statuses], "requirements": rd_delivery(statuses)}
     if args.json:
         print(json.dumps(payload, indent=2))
+    elif args.progress_bar:
+        for status in statuses:
+            print(render_progress(status.verified, status.total))
     else:
         for status in statuses:
             progress = f"{status.verified}/{status.total} verified"

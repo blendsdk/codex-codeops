@@ -2,6 +2,15 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## 1.1.0 — 2026-08-30
+
+- Show a deterministic ten-cell progress bar after every verified `exec-plan` task, including exact
+  task counts and percentage for accessibility.
+- Derive the display directly from authoritative Markdown task markers without adding mutable
+  progress state or changing the execution-plan artifact format.
+- Add specification and implementation coverage for rendering, verification-pending tasks,
+  read-only behavior, boundary states, invalid inputs, and conflicting CLI output modes.
+
 ## 1.0.1 — 2026-08-26
 
 - Direct planning and implementation toward the simplest solution that satisfies authorized

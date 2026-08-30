@@ -24,7 +24,7 @@ export default defineConfig({
       { text: 'Skills', link: '/skills/' },
       { text: 'Tutorials', link: '/tutorials/' },
       { text: 'Reference', link: '/reference/artifacts' },
-      { text: '1.0.1', link: 'https://github.com/blendsdk/codex-codeops/releases/tag/v1.0.1' },
+      { text: '1.1.0', link: 'https://github.com/blendsdk/codex-codeops/releases/tag/v1.1.0' },
     ],
 
     sidebar: {

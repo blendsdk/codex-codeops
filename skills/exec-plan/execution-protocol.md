@@ -97,6 +97,15 @@ complete. For each task, in order:
      done-criterion. Only when it is clean,
      promote the mark to `[x]` with a completion timestamp
      (`- [x] 1.1.1 … ✅ (completed: YYYY-MM-DD HH:MM)`).
+     Immediately derive and show the user the current task progress from the selected plan directory:
+
+     ```bash
+     python3 "${PLUGIN_ROOT}/scripts/codeops_plan.py" --root . --plan "<selected-plan-directory>" --progress-bar
+     ```
+
+     Present the command's single `Progress: […] X/Y tasks (Z%)` line in the next commentary update.
+     This read-only display is required after every `[x]` promotion; never estimate it or count
+     `[~]` as complete.
    - **FAIL** → the mark STAYS `[~]`. Fix the implementation and re-verify; promote only on pass.
      A task is never `[x]` with a failing verify.
 
@@ -330,8 +339,9 @@ Task mark formats:
 
 ### Native progress mirror (visibility aid)
 
-Where the session provides a plan or goal UI, mirror the current phase's tasks and update their
-statuses alongside the Markdown marks. The mirror is a convenience layer only —
+After every `[x]` promotion, show the deterministic progress line required by the per-task loop.
+Where the session also provides a plan or goal UI, mirror the current phase's tasks and update their
+statuses alongside the Markdown marks. Both displays are convenience layers only —
 **`99-execution-plan.md` remains the durable source of truth**. Skip silently when unavailable.
 
 ### Task-list format detection (dual-format)

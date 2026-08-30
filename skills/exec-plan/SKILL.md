@@ -145,7 +145,9 @@ For each task, in order:
 3. **Verify** — run your project's verify command (from the project's AGENTS.md, or detected
    project conventions), output captured per the protocol's **Verify-output capture rule**
    (PASS one-liner; on failure the last 50 log lines + log path). Pass → promote `[~]` → `[x]`;
-   fail → fix and re-verify (mark stays `[~]`).
+   fail → fix and re-verify (mark stays `[~]`). Immediately after every `[x]` promotion, run the
+   protocol's read-only progress-bar command for the selected plan and show its exact output in the
+   next commentary update. Only `[x]` contributes to the displayed completion count.
 4. **Commit** per the active commit mode (see [commit-modes.md](commit-modes.md)) — the commit
    gate keys off `[x]`.
 5. **Techdocs check (after each phase):** if the phase introduced architectural changes and

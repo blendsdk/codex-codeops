@@ -35,7 +35,15 @@ Execution uses four task markers:
 | `[!]` | Blocked, with a visible reason |
 
 The executor writes `[~]` before verification. A failure therefore leaves honest resumable state
-instead of an apparently untouched task. Only a passing verification permits `[x]`.
+instead of an apparently untouched task. Only a passing verification permits `[x]`. After each
+promotion, the executor shows progress derived from those markers:
+
+```text
+Progress: [██████░░░░] 6/10 tasks (60%)
+```
+
+The fraction and percentage remain readable when block glyphs are unavailable. The display is not
+stored separately, so it cannot drift from `99-execution-plan.md`.
 
 ## 3. Preserve the specification oracle
 

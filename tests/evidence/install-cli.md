@@ -1,14 +1,13 @@
 # Codex plugin release evidence
 
-- Captured: 2026-08-26
+- Captured: 2026-08-30
 - Host: Linux
-- Codex CLI: `0.149.1`
-- Plugin: `codeops@codeops-marketplace`, version `1.0.1`
-- Evidence state: observed installation from the published GitHub marketplace
-- Repository source: release tag `v1.0.1`
-- Installed source commit: `3b6afa5`
+- Codex CLI: `0.151.0`
+- Plugin: `codeops@codeops-marketplace`, version `1.1.0`
+- Evidence state: pre-publication package validation
+- Source state: working tree for planned `v1.1.0`
 
-Before the release commit, the exact working tree passed:
+The exact working tree passed:
 
 1. `python scripts/validate_plugin.py .`
 2. `./scripts/validate-codex.sh`
@@ -17,10 +16,5 @@ Before the release commit, the exact working tree passed:
 5. `./scripts/roadmap-sync-check.sh`
 6. `./scripts/compact-check.sh`
 
-After the release commit was public:
-
-1. `codex plugin marketplace upgrade codeops-marketplace` completed successfully.
-2. `codex plugin add codeops@codeops-marketplace` installed the plugin at version `1.0.1`.
-3. `codex plugin list` reported `codeops@codeops-marketplace` as installed and enabled at `1.0.1`.
-4. Plugin validation passed against the installed cache, and the installed compact standards and
-   planning checklist contained the minimum-sufficient-design contract.
+Published-install evidence will replace this pre-publication state after the release commit and tag
+are available from the marketplace.

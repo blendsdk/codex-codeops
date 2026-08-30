@@ -86,6 +86,15 @@ No feature shall be described as ported solely because its prompt text was copie
 
 The repository shall include a polished root `README.md` that explains the product promise, suitability for complex systems, recursive ambiguity-elimination workflow, project tracking, supported Codex surfaces, installation from this repository, verification, quick start, update/uninstall procedures, trust and permission implications, principal skills, example lifecycle, platform requirements, migration status, contribution/testing commands, and license. Every command shall be tested against the release artifact, and unreleased capabilities shall be labeled rather than presented as available.
 
+### RD-022 — Visible execution progress
+
+After each execution task becomes verified, `exec-plan` shall show a deterministic ten-cell progress
+bar derived directly from the authoritative task markers in `99-execution-plan.md`. Only `[x]`
+tasks count as complete. The display shall include the verified and total task counts plus a rounded
+percentage so it remains understandable without relying on block glyphs. It shall not introduce a
+second progress store or alter the existing numeric progress header in the execution plan. Native
+plan UI status may mirror the same state when available but shall not be required for correctness.
+
 ## Quality attributes
 
 | Attribute | Requirement |

@@ -69,6 +69,8 @@ Design a multi-tenant workflow involving roles, API contracts, persistence, back
 ### T6 — Execution and recovery
 
 - Interrupt before implementation, during implementation, during verify, after verify, and during review.
+- Verify that every `[x]` promotion can render a ten-cell progress bar directly from Markdown task
+  markers, with accessible counts and percentage, without mutating the plan or creating shadow state.
 - Resume in a new conversation with no transcript context.
 - Introduce a dirty worktree and unplanned changes.
 - Fail specification tests and attempt to weaken them.

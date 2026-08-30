@@ -26,6 +26,8 @@ findings but does not imply commit permission; choose the commit mode separately
 ## Safety properties
 
 - The plan is updated immediately when implementation state changes, before verification.
+- After each verified task, a deterministic ten-cell bar shows exact completed and total task
+  counts plus the percentage; the bar is derived from the plan and stores no independent state.
 - Specification tests derive from requirements independently of the implementation.
 - Critical and major review findings pause normal execution.
 - Scope discoveries return to their authoritative artifact instead of becoming hidden assumptions.
