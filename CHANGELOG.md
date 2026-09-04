@@ -2,7 +2,7 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
-## Unreleased
+## 1.2.0 — 2026-09-04
 
 - Add an always-active Complexity Escalation Gate that requires a visible cost-and-evidence packet,
   an independent challenger, and explicit user approval before material support machinery enters
