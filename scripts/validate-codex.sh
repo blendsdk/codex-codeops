@@ -112,41 +112,7 @@ validate_scenarios() {
 }
 
 validate_release_evidence() {
-  python3 - <<'PY'
-import json
-import re
-import subprocess
-from pathlib import Path
-
-manifest = json.loads(Path('.codex-plugin/plugin.json').read_text(encoding='utf-8'))
-scenario = json.loads(Path('tests/scenarios/evidence.json').read_text(encoding='utf-8'))
-review = json.loads(Path('tests/evidence/release-review-final.json').read_text(encoding='utf-8'))
-assert scenario['codex']['pluginVersion'].startswith('0.2.0')
-assert scenario['claude']['pluginVersion'] == '3.12.0'
-assert scenario['scope'] == 'requirements-stage ambiguity discovery and gate behavior'
-assert review['verdict'] == 'PASS'
-assert not any(item['severity'] in {'critical', 'major'} for item in review['findings'])
-install = Path('tests/evidence/install-cli.md').read_text(encoding='utf-8')
-recorded = re.search(r'- Plugin: `[^`]+`, version `([^`]+)`', install).group(1)
-current = manifest['version'].split('+', 1)[0]
-assert recorded == current
-prepublication = '- Evidence state: pre-publication package validation' in install
-if prepublication:
-    # A release commit must exist before its remote marketplace install can be observed. The
-    # pre-publication state is explicit and version-matched. A matching tag would make this
-    # temporary evidence stale, so validation rejects that state after publication.
-    assert f'- Source state: working tree for planned `v{current}`' in install
-    tag_exists = subprocess.run(
-        ['git', 'rev-parse', '--verify', '--quiet', f'refs/tags/v{current}'],
-        check=False,
-        capture_output=True,
-    ).returncode == 0
-    assert not tag_exists
-else:
-    assert f'- Repository source: release tag `v{current}`' in install
-    assert re.search(rf'enabled at\s+`{re.escape(current)}`', install)
-assert current in Path('CHANGELOG.md').read_text(encoding='utf-8')
-PY
+  python3 scripts/release_evidence.py .
 }
 
 validate_preflight_contract() {
