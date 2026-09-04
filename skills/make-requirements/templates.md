@@ -38,6 +38,16 @@ requirements/
 
 [2–3 paragraph description of the project]
 
+## Minimum-Sufficient Baseline
+
+**Original goal:** [The outcome the user asked for]
+
+**Smallest viable design:** [The smallest product scope that achieves the goal]
+
+**Excluded support machinery:** [Layers, dependencies, harnesses, or infrastructure not needed]
+
+**Approved complexity:** [Complexity-escalation AR references, or `None`]
+
 ## Domain Glossary
 
 | Term | Definition |
@@ -147,7 +157,8 @@ for structured information (env vars, config keys, API endpoints).]
 ## Security Considerations
 
 > **🚨 This section is MANDATORY for every RD.** See your project's security
-> coding standards (AGENTS.md).
+> coding standards (AGENTS.md). Mark a line `N/A` with a short reason when the RD has no matching
+> exposure. Do not add security infrastructure only to populate this section.
 
 - **Data sensitivity**: [What sensitive data does this feature handle? PII, credentials, tokens, financial data?]
 - **Input validation**: [What user inputs exist? How are they validated and sanitized?]
@@ -171,7 +182,10 @@ for structured information (env vars, config keys, API endpoints).]
 - **Data Model Sketches**: for domain RDs, include conceptual entity relationships (not full SQL, but "A Project has many Participants. A Lab has many Equipment items.").
 - **Security & Privacy Annotations**: flag PII, encryption needs, consent tracking, GDPR relevance.
 - **Complexity Estimates**: tag each requirement section with estimated complexity (S/M/L/XL) to aid planning.
-- **Non-Functional RD (always)**: create one dedicated RD for non-functional requirements (performance targets, security, scalability, accessibility, availability, backup/recovery). Users frequently forget these.
+- **Non-Functional Requirements**: keep local performance, security, scalability, accessibility,
+  availability, and recovery criteria in the RD that owns the behavior. Create a dedicated RD only
+  when several features share one measurable cross-cutting contract and the user has approved any
+  resulting complexity escalation.
 
 ## 3.4B 🚨 Acceptance Criteria Specificity — NON-NEGOTIABLE
 
@@ -277,4 +291,6 @@ Before finalizing, run through commonly forgotten requirements:
 > **🚨 Items 26–33 are NON-NEGOTIABLE** — they must be addressed in every
 > project. See your project's security coding standards (AGENTS.md) for the full
 > standard. Acceptance criteria for these map to your project's testing standards
-> (AGENTS.md).
+> (AGENTS.md). `N/A` is valid only with a concrete reason. Addressing an item does not authorize a
+> new service, framework, or infrastructure surface; that still requires the Complexity Escalation
+> Gate when triggered.

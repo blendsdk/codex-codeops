@@ -80,16 +80,25 @@ either way.
 Task completion is **two-stage**: `[~]` = implemented (crash-safe progress mark), `[x]` = verified
 complete. For each task, in order:
 
-1. Implement the task following the technical specifications. **The code and doc comments you
+1. Run the **minimum-sufficient checkpoint** before editing. Compare the intended work with the
+   original goal, established project patterns, relevant approved complexity AR/PF/RV decisions,
+   and the smallest viable implementation. If it triggers the Complexity Escalation Gate in
+   `_shared/zero-ambiguity-gate.md`, mark the task `[!]`. For a T-NN mini-plan, preserve the current
+   diff without marking it verified and switch to the full standalone-plan path before dispatching
+   the challenger, presenting the packet, or accepting a decision; its
+   `00-ambiguity-register.md` owns the decision. For a full plan, dispatch the required blind
+   challenger, present the complete visible stop packet, and wait for explicit user approval.
+   Auto-design, auto-commit, or a generic finding ruling cannot approve the larger option.
+2. Implement the task following the technical specifications. **The code and doc comments you
    write must never reference the plan, requirements, `codeops/`, or any RD/AR/task ID** — those
    files are ephemeral; the shipped code must stand on its own (per the standards' Documentation
    ban). Restate any rationale you drew from the plan in plain language instead.
-2. **🚨 Immediately update `99-execution-plan.md`** — mark the task `[~]` with a timestamp
+3. **🚨 Immediately update `99-execution-plan.md`** — mark the task `[~]` with a timestamp
    (`- [~] 1.1.1 … ⏳ (implemented: YYYY-MM-DD HH:MM)`, timestamp via `date '+%Y-%m-%d %H:%M'`)
    and update the Progress header. Do this before running verification or anything else — if the
    session crashes now, the implementation progress is preserved and the resume session knows the
    task still needs verification.
-3. Run verification (your project's verify command — from the project's AGENTS.md, or detected
+4. Run verification (your project's verify command — from the project's AGENTS.md, or detected
    project conventions), with output captured per the **Verify-output capture rule** below.
    - **PASS** → before promoting, run the **documentation-standard self-check** below on the files
      this task changed. Missing documentation and leaked plan references are invisible to
@@ -137,14 +146,14 @@ complete. For each task, in order:
    Any hit inside a comment or doc comment is a leak — rewrite it per the standard (keep the
    behavior it annotated, drop the citation; restate any plan rationale in plain language) before
    marking the task `[x]`. Hits inside real code strings/paths the program actually uses are fine.
-4. Commit per the active commit mode (see [commit-modes.md](commit-modes.md)) — the commit gate
+5. Commit per the active commit mode (see [commit-modes.md](commit-modes.md)) — the commit gate
    keys off `[x]`, never `[~]`.
-5. **Post-phase quality step (after each phase, profile-gated):** when the phase's last task has
+6. **Post-phase quality step (after each phase, profile-gated):** when the phase's last task has
    verified, run the quality step below before anything else starts.
-6. **Techdocs check (after each phase):** if techdocs exist and the just-completed phase
+7. **Techdocs check (after each phase):** if techdocs exist and the just-completed phase
    introduced architectural changes (new components, data entities, API endpoints, integrations,
    or infrastructure), perform an incremental techdocs update via the techdocs skill.
-7. Continue until all tasks are complete. Codex auto-compacts context, so there is no
+8. Continue until all tasks are complete. Codex auto-compacts context, so there is no
    manual context-threshold handling — just keep going.
 
 ### Post-phase quality step (profile-gated)
@@ -177,7 +186,17 @@ whole-task diff. Activation rules, packets, supersession, and caps are defined i
    Before merging, apply `_shared/scope-expansion-control.md`: a necessary correction or blocking
    uncertainty remains a finding, while an optional remediation is omitted in strict scope or
    moved to a separate `SE-*` proposal in exploration mode. A finding ruling never chooses `Keep`.
-4. **Record decisions durably** in the finding artifact after each ruling batch.
+   For escaped complexity, first dispatch the blind design challenger and then use the complete
+   visible packet from `_shared/zero-ambiguity-gate.md`. Explicit approval of the named larger
+   machinery resolves the finding without a code change. Choosing the smaller design, revision, or
+   deferral stays blocked until the code changes and passes re-review.
+   For a T-NN mini-plan, stop before presenting or accepting a complexity decision: mark the task
+   `[!]`, preserve the diff without marking it verified, and switch to the full standalone-plan
+   path. The new `00-ambiguity-register.md` owns the packet and decision. Resume only after that
+   plan's gates pass.
+4. **Record decisions durably** in the finding artifact after each ruling batch. When the user
+   approves larger machinery, also append a `Technical (complexity escalation)` runtime AR with
+   every approval-evidence field required by the shared gate; the RV finding references that AR.
 5. **Accepted fixes:** implement → verify → follow-up commit per the commit mode. If any 🔴/🟠
    fix was applied, dispatch ONE re-review scoped to the fix diff — never a third pass. A fix
    the re-review still rejects is reported. Normal mode returns the ruling to the user; active
@@ -244,6 +263,10 @@ they are silent in strict scope or use the Scope Expansion Register during explo
 This applies to ALL ambiguities — architectural, behavioral, naming, formatting, UX, error
 handling. Never fill gaps by guessing.
 
+A runtime complexity escalation always uses reserved authority. Its required challenger and
+visible stop packet come from `_shared/zero-ambiguity-gate.md`. Record an approved larger option as
+`Technical (complexity escalation)`. If the user defers it, keep it out of executable work.
+
 ---
 
 ## Execution mode — inline first (routing-aware)
@@ -267,9 +290,13 @@ receives nothing else and must not need anything else:
 - the phase's task lines, Deliverables, and Verify lines verbatim from `99-execution-plan.md`;
 - the relevant excerpts of the governing `03-XX` spec documents (the excerpts, not filenames);
 - the applicable ST-cases from `07-testing-strategy.md`;
-- the AR decisions that bear on the phase (quoted rows, not the whole register);
+- the AR decisions that bear on the phase and any relevant approved complexity PF/RV decisions
+  (quoted entries, not whole reports);
+- the original goal and smallest viable design from `00-index.md`, or the session-derived legacy
+  baseline when the plan predates that section;
 - the scope mode (`strict` or `explore`) and confirmed product scope baseline; missing or invalid
-  scope context fails closed to strict mode;
+  scope context fails closed to strict mode. Missing or invalid original-goal or smallest-design
+  context blocks dispatch;
 - the target file paths and the project's verify command.
 
 Excerpting owned content into a packet is the intended retrieval mechanism, not restatement. The

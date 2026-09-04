@@ -42,6 +42,23 @@ remain user-owned. Auto-design does not authorize implementation, scope expansio
 pushes, or deployment. Child workflows may inherit less authority, never more; unsupported
 children fail closed.
 
+## Complexity approval
+
+CodeOps uses the smallest viable design as its baseline. A material new layer, dependency,
+framework, test harness, support system, or infrastructure surface causes a visible stop. An
+independent challenger compares it with the original goal and the smaller alternative. CodeOps
+shows the reason, evidence, and added maintenance cost. The larger design remains blocked until the
+user approves that specific machinery. `--auto-design` cannot approve it.
+
+If unapproved complexity reaches preflight or phase review, it is at least a major finding. CodeOps
+reuses its existing ambiguity and finding records; it does not create a separate complexity system.
+
+## Operator communication
+
+CodeOps uses plain international English in user-facing text. It prefers short sentences and common
+words, defines uncommon technical terms, and avoids idioms or dense grammar. Exact commands and
+technical identifiers stay unchanged.
+
 ## Scope expansion control
 
 Strict scope is the default for planning, preflight, and execution. Reviewers close defects,

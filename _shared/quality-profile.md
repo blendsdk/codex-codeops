@@ -76,7 +76,7 @@ returning empty output.
 | Condition | Effect |
 |-----------|--------|
 | No structured profile | Strict defaults: one correctness review for every non-trivial executed phase |
-| `quality.independentReview: false` | Allowed only outside strict mode; announce that independent review is disabled |
+| `quality.independentReview: false` | Allowed only outside strict mode; announce that routine independent review is disabled. This never disables a required Complexity Escalation Gate challenger after an escalation is detected. |
 | Independent review on | Post-phase quality review runs for **all executed phases and task mini-plans** (whole-task diff); trivial tasks are never reviewed |
 | Docs-only diff | Phase reviewer still runs; security/perf auditors skip — the skip is logged, never silent |
 | Security risk tags active | Security auditor dispatches once per phase with the union of applicable checklists and supersedes the reviewer's security lens |
@@ -98,10 +98,10 @@ or response content.
 
 | Agent | Packet contents (the agent receives nothing else and must need nothing else) |
 |-------|------------------------------------------------------------------------------|
-| phase-reviewer, security-auditor, perf-auditor | Phase diff (`git diff <phase-start-ref>..HEAD`), the phase's task + Deliverable lines, active lenses, scope mode (`strict` or `explore`), confirmed scope baseline, profile excerpt, verify command + last result |
-| plan-task-executor, plan-task-executor-opus | Phase task + Deliverable + Verify lines, governing spec/ST/AR excerpts, target paths, scope mode (`strict` or `explore`), confirmed scope baseline, verify command |
+| phase-reviewer, security-auditor, perf-auditor | Phase diff (`git diff <phase-start-ref>..HEAD`), original goal + smallest viable design, relevant approved complexity AR/PF/RV excerpts, the phase's task + Deliverable lines, active lenses, scope mode (`strict` or `explore`), confirmed scope baseline, profile excerpt, verify command + last result |
+| plan-task-executor, plan-task-executor-opus | Phase task + Deliverable + Verify lines, governing spec/ST/AR excerpts, original goal + smallest viable design, relevant approved complexity PF/RV excerpts, target paths, scope mode (`strict` or `explore`), confirmed scope baseline, verify command |
 | spec-test-author | Spec excerpts + test cases, planned interface signatures from the plan documents, test framework/conventions, the FORBIDDEN implementation-file list, verify command (expected RED) |
-| preflight-auditor | The artifact under audit + ONE assigned dimension cluster + scope mode (`strict` or `explore`) + confirmed scope baseline |
+| preflight-auditor | The artifact under audit + ONE assigned dimension cluster + original goal + smallest viable design + relevant approved complexity AR/PF/RV excerpts + scope mode (`strict` or `explore`) + confirmed scope baseline |
 | design-challenger | Problem + candidate options, **without** the parent's preferred choice (per `_shared/recommendation-hardening.md`) |
 | codebase-scout | The factual questions, search hints, and the facts-only contract |
 

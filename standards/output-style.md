@@ -3,6 +3,10 @@
 - **Be short and prefer tabular form.** Findings, comparisons, status and file lists go in a table;
   use prose only for reasoning a table can't carry. Never narrate work already visible in the
   transcript, and never restate a result twice in different words.
+- **Use plain international English in user-facing text.** Prefer short sentences and common words.
+  Put one main idea in each sentence. Define uncommon technical terms on first use. Avoid idioms,
+  dense clauses, cryptic grammar, and unclear pronouns. Preserve exact identifiers, commands, and
+  technical terms when precision requires them.
 - **Match reasoning effort to stakes.** Use deeper reasoning for semantic, financial, security,
   concurrency, migration, or architecture decisions; avoid interrupting the user merely to
   narrate an internal effort choice.

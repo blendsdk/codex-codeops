@@ -24,6 +24,10 @@ Before scanning, you MUST:
    [../../_shared/scope-expansion-control.md](../../_shared/scope-expansion-control.md), record
    strict or exploration mode, and separate defects in the authorized target from optional new
    functionality suggested by the reviewer.
+8. **Load the minimum-sufficient baseline** — use `requirements/README.md` for a requirements set
+   or `00-index.md` for a full plan. For a legacy artifact without that section, derive the
+   original goal and smallest viable design only from explicit artifact statements and repository
+   evidence. If either is unclear, record a blocking ambiguity or finding; do not infer it.
 
 ## Step 2: Codebase Reconnaissance — 🚨 NON-NEGOTIABLE
 
@@ -114,14 +118,19 @@ Scope Expansion Register without counting them as findings.
 | 3 | **Logical Contradictions** | Statements that conflict — across documents, sections, or within a paragraph. Inconsistent decisions, conflicting constraints |
 | 4 | **Completeness Gaps** | Missing requirements, journeys, error handling, edge cases, or acceptance criteria needed by the authorized behavior; do not treat adjacent optional functionality as missing. **Codebase check:** existing code/tests/functionality affected by the requested changes but not mentioned — missing impact analysis |
 | 5 | **Dependency Issues** | Circular/missing dependencies, dependencies on undefined components, tasks referencing not-yet-created entities, broken chains. **Codebase check:** verify referenced dependencies against the actual manifest and import graph — exist? right versions? undeclared deps relied on? |
-| 6 | **Feasibility Concerns** | Tasks possibly impossible/unrealistic, underestimated complexity, approaches incompatible with the stated stack, tasks too large to do atomically. **Codebase check:** verify approaches against the actual architecture — will it work with how the code is structured? Do estimates match the real code? Unaccounted-for architectural constraints? |
+| 6 | **Feasibility Concerns** | Tasks possibly impossible/unrealistic, underestimated complexity, approaches incompatible with the stated stack, tasks too large to do atomically, or support machinery whose cost is disproportionate to the requested result. **Codebase check:** verify approaches against the actual architecture — will it work with how the code is structured? Do estimates match the real code? Does evidence show why the smallest direct solution fails? |
 | 7 | **Testability** | Requirements/tasks with no clear way to verify success, vague criteria ("should work well"), missing test specs, untestable acceptance criteria |
 | 8 | **Security Blind Spots** | Security defects that make the authorized behavior unsafe; distinguish a necessary correction from optional defense-in-depth functionality using grounded causal evidence |
 | 9 | **Edge Cases** | Boundary conditions and failure modes of the authorized behavior; do not invent adjacent journeys merely to fill the checklist |
-| 10 | **Scope Creep Indicators** | Existing artifact content that exceeds the confirmed baseline, unbounded tasks ("support all formats"), gold-plating, or premature optimization; newly imagined optional additions are silent or `SE-*` proposals, not findings |
+| 10 | **Scope Creep Indicators** | Existing artifact content that exceeds the confirmed baseline, unbounded tasks ("support all formats"), gold-plating, premature optimization, or a material new layer/dependency/harness/infrastructure surface without explicit complexity approval; newly imagined optional additions are silent or `SE-*` proposals, not findings |
 | 11 | **Ordering & Sequencing** | Tasks in wrong order, phases that should swap, work planned before its dependencies exist, missing foundation work. **Codebase check:** verify order against the actual dependency graph — real module boundaries, import chains, build dependencies |
 | 12 | **Consistency** | Naming inconsistencies across documents, conflicting conventions, terminology drift (same thing, different names), formatting that obscures meaning |
 | 13 | **Codebase Alignment** | **The master reality check.** Entirely codebase-grounded — see below |
+
+For Dimensions 6 and 10, apply the **Complexity Escalation Gate** in
+[../../_shared/zero-ambiguity-gate.md](../../_shared/zero-ambiguity-gate.md). An unapproved
+escalation is at least a 🟠 MAJOR finding and blocks a pass. Identify the smallest viable solution
+and the extra build and maintenance surface; do not treat sophistication as evidence of need.
 
 ### Dimension 13: Codebase Alignment — detailed sub-checks
 

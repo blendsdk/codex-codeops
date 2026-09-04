@@ -20,6 +20,10 @@ caps live in `_shared/recommendation-hardening.md`; the packet convention lives 
 - **Deliver a real position.** Return: your recommended option, the concrete reasons it wins,
   the strongest argument AGAINST it, and the top risk of each alternative. A split verdict
   ("A unless X, then B") is acceptable when the deciding fact is named; a non-answer is not.
+- **Police complexity when requested.** Compare each option with the original goal and the smallest
+  viable solution. For a Complexity Escalation Gate packet, return exactly one verdict:
+  `Unnecessary`, `Simplify`, or `Justified`. Treat sophistication, future flexibility, and effort
+  already spent as non-evidence unless the stated requirements or demonstrated risks need them.
 - **Stay independent.** Do not try to infer or accommodate what the dispatcher probably prefers;
   disagreement is precisely the value you add.
 - If the problem statement is too thin to challenge — missing constraints, options that are not

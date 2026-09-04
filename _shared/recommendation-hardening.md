@@ -132,7 +132,10 @@ context inherits the same blind spots. Run it **tiered by stakes**:
      note `Challenger: diverged — <how>`. Never silently overwrite either side.
 
 > **Fallback.** If the challenger subagent is unavailable or returns nothing usable, proceed with
-> Layers 1–3, disclose `Challenger: unavailable`, and **cap confidence at Med**.
+> Layers 1–3, disclose `Challenger: unavailable`, and **cap confidence at Med**. Exception: a
+> detected complexity escalation cannot proceed. The Complexity Escalation Gate requires an
+> independent verdict, so it stays blocked when the challenger is unavailable or its budget is
+> exhausted.
 
 ## High-stakes definition (the escalation trigger)
 
@@ -142,6 +145,7 @@ A recommendation is **high-stakes** — and therefore gets the challenger — wh
   challenger per preflight scan, see the budget above); or
 - it is a **make-plan** (Phase 1C) or **make-requirements** (Phase 2B) gate decision tagged
   **complex/sensitive** (the project routing tags); or
+- it triggers the shared **Complexity Escalation Gate**, regardless of routing tag; or
 - the **user explicitly requests a challenger** for a decision, in any skill.
 
 Everything else — minor/observation findings, trivial/standard-tagged decisions, ad-hoc choices —

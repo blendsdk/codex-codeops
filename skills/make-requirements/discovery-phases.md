@@ -65,8 +65,16 @@ and [System C]. Here are features from those systems that might be relevant:
 - Always name the comparable systems.
 - Group features by domain area, not by source system.
 - **Include features the user did NOT mention** — that's the whole point.
-- Don't overwhelm: 5–8 features per category, max 6–8 categories.
+- Present only the most relevant gaps first: normally 2–5 features in each relevant category.
+  Expand a category when the user asks or the domain evidence shows a material omission. Do not
+  fill a quota.
 - Include the rationale for why each feature might be relevant.
+- Treat every extracted feature as optional until the user chooses `Want`; comparable systems are
+  evidence for discovery, not authority to enlarge this product.
+- If an optional candidate may require material support machinery, add a short possible-cost note
+  to its description and batch it with related candidates. Do not run the full Complexity
+  Escalation Gate while it is still `Maybe` or unselected. Run the gate only after the user chooses
+  `Want` or otherwise confirms the candidate in scope, and before it becomes executable.
 
 ### 1.4 User Journey Walkthroughs
 
@@ -75,7 +83,7 @@ For each key user type (from 1.2), walk through their complete journey as a narr
 ```
 "A [Role] wants to [goal]. They start by [action]. The system shows [what].
 They then [action]. At this point, they need to [requirement]. But wait —
-what if [edge case]? That means we also need [discovered requirement]."
+what if [edge case]? This may need [candidate requirement]. Should it be in scope?"
 ```
 
 This surfaces requirements that fall between the cracks of isolated feature
@@ -158,21 +166,21 @@ project's definition differs from common usage. The glossary goes into
 Break the confirmed scope into numbered RDs.
 
 **Decomposition heuristics:**
-- **Infrastructure / Scaffolding** is always RD-01 (project setup, toolchain, Docker, CI).
-- **Data Layer** comes early (schema, migrations) — most features depend on it.
-- **Core Domain Modules** get one RD each (main business entities + their CRUD/lifecycle).
-- **Cross-cutting Concerns** get their own RDs (auth, RBAC, notifications, search, audit).
-- **External Integrations** get their own RDs (OIDC, payment, email, file storage).
-- **User-Facing Concerns** get their own RDs (public pages, dashboards, workflows).
-- **Quality & Operations** are last (testing strategy, deployment, monitoring).
-- **Non-functional requirements** get a dedicated RD.
+- Start with the smallest set of independently useful, testable RDs that covers confirmed scope.
+- Fold project setup, toolchain, and ordinary tests into the first owning RD unless they are an
+  independently deliverable workstream.
+- Give a data layer, cross-cutting concern, integration, UI area, or domain module its own RD only
+  when its behavior and acceptance criteria form a coherent contract. Otherwise keep it with the
+  feature that owns it.
+- Put cross-cutting non-functional requirements in a dedicated RD only when several features share
+  one measurable contract. Keep local performance, security, accessibility, availability, and
+  operations criteria in their owning RDs.
+- Order the resulting RDs by real dependency. Do not create scaffolding, deployment, monitoring,
+  or other support work only to match a standard document sequence.
 
 **Sizing guidance:**
-| Project Size | Typical RD Count | Example |
-|---|---|---|
-| Small (CLI tool, library) | 3–5 | Scaffolding, Core, API, Testing |
-| Medium (API, single-domain app) | 6–10 | Scaffolding, DB, Auth, Domain×3, Testing, Deployment |
-| Large (SaaS, multi-domain) | 10–20 | Scaffolding, DB, Auth, Domain×6, Cross-cutting×3, Quality×2 |
+RD count follows the confirmed behavior and coherent document boundaries. It is not a target. If
+one RD can state the behavior clearly and remain reviewable, do not split it to satisfy a template.
 
 ### 2.3 Dependency Graph
 

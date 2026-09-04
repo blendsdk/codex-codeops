@@ -71,7 +71,8 @@ These apply to all code I write unless this project's `AGENTS.md` overrides a sp
   abstractions, layers, dependencies, services, generalized frameworks, infrastructure, or
   future-proofing unless authorized requirements, existing project conventions, or demonstrated
   risks require them. Prefer modifying and reusing existing patterns. When multiple solutions are
-  correct, choose the smaller one.
+  correct, choose the smaller one. A proposed material support surface triggers the explicit
+  user-approval stop in `_shared/zero-ambiguity-gate.md`; `--auto-design` cannot approve it.
 - **Verify previous work** before building on it; confirm a task actually meets its acceptance criteria before calling it done.
 - **Grounded options & recommendations (NON-NEGOTIABLE).** Whenever you present options, choices, or recommendations — from analysis, defect/bug findings, a direction to fix a bug, requirements choices, plan-making, or plan execution:
   1. **Filter** — present only genuinely viable options; drop weakly-grounded options that realistically won't be chosen and never pad with strawmen. Present ≥2 options only when ≥2 are genuinely viable; when one path clearly dominates, present it alone, say it is the only viable one, and name what you rejected and why.

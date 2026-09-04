@@ -87,10 +87,15 @@ Determine the layout via **[../../_shared/layout-convention.md](../../_shared/la
 
 Not every change is a feature. Ad-hoc work (a bugfix, chore, small change) is a **task** (`T-NN`), and a *non-trivial* task gets a **single mini-plan**, not the full multi-document set. When the work is a task (see the routing rule in **[../../_shared/layout-convention.md](../../_shared/layout-convention.md)**):
 
-- Write **only** the mini-plan at the resolved task path (flat: `plans/<task-slug>/99-execution-plan.md`; nested: `codeops/features/<f>/plans/<task-slug>/99-execution-plan.md`) — an execution doc with an **Objective**, a short **task checklist**, and a **Verify** line. **No** `00–07` docs, **no** RD, **no** Zero-Ambiguity Gate.
+- Write **only** the mini-plan at the resolved task path (flat: `plans/<task-slug>/99-execution-plan.md`; nested: `codeops/features/<f>/plans/<task-slug>/99-execution-plan.md`) — an execution doc with an **Objective**, a **Smallest viable design**, a short **task checklist**, and a **Verify** line. **No** `00–07` docs, **no** RD, and no main Zero-Ambiguity Gate.
 - Stamp it `> **Type**: Task (lightweight) · **Feature**: <f> · **CodeOps Artifact Schema**: 1` and a `> **Progress**:` line (in flat layout drop the `**Feature**:` part).
 - Specification-first ordering still applies *when the task warrants tests* (e.g. a bugfix gets a regression test first); a trivial doc/config tweak may not.
 - A **trivial** task needs no plan at all — it is just a roadmap row + the commit (point the user to the roadmap skill, then do the work).
+- The shared Complexity Escalation Gate still applies before a mini-plan or direct trivial-task
+  execution. If the proposed approach triggers it, the task is not trivial: stop and run its
+  challenger and visible packet. An approved larger support surface means the work is no longer
+  lightweight. Use the full standalone-plan path below so the approval has an Ambiguity Register
+  owner. Do not add a second decision file to the mini-plan.
 
 Mini-plan shape:
 
@@ -102,6 +107,9 @@ Mini-plan shape:
 
 ## Objective
 Debounce the search box to 300ms to cut redundant queries.
+
+**Smallest viable design:** Reuse the existing input handler and timer utility; add no framework or
+shared debounce subsystem.
 
 ## Tasks
 - [ ] T-05.1 Write a spec test: rapid keystrokes ⇒ one query after 300ms
@@ -153,7 +161,7 @@ separately in the Scope Expansion Register and wait for `Keep`, `Defer`, or `Dis
 
 ## Phase 1B — Pre-Implementation Re-evaluation
 
-Before writing documents (and again before each execution phase), re-check: Completeness (all requirements + edge cases), Context/Reasoning (can you justify each phase?), Task Granularity (2–4h tasks, independently testable), Dependencies (documented, no cycles), Testing (every task has validation), Architecture (anything >700 lines? plan a split), Scope Boundaries, No Dead Code, and Security (every user-input path identified; injection/auth/authz/rate-limiting/data protection addressed). Re-evaluate when requirements change or new constraints surface.
+Before writing documents (and again before each execution phase), re-check: Completeness (all requirements + edge cases), Context/Reasoning (can you justify each phase?), Task Granularity (2–4h tasks, independently testable), Dependencies (documented, no cycles), Testing (every task has validation), Architecture (anything >700 lines? plan a split), Scope Boundaries, No Dead Code, and Security (every user-input path identified; injection/auth/authz/rate-limiting/data protection addressed). Establish the smallest viable design as the baseline. Run every material support surface beyond it through the shared Complexity Escalation Gate. Re-evaluate when requirements change or new constraints surface.
 Completeness, security, and edge-case review close the requested behavior; they do not authorize
 adjacent features. Apply the necessary-correction burden of proof before treating newly discovered
 work as required.
@@ -167,7 +175,13 @@ Register is created. No exceptions, no overrides, no "good enough."** Plans buil
 produce code the user did not ask for. Every item in every plan document must trace to an explicit,
 user-confirmed decision.
 
-The mechanism is the **Ambiguity Register** (`00-ambiguity-register.md`): a numbered inventory of every gap, ambiguity, unstated assumption, and open question, hunted systematically across all 12 categories. The full category checklist, register template, gate-enforcement rules, no-deferral policy, traceability requirement, surface-during-authoring rule, and interactions with the grill-me / upgrade-plan skills are in **[zero-ambiguity-gate.md](zero-ambiguity-gate.md)** — **read it now, before Phase 2.**
+The mechanism is the **Ambiguity Register** (`00-ambiguity-register.md`): a numbered inventory of every gap, ambiguity, unstated assumption, and open question, hunted systematically across all 12 categories. The full category checklist, register template, gate-enforcement rules, named-deferral policy, traceability requirement, surface-during-authoring rule, and interactions with the grill-me / upgrade-plan skills are in **[zero-ambiguity-gate.md](zero-ambiguity-gate.md)** — **read it now, before Phase 2.**
+
+That shared protocol also owns the always-active **Complexity Escalation Gate**. A new layer,
+dependency, harness, framework, infrastructure surface, cross-cutting refactor, or other material
+support mechanism is blocked until its visible stop packet receives an independent challenger
+verdict and explicit user approval. Record it as `Technical (complexity escalation)`. Auto-design
+cannot approve the larger option.
 
 When opt-in outcome metrics are enabled, record only the enumerated planning result and aggregate
 round/decision counts. Never store feature names, questions, decisions, or artifact content.
@@ -202,6 +216,9 @@ decisions remain user-owned.
    In normal mode get the user's decision; with active auto-design resolve an eligible technical
    item under the shared policy or escalate a reserved item. Only then resume
    (surface-during-authoring rule — see [zero-ambiguity-gate.md](zero-ambiguity-gate.md)).
+7. If authoring introduces or enlarges a material support surface, STOP and rerun the shared
+   Complexity Escalation Gate. Prior approval covers only the machinery and cost recorded in its
+   packet.
 
 **Authoring convergence:** after two post-gate ambiguity batches, pause document creation and
 reconfirm the planning target, context artifacts, and modification set. The user chooses whether

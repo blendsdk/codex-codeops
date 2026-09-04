@@ -47,7 +47,9 @@ Do not duplicate these standards in `~/.codex/AGENTS.md` — the plugin injects 
   requirements and existing project conventions. Do not add abstractions, layers, dependencies,
   services, generalized frameworks, infrastructure, or future-proofing unless authorized
   requirements, existing project conventions, or demonstrated risks require them. Prefer modifying
-  and reusing existing patterns; when multiple solutions are correct, choose the smaller one.
+  and reusing existing patterns; when multiple solutions are correct, choose the smaller one. A
+  proposed material support surface triggers the explicit user-approval stop in
+  `_shared/zero-ambiguity-gate.md`; `--auto-design` cannot approve it.
 - **Grounded options & recommendations (NON-NEGOTIABLE):** Filter (only genuinely viable options,
   no strawmen; ≥2 only when ≥2 are viable) → Second-guess each → Ground in the code (cite
   `file:line`; say so if unverified) → Recommend (lead with it and a concrete reason; you

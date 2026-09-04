@@ -2,6 +2,16 @@
 
 All notable changes to CodeOps for Codex are recorded here.
 
+## Unreleased
+
+- Add an always-active Complexity Escalation Gate that requires a visible cost-and-evidence packet,
+  an independent challenger, and explicit user approval before material support machinery enters
+  requirements, plans, or implementation.
+- Make escaped complexity a blocking major finding, reserve escalation approval to the user even
+  under `--auto-design`, and reuse existing ambiguity and finding records instead of adding a new
+  lifecycle or configuration system.
+- Use plain international English in user-facing CodeOps responses.
+
 ## 1.1.0 — 2026-08-30
 
 - Show a deterministic ten-cell progress bar after every verified `exec-plan` task, including exact

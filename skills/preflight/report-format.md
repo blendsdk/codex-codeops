@@ -48,6 +48,13 @@ Every finding gets a numbered, structured entry.
   spawns per scan. Close findings with the `Confidence:` / `Hardening:` disclosure where that
   protocol requires it (Med/Low confidence, changed pick, or high stakes — presentation-only,
   not a required saved field).
+- **Complexity escalations use the shared visible stop packet, not the ordinary compact finding
+  presentation.** Include and persist every approval-evidence field from the shared gate: original
+  goal, named extra system or support code, why it may be needed, codebase evidence, smallest
+  solution that still works, extra cost, independent verdict, and direct user decision. The larger
+  option remains blocked until the user explicitly chooses to approve that named machinery.
+  Generic finding acceptance does not approve it. The `PF-*` finding is the durable owner at
+  preflight.
 - **Findings are numbered sequentially by root cause** — `PF-001`, `PF-002`, ... A reopened root
   cause retains its identifier across iterations; a new root cause gets the next unused number.
 - **Location must be specific** — "plans/my-feature/03-api-design.md, section 'Error Handling'", not
@@ -126,6 +133,11 @@ re-presented for decision: record it as `Accepted Risk — deferred per AR #N` (
 the resolving AR #) and move on. Re-litigating decisions the user already made is a protocol
 violation, not thoroughness.
 
+**Complexity exception:** a deferred complexity decision is accepted risk only when the larger
+machinery is absent from the audited executable artifact. If it remains present, keep the finding
+open at 🟠 MAJOR until the artifact is changed and rechecked. Do not ask the user to decide the
+same deferral again.
+
 ### Agent behavior during resolution
 
 | User says | Agent response |
@@ -133,8 +145,13 @@ violation, not thoroughness.
 | "Fix it per your recommendation" | Record `Resolved — User accepted recommendation: [Option X]`. Valid. |
 | "Go with Option A" | Record `Resolved — User chose Option A`. |
 | "This isn't actually an issue" | Record `Dismissed — User: "[reasoning]"`. Valid — only the user can dismiss. |
-| "I'll fix this later" | Ask to record as a known accepted risk (won't block the pass but noted). If yes: `Accepted Risk — User deferred: "[reason]"` — the preflight face of the shared `⏸ Deferred` status (`_shared/zero-ambiguity-gate.md`); name the decision, owner, and revisit-trigger in the reason. |
+| "I'll fix this later" | Ask to record as a known accepted risk (won't block the pass but noted). If yes: `Accepted Risk — User deferred: "[reason]"` — the preflight face of the shared `⏸ Deferred` status (`_shared/zero-ambiguity-gate.md`); name the decision, owner, and revisit-trigger in the reason. For extra complexity, this applies only after the machinery is removed from the executable artifact and rechecked. |
 | "You decide" | "I've given my recommendation above. Confirm you'd like Option [X]?" — user MUST explicitly confirm. |
+
+For a complexity escalation, explicit approval of the named larger machinery resolves the finding
+without an artifact edit. Choosing the smaller solution, revising, or deferring the larger
+machinery keeps the finding blocked until the artifact is changed and rechecked. If the required
+challenger is unavailable, the finding stays blocked.
 
 ## Step 6: Determine pass/fail
 

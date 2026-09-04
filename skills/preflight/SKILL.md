@@ -130,7 +130,8 @@ net** — fresh eyes that catch what those gates missed and what evolved since.
 3. **13-dimension scan** — review the artifact across all 13 dimensions (below), every check
    informed by Step 2. Depth adapts by artifact type. Full detail in [dimensions.md](dimensions.md).
    Classify newly suggested work under the shared scope-expansion protocol before it can become a
-   finding or remediation.
+   finding or remediation. Apply the shared Complexity Escalation Gate to disproportionate support
+   machinery; an unapproved escalation is at least a 🟠 MAJOR finding and cannot pass.
 4. **Compile the Preflight Report** — every finding gets a numbered `PF-NNN` entry with severity.
    Templates and report header in [report-format.md](report-format.md).
 5. **Present findings & collect decisions** — grouped by severity and paced by the authoritative
@@ -282,6 +283,8 @@ checklist. Full safeguards in [report-format.md](report-format.md).
 - **Don't invent problems** — a clean pass is a valid, trustworthy outcome.
 - **Options must be real** — no strawman options to flatter a recommendation.
 - **Respect previous decisions** — don't re-litigate Ambiguity Register entries without new info.
+  A deferred complexity decision counts as accepted risk only when the named machinery is absent
+  from the audited executable artifact; otherwise keep a 🟠 MAJOR finding open.
 - **Cross-document awareness is contextual, not scope expansion** — read related documents to test
   the target, but keep findings, verdicts, modifications, and roadmap advancement within the audit
   scope contract.

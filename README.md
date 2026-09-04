@@ -71,6 +71,13 @@ stable `SE-*` entry and waits for your `Keep`, `Defer`, or `Discard` ruling. Onl
 executable work. `--auto-design`, finding acceptance, and permission to apply fixes never approve
 scope expansion.
 
+## Complexity approval
+
+CodeOps stops visibly before adding a material layer, dependency, framework, test harness, support
+system, or infrastructure surface beyond the smallest viable design. An independent challenger
+tests the claimed need against the original goal. The larger option needs explicit user approval;
+`--auto-design` cannot approve it. See [the complexity approval model](docs/concepts.md#complexity-approval).
+
 ## Installation
 
 Add the GitHub repository as a Codex marketplace, then install CodeOps:

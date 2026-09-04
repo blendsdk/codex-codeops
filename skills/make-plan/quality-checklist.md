@@ -11,6 +11,10 @@ Run this before finalizing the plan documents. The **Specification-First Testing
 - [ ] Strict scope contains no optional suggestions; exploration proposals remain non-executable
       until the user chooses `Keep`
 - [ ] The planned solution passes the coding standards' **minimum-sufficient design** rule
+- [ ] The plan states the smallest viable design; every larger material support surface is removed
+      or has an explicitly user-approved `Technical (complexity escalation)` AR entry
+- [ ] No complexity escalation relies on silence, generic recommendation acceptance,
+      `--auto-design`, a finding ruling, or permission to apply fixes as approval
 
 ## ✅ Granularity
 - [ ] Each task is one reviewable change: 1-3 files, ~50-150 lines, immediately testable
@@ -26,7 +30,8 @@ Run this before finalizing the plan documents. The **Specification-First Testing
 
 ## ✅ Testing
 - [ ] Every component has test requirements
-- [ ] E2E tests planned
+- [ ] E2E tests are planned when feasible and applicable; otherwise the plan records `N/A` with a
+      concrete reason and does not create a new harness only to satisfy the template
 - [ ] Test coverage goals defined
 
 ## ✅ Specification-First Testing — 🚨 NON-NEGOTIABLE
@@ -53,14 +58,18 @@ Run this before finalizing the plan documents. The **Specification-First Testing
 - [ ] No hardcoded secrets or credentials — secrets management strategy defined
 - [ ] Sensitive data encrypted at rest and in transit
 - [ ] Error responses expose no internal details (no stack traces, no DB schemas)
-- [ ] Infrastructure hardened (non-root containers, minimal base images, no secrets in images/CI)
+- [ ] Existing or required infrastructure is hardened (non-root containers, minimal base images,
+      no secrets in images/CI); projects with no infrastructure change record `N/A` rather than
+      inventing one
 - [ ] Security test cases included in the testing strategy
 
 ## ✅ Zero-Ambiguity (per Phase 1C) — 🚨 NON-NEGOTIABLE
 - [ ] Ambiguity Register (`00-ambiguity-register.md`) exists and is saved to disk
-- [ ] Every register entry has Status = `✅ Resolved` with an explicit user decision or a complete
-      auto-design delegated record
-- [ ] Zero deferred items — every ambiguity has a concrete answer
+- [ ] Every register entry has Status = `✅ Resolved` with an explicit user decision or a
+      complete auto-design delegated record, or a complete, explicitly user-approved `⏸ Deferred`
+      record
+- [ ] Every deferred decision is absent from executable plan content; deferred extra machinery is
+      absent from the plan
 - [ ] All decisions in plan documents have AR # back-references (only exceptions: universally obvious facts + zero-semantic-impact formatting)
 - [ ] No plan document contains AI-assumed defaults, inferred behaviors, or guessed specifications
 - [ ] Surface-during-authoring rule was followed — new ambiguities were added to the register and

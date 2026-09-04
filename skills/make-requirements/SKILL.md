@@ -54,7 +54,9 @@ You are NOT a passive interviewer. You are a **domain-aware consultant** that:
 5. **Validates** — cross-references all documents for gaps, inconsistencies, and missing concerns
 
 The user's input is NEVER the final requirements. The value of this skill is in
-**making incomplete ideas complete**.
+**making incomplete ideas complete**. Expansion produces choices for the user; it does not make
+every comparable-system feature, edge case, or support mechanism part of the product. Nothing new
+enters scope without the user's explicit choice.
 
 > **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes. In normal mode, the user decides; active auto-design resolves eligible technical decisions and escalates reserved ones. **Recommendation hardening:** apply `_shared/recommendation-hardening.md` — for **high-stakes** Phase 2B gate decisions (complex/sensitive-tagged) spawn one independent challenger and reconcile *before* presenting; for all consequential decisions run the in-context layers and close with the `Confidence:` / `Hardening:` disclosure.
 
@@ -125,7 +127,7 @@ discovery interview → comparable analysis → user journeys → edge cases →
 | **1. Discovery & Domain Analysis** | Vision interview, stakeholder mapping, comparable-systems analysis, user journeys, edge cases, scope confirmation | **`discovery-phases.md`** |
 | **2. Structuring** | Glossary, decompose into RDs, dependency graph, MVP-vs-full phasing, integration map | **`discovery-phases.md`** |
 | **2B. Zero-Ambiguity Gate** | Hard, non-negotiable gate — compile the Ambiguity Register, resolve every item with the user | **`zero-ambiguity-gate.md`** |
-| **3. Authoring** | Write README + RDs from templates; acceptance-criteria specificity; mandatory non-functional RD | **`templates.md`** |
+| **3. Authoring** | Write README + the minimum coherent RD set from templates; acceptance-criteria specificity; place non-functional criteria with their owner | **`templates.md`** |
 | **4. Validation** | Cross-reference check, "Did You Consider…" checklist, final verification, roadmap sync, summary | this file (below) + `templates.md` |
 
 ### Trigger modes for input (Phase 1 entry)
@@ -159,6 +161,15 @@ Throughout discovery, compile the **Ambiguity Register**. It is formally enforce
 at Phase 2B before any RD is written — see **`zero-ambiguity-gate.md`**. The
 register is saved permanently at **`requirements/00-ambiguity-register.md`** and
 every decision in every RD back-references its AR # entry.
+
+The shared **Complexity Escalation Gate** in that file is active from the first question. During
+discovery, an optional candidate remains non-executable until the user selects `Want`: annotate
+possible material layers, dependencies, harnesses, frameworks, or infrastructure, and batch those
+cost notes without stopping for approval. Once the user selects `Want` or otherwise confirms the
+candidate in scope, stop and present the visible approval packet after an independent challenge
+before it enters the requirements. Record any approved larger option as
+`Technical (complexity escalation)`. Auto-design may choose the smallest viable option but cannot
+approve the escalation.
 
 When opt-in outcome metrics are enabled, record only the enumerated requirements result and
 aggregate round/decision counts. Never store questions, decisions, names, paths, or content.
@@ -194,13 +205,17 @@ security items below). The full numbered table is in **`templates.md`**.
 ### 4.2B Zero-Ambiguity Final Verification 🚨
 
 - [ ] `00-ambiguity-register.md` exists and is saved to disk
-- [ ] Every entry has Status = "✅ Resolved" with an explicit user decision or a complete auto-design delegated record
-- [ ] Zero deferred items — every ambiguity has a concrete answer
+- [ ] Every entry has Status = `✅ Resolved` with an explicit user decision or a complete auto-design delegated record,
+      or a complete, explicitly user-approved `⏸ Deferred` record
+- [ ] Every deferred decision is absent from executable requirements; deferred extra machinery is
+      absent from all RDs
 - [ ] All RD decisions carry AR # back-references (only exceptions: universally obvious facts + zero-semantic-impact formatting)
 - [ ] No RD contains AI-assumed defaults, inferred behaviors, or guessed specs
 - [ ] The surface-during-authoring rule was followed (new ambiguities found while writing went through the register)
 - [ ] In normal mode, the user reviewed and confirmed the complete register; in auto-design mode,
       the register proves every delegated entry eligible and every reserved entry user-confirmed
+- [ ] Every material support surface is absent or has explicit user approval in a
+      `Technical (complexity escalation)` entry
 
 ### 4.3 Techdocs Update
 

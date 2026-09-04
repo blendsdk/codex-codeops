@@ -43,8 +43,14 @@ argument is the feature name; an optional flag selects the commit mode.
 
 Before modifying implementation files, directly confirm the plan has its required documents, the
 ambiguity register has no open material item, specification tests precede implementation, and no
-critical/major preflight finding remains unresolved. `99-execution-plan.md` is the only mutable
-task-progress authority:
+critical/major preflight finding remains unresolved. Also confirm every material support surface
+has specific complexity approval in an applicable AR/PF/RV decision.
+`99-execution-plan.md` is the only mutable task-progress authority:
+
+For a plan created before `00-index.md` gained its Minimum-Sufficient Baseline, derive the original
+goal and smallest viable design from its existing requirements, specifications, repository
+patterns, and approved decisions. Keep that session baseline in every dispatch packet. If it is not
+clear, use the runtime ambiguity gate; do not force a document migration or guess.
 
 - `[ ]` is not started;
 - `[~]` is implemented with verification pending;
@@ -100,6 +106,13 @@ plan** — same per-task loop, same real-time update mandate, same commit modes 
 smaller `99-execution-plan.md` (objective + checklist + verify, no `00–07` set). Specification-first
 ordering still applies *when the task warrants tests* (e.g. a bugfix's regression test).
 
+A complexity escalation ends the mini-plan path before any approval can become executable. Mark
+the affected task `[!]`, preserve any implementation diff without marking it verified, and switch
+to make-plan's full standalone-plan path. Its `00-ambiguity-register.md` owns the complete stop
+packet and direct user decision. Do not accept or store a complexity approval only in the
+mini-plan; resume execution only from the resulting full plan after its gates pass. This also
+applies when the escalation is first found by the post-task review.
+
 A **trivial task** has **no plan document** to run: do the work directly, then record it as a
 `T-NN` roadmap row + the commit (no execution-plan loop). The task model and routing rule live in
 **[../../_shared/layout-convention.md](../../_shared/layout-convention.md)** — the lane exists in both
@@ -136,7 +149,12 @@ silently upgrade.
 
 For each task, in order:
 
-1. **Implement** the task following the technical specs in `plans/$ARGUMENTS/`.
+1. **Run the minimum-sufficient checkpoint, then implement.** Compare the intended work with the
+   original goal and smallest viable solution. If it triggers the shared Complexity Escalation
+   Gate in `../../_shared/zero-ambiguity-gate.md`, mark the task `[!]`, run the independent
+   challenge, show the full visible stop packet, and wait for explicit user approval before adding
+   the larger machinery. Auto-design cannot approve it. Otherwise implement the task following the
+   technical specs in `plans/$ARGUMENTS/`.
 2. **🚨 Immediately update `99-execution-plan.md`** — completion marks are **two-stage**: mark the
    task `[~]` with an implemented-timestamp in its phase task list (or, in a pre-3.3.0 plan, in
    the Master Progress Checklist — see the protocol's dual-format detection) and bump the Progress
@@ -167,6 +185,12 @@ For each task, in order:
 > shared policy or escalate a reserved choice. Record the authorized resolution in
 > `00-ambiguity-register.md` (tag `(runtime)`), update affected plan documents, then resume.
 > Never guess.
+
+> **🚨 Complexity escalation during execution.** A material new layer, dependency, harness,
+> framework, infrastructure surface, cross-cutting refactor, or future-proofing is a reserved stop
+> even when the plan leaves implementation freedom. Apply the shared gate's prominent packet and
+> challenger requirement. Record an approved runtime escalation in the Ambiguity Register as
+> `Technical (complexity escalation)`.
 
 > **Grounded Options & Recommendations (coding standards → Working style) apply here.** Before presenting options/findings/recommendations: filter out non-viable ones (no strawmen; ≥2 only when ≥2 are genuinely viable, else present the single viable path and name what was rejected), second-guess each, verify any code-modifying option against the actual current code (cite `file:line`), and lead with a recommendation backed by grounded reasoning. Match ceremony to stakes. In normal mode, the user decides; active auto-design resolves eligible technical decisions and escalates reserved ones. Apply the recommendation-hardening protocol (`_shared/recommendation-hardening.md`) to consequential recommendations; escalate to an independent challenger only when the decision is genuinely high-stakes.
 
@@ -204,6 +228,8 @@ ruling is recorded in the durable finding artifact.
 > Reviewers receive the active scope mode. Optional remediations are omitted in strict scope and
 > become separate `SE-*` proposals during exploration; they are never accepted merely by a finding
 > ruling or auto-design resolution.
+> Escaped, unapproved complexity is at least a 🟠 MAJOR finding. It uses the shared Complexity
+> Escalation Gate and cannot be waived by `quality.independentReview: false` once detected.
 
 Step-by-step mechanics — the phase-start ref, spec-author dispatch, the post-phase quality step,
 and emission points — live in [execution-protocol.md](execution-protocol.md).

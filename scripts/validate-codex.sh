@@ -298,7 +298,32 @@ from pathlib import Path
 
 full_standards = Path('standards/coding-standards-full.md').read_text(encoding='utf-8')
 compact_standards = Path('standards/coding-standards.md').read_text(encoding='utf-8')
+output_style = Path('standards/output-style.md').read_text(encoding='utf-8')
+gate = Path('_shared/zero-ambiguity-gate.md').read_text(encoding='utf-8')
+gate_normalized = ' '.join(gate.split())
+auto_design = Path('_shared/auto-design.md').read_text(encoding='utf-8')
+hardening = Path('_shared/recommendation-hardening.md').read_text(encoding='utf-8')
+challenger = Path('agent-templates/design-challenger.md').read_text(encoding='utf-8')
+reviewer = Path('agent-templates/phase-reviewer.md').read_text(encoding='utf-8')
+quality_profile = Path('_shared/quality-profile.md').read_text(encoding='utf-8')
+requirements = Path('skills/make-requirements/SKILL.md').read_text(encoding='utf-8')
+requirements_discovery = Path('skills/make-requirements/discovery-phases.md').read_text(encoding='utf-8')
+requirements_templates = Path('skills/make-requirements/templates.md').read_text(encoding='utf-8')
+plan = Path('skills/make-plan/SKILL.md').read_text(encoding='utf-8')
 plan_checklist = Path('skills/make-plan/quality-checklist.md').read_text(encoding='utf-8')
+plan_templates = Path('skills/make-plan/templates.md').read_text(encoding='utf-8')
+preflight = Path('skills/preflight/SKILL.md').read_text(encoding='utf-8')
+preflight_dimensions = Path('skills/preflight/dimensions.md').read_text(encoding='utf-8')
+preflight_report = Path('skills/preflight/report-format.md').read_text(encoding='utf-8')
+execution = Path('skills/exec-plan/SKILL.md').read_text(encoding='utf-8')
+execution_protocol = Path('skills/exec-plan/execution-protocol.md').read_text(encoding='utf-8')
+executors = '\n'.join(
+    Path(path).read_text(encoding='utf-8')
+    for path in (
+        'agent-templates/plan-task-executor.md',
+        'agent-templates/plan-task-executor-opus.md',
+    )
+)
 
 for text in (full_standards, compact_standards):
     normalized = ' '.join(text.split())
@@ -306,10 +331,51 @@ for text in (full_standards, compact_standards):
     assert 'generalized frameworks' in normalized
     assert 'authorized requirements, existing project conventions, or demonstrated risks require them' in normalized
     assert 'choose the smaller one' in normalized
+    assert 'explicit user-approval stop' in normalized
 
 assert '**Minimum-sufficient design' in full_standards
 assert '**Do not overengineer:**' in compact_standards
 assert "coding standards' **minimum-sufficient design** rule" in plan_checklist
+assert '## Minimum-Sufficient Baseline' in plan_templates
+assert 'does not create a new harness only to satisfy the template' in ' '.join(plan_checklist.split())
+assert 'plain international English' in output_style
+
+for token in (
+    '## Complexity Escalation Gate (always active)',
+    '# 🚨 STOP — EXTRA COMPLEXITY NEEDS YOUR APPROVAL',
+    'Smallest solution that still works',
+    'Extra cost',
+    '`Unnecessary`, `Simplify`, or `Justified`',
+    'Technical (complexity escalation)',
+    'do not create a new register',
+    'at least a 🟠 MAJOR finding',
+    'bulk acceptance does not approve them',
+    'Every complexity decision owner must persist the full approval evidence',
+    'A complexity escalation cannot use this shortcut',
+    'An imported complexity decision counts as pre-resolved only',
+):
+    assert token in gate_normalized, token
+
+assert 'Auto-design may select the smallest viable implementation, but it cannot approve' in ' '.join(auto_design.split())
+assert 'regardless of routing tag' in hardening
+assert 'complexity escalation cannot proceed' in hardening
+assert 'Police complexity when requested' in challenger
+assert 'at least a 🟠 MAJOR standards finding' in reviewer
+assert 'never disables a required Complexity Escalation Gate challenger' in quality_profile
+assert 'preflight-auditor | The artifact under audit' in quality_profile
+assert 'original goal + smallest viable design + relevant approved complexity' in quality_profile
+
+for text in (requirements, plan, preflight, execution, execution_protocol, executors):
+    assert 'Complexity Escalation Gate' in ' '.join(text.split())
+
+assert 'Do not fill a quota' in ' '.join(requirements_discovery.split())
+assert 'RD count follows the confirmed behavior' in ' '.join(requirements_discovery.split())
+assert 'Create a dedicated RD only' in ' '.join(requirements_templates.split())
+assert 'An approved larger support surface means the work is no longer lightweight' in ' '.join(plan.split())
+assert 'Dimensions 6 and 10' in preflight_dimensions
+assert 'Generic finding acceptance does not approve it' in ' '.join(preflight_report.split())
+assert 'keeps the finding blocked until the artifact is changed and rechecked' in ' '.join(preflight_report.split())
+assert 'every approval-evidence field required by the shared gate' in ' '.join(execution_protocol.split())
 PY
 }
 

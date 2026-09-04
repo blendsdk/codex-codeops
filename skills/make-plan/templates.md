@@ -24,6 +24,7 @@ Every behavioral fact, decision, or specification lives in exactly ONE owning do
 | Fact type | Owning doc |
 |-----------|-----------|
 | Requirement / scope decision | the RD (when the plan implements one), else `01-requirements.md` |
+| Original goal and smallest viable design | `00-index.md` |
 | Design / architecture / signatures / error handling | the governing `03-XX` doc |
 | Expected test behavior (input→output) | `07-testing-strategy.md` (ST-cases) |
 | Resolved ambiguity | `00-ambiguity-register.md` (AR entries) |
@@ -51,6 +52,13 @@ excerpt at dispatch time — excerpting for a handoff packet is not restatement)
 ## Overview
 
 [2-3 paragraph description of what this feature does and why it's needed]
+
+## Minimum-Sufficient Baseline
+
+**Original goal:** [The requested outcome in one or two sentences]
+**Smallest viable design:** [The direct solution and existing patterns it reuses]
+**Excluded machinery:** [Only larger support surfaces actually considered, or `None`]
+**Approved complexity:** [AR references, or `None`]
 
 ## Document Index
 
@@ -289,7 +297,8 @@ With no RD upstream, `01-requirements.md` IS the owning requirements doc:
 | UI / glue / configuration | 60% |
 
 - Test names state behavior: `should [expected behavior] when [condition]`.
-- Integration tests: key workflows covered. E2E tests: complete feature verification.
+- Integration tests cover key workflows when applicable. E2E tests cover complete feature behavior
+  when feasible; otherwise record `N/A` and the concrete reason instead of building a new harness.
 - Adjust targets per project in `01-requirements.md` (an AR-referenced decision) — never
   silently.
 
@@ -521,3 +530,6 @@ Adapt the component documents to the project type:
 | **Database**       | Schema/Migration, Repository, Service, Tests   |
 | **Bug Fix**        | Root cause analysis, Fix, Regression test      |
 | **Refactoring**    | Current state, New structure, Migration, Tests |
+
+These are analysis lenses, not a required document count. Combine concerns when one clear,
+reviewable component specification can own them.

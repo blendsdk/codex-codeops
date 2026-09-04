@@ -56,6 +56,11 @@ destructive migration, credentials, spending, deployment/publication, destructiv
 external actions, external communication, and equally defensible designs that create materially
 different products.
 
+The shared Complexity Escalation Gate is also reserved authority. Auto-design may select the
+smallest viable implementation, but it cannot approve a larger layer, dependency, harness,
+framework, infrastructure surface, or other escalation. Only the user's explicit approval of the
+gate packet authorizes that larger option.
+
 `--auto-design` does not grant action permission. It does not authorize implementation outside the
 invoked workflow, file-scope expansion, commits, pushes, `--auto-commit`, installation, purchases,
 deployment, publication, destructive operations, credentials use, or external-system changes.
